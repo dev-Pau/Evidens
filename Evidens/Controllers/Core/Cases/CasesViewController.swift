@@ -19,14 +19,12 @@ private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifi
 private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let bodyCellReuseIdentifier = "BodyCellReuseIdentifier"
 
-class CasesViewController: NavigationBarViewController, UINavigationControllerDelegate {
+class CasesViewController: NavigationBarViewController {
     
     private var viewModel = PrimaryCasesViewModel()
     
     private var caseToolbar = CaseToolbar()
     private var spacingView = SpacingView()
-    
-    private var zoomTransitioning = ZoomTransitioning()
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -46,11 +44,6 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
         configureCollectionView()
         getCases()
         configureNotificationObservers()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.delegate = self
     }
     
     private func configureNotificationObservers() {
@@ -93,8 +86,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             guard let strongSelf = self else { return nil }
             
             if strongSelf.viewModel.forYouCases.isEmpty && strongSelf.viewModel.forYouLoaded {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIWindow.visibleScreenWidth * 0.6)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIWindow.visibleScreenWidth * 0.6)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 return section
             } else {
@@ -134,8 +127,8 @@ class CasesViewController: NavigationBarViewController, UINavigationControllerDe
             guard let strongSelf = self else { return nil }
             
             if strongSelf.viewModel.latestCases.isEmpty && strongSelf.viewModel.latestLoaded {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIWindow.visibleScreenWidth * 0.6)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIWindow.visibleScreenWidth * 0.6)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 return section
             } else {
@@ -475,7 +468,7 @@ extension CasesViewController: CaseCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView) { return }
 
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) { return }
    

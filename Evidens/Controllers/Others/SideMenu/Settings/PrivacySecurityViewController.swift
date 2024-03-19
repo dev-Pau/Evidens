@@ -131,9 +131,9 @@ extension PrivacySecurityViewController: UICollectionViewDelegateFlowLayout, UIC
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 1 {
-            let option = kind.subSetting[indexPath.row]
-            #warning("Crear un VC per anar a un VC per fer fetch dels usuaris bloquejats.")
-            
+            let _ = kind.subSetting[indexPath.row]
+            let controller = UserBlockViewController()
+            navigationController?.pushViewController(controller, animated: true) 
         } else if indexPath.section == 2 {
             let option = PrivacyKind.allCases[indexPath.row]
             switch option {

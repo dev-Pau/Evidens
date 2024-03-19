@@ -106,11 +106,12 @@ struct AppStrings {
         static let lineRightArrow = "arrow.right.to.line"
         static let circleEllipsis = "ellipsis.circle"
         static let car = "car"
-        static let compass = "compass"
+        static let compass = "line.3.horizontal"
         static let cropPerson = "person.crop.rectangle"
         static let rectangle = "rectangle"
         static let eyeGlasses = "eyeglasses"
         static let fillEuropeGlobe = "globe.europe.africa.fill"
+        static let globe = "globe"
         static let checkmark = "checkmark"
         static let magnifyingglass = "magnifyingglass"
         static let graduationcap = "graduationcap"
@@ -129,7 +130,7 @@ struct AppStrings {
         static let cross = "cross"
         static let filter = "slider.horizontal.3"
         static let squareOnSquare = "square.on.square"
-        static let network = "network"
+        static let network = "person.2.fill"
         static let fillBell = "bell.fill"
         static let clipboard = "list.clipboard.fill"
     }
@@ -272,7 +273,7 @@ struct AppStrings {
             static let reportPost = "Are you sure you want to report this Post to our moderation team?".localized(key: "alerts.subtitle.reportPost")
             static let deactivate = "Your account will be deactivated.".localized(key: "alerts.subtitle.deactivate")
             static let deactivateWarning = "Your account will be deactivated. Please, type DEACTIVATE to confirm.".localized(key: "alerts.subtitle.deactivateWarning")
-            static let faces = "One or more face(s) have been detected. Please review your images to ensure patient privacy is protected.".localized(key: "alerts.subtitle.faces")
+            static let faces = "One or more face(s) have been detected. Please review your images or let us handle it for you.".localized(key: "alerts.subtitle.faces")
             static let unfollowPre = "Stop seeing posts from".localized(key: "alerts.subtitle.unfollowPre")
             static let unfollowPost = "on your feed.".localized(key: "alerts.subtitle.unfollowPost")
             static let unfollowAction = "won't be notified that you've unfollowed.".localized(key: "alerts.subtitle.unfollowAction")
@@ -315,12 +316,6 @@ struct AppStrings {
         static let postAdded = "Your post has been sent".localized(key: "popUp.postAdded")
         static let postModified = "Your post has been modified".localized(key: "popUp.postModified")
         static let deletePost = "Your post has been deleted".localized(key: "popUp.deletePost")
-        
-        static let websiteAdded = "Website added to your profile".localized(key: "popUp.websiteAdded")
-        static let websiteRemoved = "Website removed from your profile".localized(key: "popUp.websiteRemoved")
-        
-        static let aboutAdded = "About information added to your profile".localized(key: "popUp.aboutAdded")
-        static let aboutRemoved = "About information removed from your profile".localized(key: "popUp.aboutRemoved")
         
         static let follow = "You are now following".localized(key: "popUp.follow")
         static let unfollow = "You are no longer following".localized(key: "popUp.unfollow")
@@ -440,6 +435,9 @@ struct AppStrings {
     struct Block {
         static let message = "will no longer be able to follow or connect with you, and you will not see notifications from".localized(key: "block.message")
         static let unblock = "will now be able to follow or connect with you, and you will see notifications from".localized(key: "block.unblock")
+        
+        static let emptyTitle = "Block unwated accounts".localized(key: "block.emptyTitle")
+        static let emptyContent = "When you block someone, they won't be able to follow or connect with you, and you won't see notifications from them.".localized(key: "block.emptyContent")
     }
     
     struct Content {
@@ -771,9 +769,11 @@ struct AppStrings {
             static let missmatch = "The two given passwords do not match".localized(key: "user.changes.missmatch")
             static let passLength = "Your password needs to be at least 8 characters. Please enter a longer one".localized(key: "user.changes.passLength")
             static let verifyRules = "We place a high priority on verifying our users, as we strongly believe in upholding a secure and trustworthy environment for all our members.".localized(key: "user.changes.verifyRules")
+            
             static let passwordId = "password"
-            static let googleId = "google.com".localized(key: "user.changes.googleId")
-            static let appleId = "apple.com".localized(key: "user.changes.appleId")
+            static let googleId = "google.com"
+            static let appleId = "apple.com"
+            
             static let loginGoogle = "This email is registered with Google services. Please log in using the Google option.".localized(key: "user.changes.loginGoogle")
             static let loginApple = "This email is registered with Apple services. Please log in using the Apple option.".localized(key: "user.changes.loginApple")
             static let accountPhase = "Phase".localized(key: "user.changes.accountPhase")

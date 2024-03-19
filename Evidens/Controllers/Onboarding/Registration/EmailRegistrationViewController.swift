@@ -180,7 +180,7 @@ extension EmailRegistrationViewController: FormViewModel {
 
 extension EmailRegistrationViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        let urlString = url.absoluteString
+        let _ = url.absoluteString
         
         #if DEBUG
         if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {

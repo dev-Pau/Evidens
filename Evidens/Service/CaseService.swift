@@ -1293,7 +1293,7 @@ extension CaseService {
         batch.setData(bookmarkData, forDocument: userRef)
         
         batch.commit { error in
-            if let error = error {
+            if let _ = error {
                 completion(.unknown)
             } else {
                 completion(nil)

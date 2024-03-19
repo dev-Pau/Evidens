@@ -130,4 +130,64 @@ extension BlockService {
             }
         }
     }
+    
+    static func getBlockUsers(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
+        
+        guard NetworkMonitor.shared.isConnected else {
+            completion(.failure(.network))
+            return
+        }
+
+        guard let uid = UserDefaults.getUid() else { return }
+        
+        if lastSnapshot == nil {
+            let ref = COLLECTION_BLOCKS.document(uid).collection("user-blocks").whereField("phase", isEqualTo: BlockPhase.block.rawValue).order(by: "timestamp", descending: true).limit(to: 15)
+            ref.getDocuments { snapshot, error in
+                
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                    return
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
+            }
+        } else {
+            let ref = COLLECTION_BLOCKS.document(uid).collection("user-blocks").whereField("phase", isEqualTo: BlockPhase.block.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15)
+              
+            ref.getDocuments { snapshot, error in
+                if let error {
+                    let nsError = error as NSError
+                    let _ = FirestoreErrorCode(_nsError: nsError)
+                    completion(.failure(.unknown))
+                    return
+                }
+                
+                guard let snapshot = snapshot, !snapshot.isEmpty else {
+                    completion(.failure(.notFound))
+                    return
+                }
+                
+                guard snapshot.documents.last != nil else {
+                    completion(.success(snapshot))
+                    return
+                }
+                
+                completion(.success(snapshot))
+            }
+        }
+        
+        
+    }
 }

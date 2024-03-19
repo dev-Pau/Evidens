@@ -204,7 +204,6 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
             
             if !viewModel.notifications[indexPath.row].isRead  {
                 viewModel.notifications[indexPath.row].set(isRead: true)
-                DataService.shared.read(notification: viewModel.notifications[indexPath.row])
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
                     strongSelf.collectionView.reloadData()
@@ -236,7 +235,6 @@ extension NotificationsViewController: NotificationCellDelegate {
             let controller = DetailsPostViewController(postId: contentId)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
             
         case .likeCase, .caseRevision, .caseDiagnosis:
@@ -244,17 +242,14 @@ extension NotificationsViewController: NotificationCellDelegate {
             let controller = DetailsCaseViewController(caseId: contentId)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
         case .connectionRequest:
             break
-        
         case .replyCase:
             guard let contentId = notification.contentId else { return }
             let controller = DetailsCaseViewController(caseId: contentId)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
             
         case .replyPostComment:
@@ -262,7 +257,6 @@ extension NotificationsViewController: NotificationCellDelegate {
             let controller = CommentPostRepliesViewController(postId: contentId, uid: uid, path: Array(path))
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
             
         case .replyCaseComment:
@@ -270,34 +264,29 @@ extension NotificationsViewController: NotificationCellDelegate {
             let controller = CommentCaseRepliesViewController(caseId: contentId, uid: uid, path: Array(path))
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
         case .likePostReply:
             guard let contentId = notification.contentId, let path = notification.path, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
             let controller = CommentPostRepliesViewController(postId: contentId, uid: uid, path: path)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
         case .likeCaseReply:
             guard let contentId = notification.contentId, let path = notification.path, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
             let controller = CommentCaseRepliesViewController(caseId: contentId, uid: uid, path: path)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
         case .connectionAccept:
             let controller = UserProfileViewController(uid: notification.uid)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
         case .caseApprove:
             guard let contentId = notification.contentId else { return }
             let controller = DetailsCaseViewController(caseId: contentId)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
-            DataService.shared.read(notification: viewModel.notifications[indexPath.row])
             collectionView.reloadData()
         }
     }
@@ -348,7 +337,6 @@ extension NotificationsViewController: NotificationCellDelegate {
         let controller = UserProfileViewController(uid: notification.uid)
         navigationController?.pushViewController(controller, animated: true)
         viewModel.notifications[indexPath.row].set(isRead: true)
-        DataService.shared.read(notification: viewModel.notifications[indexPath.row])
         collectionView.reloadData()
     }
 }

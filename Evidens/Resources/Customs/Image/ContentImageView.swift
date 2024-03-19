@@ -1,25 +1,28 @@
 //
-//  MEScrollImageView.swift
+//  ContentImageView.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 1/7/22.
+//  Created by Pau Fernández Solà on 18/3/24.
 //
 
 import UIKit
 
-protocol ZoomImageViewDelegate: AnyObject {
+protocol ContentImageViewDelegate: AnyObject {
     func isZoom(_ zoom: Bool)
 }
 
-class ZoomImageView: UIScrollView {
+class ContentImageView: UIScrollView {
+
+    private var heightLayoutConstraint: NSLayoutConstraint!
     
-    weak var zoomDelegate: ZoomImageViewDelegate?
+    weak var zoomDelegate: ContentImageViewDelegate?
     private var size = CGSize()
     
-    var zoomImageView: UIImageView = {
+    var imageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
+        iv.backgroundColor = .clear
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -33,12 +36,14 @@ class ZoomImageView: UIScrollView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         delegate = self
+        backgroundColor = .clear
         translatesAutoresizingMaskIntoConstraints = false
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
         decelerationRate = UIScrollView.DecelerationRate.fast
         minimumZoomScale = 0.1
         maximumZoomScale = 5.0
+        
     }
     
     override func layoutSubviews() {
@@ -46,29 +51,30 @@ class ZoomImageView: UIScrollView {
         centerImage()
     }
     
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     func display(image: UIImage) {
-        zoomImageView.removeFromSuperview()
-        zoomImageView = UIImageView(image: image)
-        addSubview(zoomImageView)
+        imageView.removeFromSuperview()
+        imageView = UIImageView(image: image)
+        addSubview(imageView)
         configureFor(image.size)
     }
-    
+
     func configureFor(_ imageSize: CGSize) {
         contentSize = imageSize
         setMaxMinZoomScaleForCurrentBounds()
         zoomScale = minimumZoomScale
         
-        zoomImageView.addGestureRecognizer(self.zoomingTap)
-        zoomImageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(self.zoomingTap)
+        imageView.isUserInteractionEnabled = true
     }
     
     func setMaxMinZoomScaleForCurrentBounds() {
         let boundsSize = self.bounds.size
-        let imageSize = zoomImageView.bounds.size
+        let imageSize = imageView.bounds.size
         
         let xScale =  boundsSize.width  / imageSize.width
         let yScale = boundsSize.height / imageSize.height
@@ -89,10 +95,9 @@ class ZoomImageView: UIScrollView {
         self.minimumZoomScale = minScale
     }
     
-    
     func centerImage() {
         let boundsSize = bounds.size
-        var frameToCenter = zoomImageView.frame 
+        var frameToCenter = imageView.frame
         
         if frameToCenter.size.width < boundsSize.width {
             frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width)/2
@@ -108,7 +113,7 @@ class ZoomImageView: UIScrollView {
             frameToCenter.origin.y = 0
         }
         
-        zoomImageView.frame = frameToCenter
+        imageView.frame = frameToCenter
     }
     
     func zoom(to point: CGPoint, animated: Bool) {
@@ -152,10 +157,10 @@ class ZoomImageView: UIScrollView {
 }
 
 
-extension ZoomImageView: UIScrollViewDelegate {
+extension ContentImageView: UIScrollViewDelegate {
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return zoomImageView
+        return imageView
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

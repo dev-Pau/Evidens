@@ -61,7 +61,7 @@ class SecondaryEmptyCell: UICollectionViewCell {
         super.init(frame: frame)
         backgroundColor = .systemBackground
         
-        let size: CGFloat = UIDevice.isPad ? UIScreen.main.bounds.width / 3.5 : UIScreen.main.bounds.width / 2.5
+        let size: CGFloat = UIDevice.isPad ? UIWindow.visibleScreenWidth / 3.5 : UIWindow.visibleScreenWidth / 2.5
         addSubviews(image, titleLabel, contentLabel, contentButton)
         NSLayoutConstraint.activate([
             image.topAnchor.constraint(equalTo: topAnchor, constant: 30),

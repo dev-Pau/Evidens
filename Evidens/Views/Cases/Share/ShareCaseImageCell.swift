@@ -27,7 +27,7 @@ class ShareCaseImageCell: UICollectionViewCell {
         return iv
     }()
     
-    lazy var deleteImageButton: UIButton = {
+    lazy var deleteButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
 
@@ -39,11 +39,11 @@ class ShareCaseImageCell: UICollectionViewCell {
         return button
     }()
     
-    lazy var editImageButton: UIButton = {
+    lazy var imageButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
 
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.paintbrush, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18))
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.exclamation, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 18, height: 18))
         button.configuration?.cornerStyle = .capsule
         button.configuration?.baseBackgroundColor = .black.withAlphaComponent(0.8)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -78,17 +78,10 @@ class ShareCaseImageCell: UICollectionViewCell {
     }
     
     func set(image: CaseImage) {
-        if let faceImage = image.faceImage {
-            if image.isRevealed == false {
-                cellImage.alpha = 0.3
-                cellImage.image = image.image
-                configureWithFaceImage(image.image)
-            } else {
-                cellImage.alpha = 1
-                cellImage.image = faceImage
-                configureWithCaseImage(faceImage)
-            }
-            
+        if image.containsFaces {
+            cellImage.alpha = 0.3
+            cellImage.image = image.image
+            configureWithFaceImage(image.image)
         } else {
             cellImage.alpha = 1
             cellImage.image = image.image
@@ -102,41 +95,40 @@ class ShareCaseImageCell: UICollectionViewCell {
     }
     
     private func configureWithCaseImage(_ image: UIImage) {
-
-        editImageButton.isHidden = true
+        imageButton.isHidden = true
         
-        addSubview(deleteImageButton)
+        addSubview(deleteButton)
         NSLayoutConstraint.activate([
-            deleteImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            deleteImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            deleteImageButton.heightAnchor.constraint(equalToConstant: 26),
-            deleteImageButton.widthAnchor.constraint(equalToConstant: 26)
+            deleteButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
+            deleteButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            deleteButton.heightAnchor.constraint(equalToConstant: 26),
+            deleteButton.widthAnchor.constraint(equalToConstant: 26)
         ])
     }
     
     private func configureWithFaceImage(_ image: UIImage) {
 
-        editImageButton.isHidden = false
+        imageButton.isHidden = false
 
-        addSubviews(editImageButton, deleteImageButton)
+        addSubviews(imageButton, deleteButton)
         
         NSLayoutConstraint.activate([
-            deleteImageButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
-            deleteImageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
-            deleteImageButton.heightAnchor.constraint(equalToConstant: 26),
-            deleteImageButton.widthAnchor.constraint(equalToConstant: 26),
+            deleteButton.topAnchor.constraint(equalTo: topAnchor, constant: 5),
+            deleteButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5),
+            deleteButton.heightAnchor.constraint(equalToConstant: 26),
+            deleteButton.widthAnchor.constraint(equalToConstant: 26),
             
-            editImageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            editImageButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-            editImageButton.heightAnchor.constraint(equalToConstant: 33),
-            editImageButton.widthAnchor.constraint(equalToConstant: 33)
+            imageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+            imageButton.centerXAnchor.constraint(equalTo: centerXAnchor),
+            imageButton.heightAnchor.constraint(equalToConstant: 33),
+            imageButton.widthAnchor.constraint(equalToConstant: 33)
         ])
     }
     
     func restartCellConfiguration() {
         cellImage.image = nil
-        deleteImageButton.removeFromSuperview()
-        editImageButton.removeFromSuperview()
+        deleteButton.removeFromSuperview()
+        imageButton.removeFromSuperview()
     }
     
     @objc func handleDelete() {

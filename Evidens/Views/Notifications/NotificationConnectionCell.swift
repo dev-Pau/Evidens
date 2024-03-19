@@ -63,17 +63,6 @@ class NotificationConnectionCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var profileButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = .plain()
-        button.configuration?.buttonSize = .mini
-        button.configuration?.cornerStyle = .capsule
-        button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
-        button.addTarget(self, action: #selector(handleProfile), for: .touchUpInside)
-        return button
-    }()
-    
     private lazy var separatorLabel: UILabel = {
         let view = UILabel()
         view.backgroundColor = separatorColor
@@ -91,7 +80,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         let imageSize: CGFloat = UIDevice.isPad ? 63 : 53
         let buttonSize: CGFloat = UIDevice.isPad ? 35 : 30
         
-        addSubviews(unreadImage, separatorLabel, profileImageView, dotButton, fullNameLabel, timeLabel, profileButton)
+        addSubviews(unreadImage, separatorLabel, profileImageView, dotButton, fullNameLabel, timeLabel)
         
         NSLayoutConstraint.activate([
 
@@ -114,10 +103,7 @@ class NotificationConnectionCell: UICollectionViewCell {
             fullNameLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             fullNameLabel.trailingAnchor.constraint(equalTo: dotButton.leadingAnchor, constant: -10),
 
-            profileButton.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 5),
-            profileButton.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
-
-            timeLabel.topAnchor.constraint(equalTo: profileButton.bottomAnchor, constant: 5),
+            timeLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
             timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
@@ -175,9 +161,6 @@ class NotificationConnectionCell: UICollectionViewCell {
         let boldFont = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .semibold)
         _ = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        
-        profileButton.configuration?.attributedTitle = AttributedString(viewModel.profileText, attributes: container)
-        profileButton.configuration?.baseForegroundColor = primaryGray
         
         unreadImage.isHidden = viewModel.isRead
         backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)

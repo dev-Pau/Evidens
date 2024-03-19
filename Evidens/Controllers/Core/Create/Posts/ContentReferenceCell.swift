@@ -34,7 +34,7 @@ class ContentReferenceCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .systemBackground
         
-        var size: CGFloat = 75
+        let size: CGFloat = 75
         
         layer.masksToBounds = false
         layer.shadowColor = UIColor.secondaryLabel.cgColor

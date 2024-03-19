@@ -12,11 +12,9 @@ private let loadingHeaderReuseIdentifier = "LoadingHeaderReuseIdentifier"
 private let caseTextCellReuseIdentifier = "CaseTextCellReuseIdentifier"
 private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier"
 
-class CaseListViewController: UIViewController, UINavigationControllerDelegate {
+class CaseListViewController: UIViewController {
     
     private var viewModel: SecondaryCasesViewModel
-    
-    private var zoomTransitioning = ZoomTransitioning()
     
     private var collectionView: UICollectionView!
     
@@ -40,11 +38,6 @@ class CaseListViewController: UIViewController, UINavigationControllerDelegate {
         configureCollectionView()
         configureNotificationObservers()
         fetchFirstGroupOfCases()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.delegate = self
     }
     
     private func configureUI() {
@@ -272,12 +265,13 @@ extension CaseListViewController: CaseCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        viewModel.selectedImage = image[index]
-        navigationController?.delegate = zoomTransitioning
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     
@@ -313,11 +307,6 @@ extension CaseListViewController: CaseCellDelegate {
     }
 }
 
-extension CaseListViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.selectedImage
-    }
-}
 
 extension CaseListViewController {
     func getMoreCases() {

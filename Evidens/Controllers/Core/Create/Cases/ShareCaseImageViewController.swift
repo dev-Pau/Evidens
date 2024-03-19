@@ -155,7 +155,7 @@ class ShareCaseImageViewController: UIViewController {
     }
     
     private func isValid() {
-        nextButton.isEnabled = !viewModel.images.isEmpty && viewModel.images.filter { $0.isRevealed == false }.isEmpty
+        nextButton.isEnabled = !viewModel.images.isEmpty
     }
     
     @objc func handleNext() {
@@ -211,19 +211,6 @@ extension ShareCaseImageViewController: UICollectionViewDelegateFlowLayout, UICo
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.item == 0 {
             addPhotos()
-        } else {
-            guard !viewModel.images.isEmpty else { return }
-            
-            let imageIndex = indexPath.row - 1
-            let image = viewModel.images[imageIndex]
-            guard image.containsFaces, let faceImage = image.faceImage, image.isRevealed == false else { return }
-            
-            let controller = CaseImageViewController(image: faceImage, index: imageIndex)
-            controller.delegate = self
-            
-            let navVC = UINavigationController(rootViewController: controller )
-            navVC.modalPresentationStyle = .fullScreen
-            present(navVC, animated: true)
         }
     }
 }
@@ -312,20 +299,3 @@ extension ShareCaseImageViewController: ShareCaseImageCellDelegate {
         }
     }
 }
-
-extension ShareCaseImageViewController: CaseImageViewControllerDelegate {
-    func didAcceptImage(_ image: UIImage, for index: Int) {
-        viewModel.images[index].isRevealed = true
-        collectionView.reloadData()
-        isValid()
-    }
-    
-    func didRejectImage(_ image: UIImage, for index: Int) {
-        viewModel.images[index].isRevealed = true
-        viewModel.images[index].faceImage = nil
-        viewModel.images[index].containsFaces = false
-        collectionView.reloadData()
-        isValid()
-    }
-}
-

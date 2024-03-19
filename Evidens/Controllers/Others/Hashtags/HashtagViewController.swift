@@ -20,14 +20,12 @@ private let emptyHashtagCellReuseIdentifier = "EmptyBookmarkCellCaseReuseIdentif
 
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 
-class HashtagViewController: UIViewController, UINavigationControllerDelegate {
+class HashtagViewController: UIViewController {
     
     private var viewModel: HashtagViewModel
     private var hashtagToolbar = BookmarkToolbar()
     private var spacingView = SpacingView()
     
-    private var zoomTransitioning = ZoomTransitioning()
-
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -47,11 +45,6 @@ class HashtagViewController: UIViewController, UINavigationControllerDelegate {
         configure()
         configureNotificationObservers()
         fetchCases()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.delegate = self
     }
     
     init(hashtag: String) {
@@ -585,8 +578,6 @@ extension HashtagViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        self.navigationController?.delegate = self
-        
         let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -633,12 +624,13 @@ extension HashtagViewController: PostCellDelegate {
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        self.navigationController?.delegate = zoomTransitioning
-        viewModel.selectedImage = image[index]
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
@@ -648,8 +640,6 @@ extension HashtagViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-        self.navigationController?.delegate = self
-        
         let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -720,12 +710,13 @@ extension HashtagViewController: CaseCellDelegate {
         }
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        viewModel.selectedImage = image[index]
-        navigationController?.delegate = zoomTransitioning
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
@@ -1060,11 +1051,5 @@ extension HashtagViewController: ReferenceMenuViewControllerDelegate {
                 }
             }
         }
-    }
-}
-
-extension HashtagViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.selectedImage
     }
 }

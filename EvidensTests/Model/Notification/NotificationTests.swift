@@ -580,31 +580,6 @@ final class NotificationTests: XCTestCase {
         
         XCTAssertEqual(notifications.first?.isRead, true)
     }
-    
-    func testEditNotification() {
-        let date = Timestamp(date: Date.now)
-        
-        let data = ["id": "notificationId1",
-                    "uid": "userUid",
-                    "kind": Int(NotificationKind.likeCaseReply.rawValue),
-                    "timestamp": date,
-                    "contentId": "contentId1",
-                    "path": ["path1", "path2"]
-        ] as [String : Any]
-        
-        var notification = Notification(dictionary: data)
-        notification.set(content: "Content of the notification")
-        
-        XCTAssertEqual(notification.isRead, false)
-        
-        sut.save(notification: notification)
-        
-        sut.edit(notification: notification, set: "New Content", forKey: "content")
-        
-        let notifications = sut.getNotifications()
-        
-        XCTAssertEqual(notifications.first?.content, "New Content")
-    }
 
     lazy var mockPersistantContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "DataModel")

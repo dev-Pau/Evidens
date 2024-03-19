@@ -51,7 +51,7 @@ final class ShareCaseViewModelTests: XCTestCase {
     }
     
     func testCaseImages() {
-        sut.images = [CaseImage(image: UIImage(), faceImage: nil), CaseImage(image: UIImage(), faceImage: nil)]
+        sut.images = [CaseImage(image: UIImage(), containsFaces: false), CaseImage(image: UIImage(), containsFaces: false)]
         XCTAssertTrue(sut.hasImages)
     }
     
@@ -82,7 +82,7 @@ final class ShareCaseViewModelTests: XCTestCase {
     }
     
     func testImageKind() {
-        sut.images = [CaseImage(image: UIImage(), faceImage: nil), CaseImage(image: UIImage(), faceImage: nil)]
+        sut.images = [CaseImage(image: UIImage(), containsFaces: false), CaseImage(image: UIImage(), containsFaces: false)]
         XCTAssertEqual(sut.kind, .image)
     }
     
@@ -92,8 +92,8 @@ final class ShareCaseViewModelTests: XCTestCase {
     }
     
     func testRemoveImage() {
-        let image1 = CaseImage(image: UIImage(), faceImage: nil)
-        let image2 = CaseImage(image: UIImage(), faceImage: nil)
+        let image1 = CaseImage(image: UIImage(), containsFaces: false)
+        let image2 = CaseImage(image: UIImage(), containsFaces: false)
         sut.images = [image1, image2]
         sut.removeImage(at: 0)
         XCTAssertEqual(sut.images.count, 1)

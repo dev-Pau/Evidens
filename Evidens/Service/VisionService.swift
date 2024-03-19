@@ -20,16 +20,12 @@ struct VisionService {
         var processedImages: [CaseImage] = []
         
         for image in images {
-            let (containsFaces, faceRectangles) = detectFaces(in: image)
+            let (containsFaces, _) = detectFaces(in: image)
             
-            if containsFaces == true, let faceRectangles = faceRectangles {
-                if let faceImage = hideFacesInImage(originalImage: image, faceRectangles: faceRectangles) {
-                    processedImages.append(CaseImage(image: image, faceImage: faceImage))
-                } else {
-                    processedImages.append(CaseImage(image: image, faceImage: nil))
-                }
+            if containsFaces == true {
+                processedImages.append(CaseImage(image: image, containsFaces: true))
             } else {
-                processedImages.append(CaseImage(image: image, faceImage: nil))
+                processedImages.append(CaseImage(image: image, containsFaces: false))
             }
         }
         
@@ -65,46 +61,5 @@ struct VisionService {
         } catch {
             return (containsFaces: false, faceRectangles: nil)
         }
-    }
-    
-    /// Hides faces in a given UIImage based on the provided face rectangles.
-    ///
-    /// - Parameters:
-    ///   - originalImage: The original UIImage containing faces.
-    ///   - faceRectangles: An array of CGRect representing the bounding boxes of faces to be hidden.
-    /// - Returns: A new UIImage with the specified faces hidden, or nil if an error occurs.
-    static func hideFacesInImage(originalImage: UIImage, faceRectangles: [CGRect]) -> UIImage? {
-        
-        UIGraphicsBeginImageContextWithOptions(originalImage.size, false, originalImage.scale)
-        
-        originalImage.draw(in: CGRect(origin: .zero, size: originalImage.size))
-        
-        let hideColor = UIColor.white
-        
-        let imageSize = originalImage.size
-        let imageWidth = imageSize.width
-        let imageHeight = imageSize.height
-        
-        for faceRect in faceRectangles {
-            
-            let rectX = faceRect.origin.x * imageWidth
-            let rectY = (1 - faceRect.origin.y - faceRect.size.height) * imageHeight
-            let rectWidth = faceRect.size.width * imageWidth
-            let rectHeight = faceRect.size.height * imageHeight
-            
-            let pixelRect = CGRect(x: rectX, y: rectY, width: rectWidth, height: rectHeight)
-            
-            let context = UIGraphicsGetCurrentContext()
-            
-            context?.setFillColor(hideColor.cgColor)
-            
-            context?.fill(pixelRect)
-        }
-        
-        let combinedImage = UIGraphicsGetImageFromCurrentImageContext()
-        
-        UIGraphicsEndImageContext()
-        
-        return combinedImage
     }
 }

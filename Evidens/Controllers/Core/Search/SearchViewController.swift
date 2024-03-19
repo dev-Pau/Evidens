@@ -22,15 +22,13 @@ private let caseTextImageCellReuseIdentifier = "CaseTextImageCellReuseIdentifier
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let emptyCellReuseidentifier = "EmptyCellReuseIdentifier"
 
-class SearchViewController: NavigationBarViewController, UINavigationControllerDelegate {
+class SearchViewController: NavigationBarViewController {
     
     //MARK: - Properties
 
     private var viewModel = SearchViewModel()
     private var searchController: UISearchController!
     private var collectionView: UICollectionView!
-
-    private var zoomTransitioning = ZoomTransitioning()
 
     //MARK: - Lifecycle
     
@@ -44,7 +42,6 @@ class SearchViewController: NavigationBarViewController, UINavigationControllerD
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        self.navigationController?.delegate = self
 
         if !viewModel.presentingSearchResults {
             scrollDelegate?.enable()
@@ -435,13 +432,13 @@ extension SearchViewController: CaseCellDelegate {
         }
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        viewModel.selectedImage = image[index]
-        
-        navigationController?.delegate = zoomTransitioning
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
 }
 
@@ -463,10 +460,7 @@ extension SearchViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        self.navigationController?.delegate = self
-        
         let controller = DetailsPostViewController(post: post, user: user)
-
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -508,12 +502,13 @@ extension SearchViewController: PostCellDelegate {
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        viewModel.selectedImage = image[index]
-        self.navigationController?.delegate = zoomTransitioning
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
@@ -523,17 +518,8 @@ extension SearchViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-        self.navigationController?.delegate = self
-        
         let controller = DetailsPostViewController(post: post, user: user)
-
         navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
-extension SearchViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.selectedImage
     }
 }
 
@@ -546,6 +532,10 @@ extension SearchViewController: UISearchControllerDelegate {
     func willPresentSearchController(_ searchController: UISearchController) {
         viewModel.presentingSearchResults = true
         scrollDelegate?.disable()
+    }
+    
+    func isPresentingSearchResults() -> Bool {
+        return viewModel.presentingSearchResults
     }
 }
 

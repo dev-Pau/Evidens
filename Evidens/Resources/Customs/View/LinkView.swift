@@ -55,7 +55,7 @@ class LinkView: UIView {
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 12
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: "network", withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor).scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35))
+        iv.image = UIImage(systemName: AppStrings.Icons.globe, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor).scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35))
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -78,7 +78,7 @@ class LinkView: UIView {
 
         let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
         
-        let linkWidth: CGFloat = UIScreen.main.bounds.width - (textPadding + 10)
+        let linkWidth: CGFloat = UIWindow.visibleScreenWidth - (textPadding + 10)
         let linkSize: CGFloat = linkWidth * 0.78
 
         let padding: CGFloat = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .medium).lineHeight

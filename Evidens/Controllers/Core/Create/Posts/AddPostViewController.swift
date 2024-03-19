@@ -22,7 +22,7 @@ class AddPostViewController: UIViewController {
     private var viewModel: AddPostViewModel
     private var user: User
 
-    private let cellHeight: CGFloat = (UIScreen.main.bounds.width - 40) * 0.55
+    private let cellHeight: CGFloat = (UIWindow.visibleScreenWidth - 40) * 0.55
 
     private var collectionView: UICollectionView!
     private var collectionViewHeightAnchor: NSLayoutConstraint!

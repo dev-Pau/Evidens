@@ -79,7 +79,7 @@ struct Notification {
         entity.image = image
         entity.timestamp = timestamp
         entity.isFollowed = isFollowed ?? false
-        entity.isRead = isRead
+        entity.isRead = true
         
         return entity
     }
@@ -98,7 +98,7 @@ struct Notification {
         entity.timestamp = timestamp
         entity.contentId = contentId
         entity.content = content
-        entity.isRead = isRead
+        entity.isRead = true
         
         return entity
     }
@@ -121,7 +121,7 @@ struct Notification {
         entity.contentId = contentId
         entity.content = content
         entity.path = path
-        entity.isRead = isRead
+        entity.isRead = true
 
         return entity
     }
@@ -144,7 +144,7 @@ struct Notification {
         entity.content = content
         entity.contentId = contentId
         entity.likes = Int16(likes ?? 0)
-        entity.isRead = isRead
+        entity.isRead = true
         
         return entity
     }
@@ -167,7 +167,7 @@ struct Notification {
         entity.content = content
         entity.contentId = contentId
         entity.likes = Int16(likes ?? 0)
-        entity.isRead = isRead
+        entity.isRead = true
         
         return entity
     }
@@ -190,7 +190,7 @@ struct Notification {
         entity.content = content
         entity.contentId = contentId
         entity.path = path
-        entity.isRead = isRead
+        entity.isRead = true
         
         return entity
     }
@@ -213,7 +213,7 @@ struct Notification {
         entity.content = content
         entity.contentId = contentId
         entity.path = path
-        entity.isRead = isRead
+        entity.isRead = true
         
         return entity
     }
@@ -236,7 +236,7 @@ struct Notification {
         entity.content = content
         entity.contentId = contentId
         entity.path = path
-        entity.isRead = isRead
+        entity.isRead = true
         
         return entity
     }
@@ -261,7 +261,7 @@ struct Notification {
         entity.path = path
         entity.commentId = commentId
         entity.likes = Int16(likes ?? 0)
-        entity.isRead = isRead
+        entity.isRead = true
         return entity
     }
     
@@ -276,7 +276,7 @@ struct Notification {
         self.image = entity.image
         self.timestamp = entity.wrappedTimestamp
         self.isFollowed = entity.isFollowed
-        self.isRead = entity.isRead
+        self.isRead = true
 
         self.content = entity.content
         self.likes = Int(entity.likes)

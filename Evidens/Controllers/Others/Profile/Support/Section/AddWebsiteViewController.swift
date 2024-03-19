@@ -196,7 +196,7 @@ class AddWebsiteViewController: UIViewController {
                     strongSelf.delegate?.handleUpdateWebsite()
                     strongSelf.navigationController?.popViewController(animated: true)
                     
-                    let popupView = PopUpBanner(title: AppStrings.PopUp.websiteRemoved, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.profileModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                     popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
@@ -223,7 +223,7 @@ class AddWebsiteViewController: UIViewController {
                     strongSelf.delegate?.handleUpdateWebsite()
                     strongSelf.navigationController?.popViewController(animated: true)
                     
-                    let popupView = PopUpBanner(title: AppStrings.PopUp.websiteAdded, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.profileModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                     popupView.showTopPopup(inView: strongSelf.view)
                 }
             }

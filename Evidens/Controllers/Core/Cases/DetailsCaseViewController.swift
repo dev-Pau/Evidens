@@ -22,8 +22,6 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     
     var viewModel: DetailsCaseViewModel
     
-    private var zoomTransitioning = ZoomTransitioning()
-    
     private var collectionView: UICollectionView!
     
     private lazy var commentInputView: CommentInputAccessoryView = {
@@ -50,7 +48,6 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.delegate = self
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear
@@ -118,7 +115,6 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     }
     
     private func configureNavigationBar() {
-        
         title = AppStrings.Title.clinicalCase
         let rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.leftChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withTintColor(.clear).withRenderingMode(.alwaysOriginal), style: .done, target: nil, action: nil)
         navigationItem.rightBarButtonItem = rightBarButtonItem
@@ -593,18 +589,13 @@ extension DetailsCaseViewController: CaseCellDelegate {
         self.navigationController?.pushViewController(controller, animated: true)
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        self.navigationController?.delegate = zoomTransitioning
-        viewModel.selectedImage = image[index]
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-}
-
-extension DetailsCaseViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.selectedImage
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
 }
 

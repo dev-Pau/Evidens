@@ -8,6 +8,11 @@
 import UIKit
 import CoreData
 
+
+protocol SideTabViewControllerDelegate: AnyObject {
+    func didTapTabIcon(_ tab: TabIcon)
+}
+
 protocol FormViewModel {
     func updateForm()
 }
@@ -26,7 +31,7 @@ protocol PostCellDelegate: AnyObject {
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User)
     func cell(didTapMenuOptionsFor post: Post, option: PostMenu)
     func cell(_ cell: UICollectionViewCell, didBookmark post: Post)
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView)
     func cell(wantsToSeeLikesFor post: Post)
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User)
     func cell(wantsToSeeHashtag hashtag: String)
@@ -41,7 +46,7 @@ protocol CaseCellDelegate: AnyObject {
     func clinicalCase(didTapMenuOptionsFor clinicalCase: Case, option: CaseMenu)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case)
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int)
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView)
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?)
     func clinicalCase(wantsToSeeHashtag hashtag: String)
 }

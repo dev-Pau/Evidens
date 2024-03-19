@@ -14,7 +14,7 @@ class FunctionsManager {
     
     static let shared = FunctionsManager()
     
-    private lazy var functions = Functions.functions()
+    private lazy var functions = Functions.functions(region: "europe-west1")
 
     /// Sends a notification to the server when a user receives a reply on their post.
     ///
@@ -130,14 +130,15 @@ class FunctionsManager {
     ///   - userId: The UID of the user whose connection request was accepted.
     func addNotificationOnAcceptConnection(user: User, userId: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+
         let connectionFunction = functions.httpsCallable("httpsConnectionsOnCallAcceptConnection")
-        
+
         let connection: [String: Any] = [
             "uid": uid,
             "userId": userId,
             "name": user.name()
         ]
-        
+
         connectionFunction.call(connection) { result, error in
             
         }

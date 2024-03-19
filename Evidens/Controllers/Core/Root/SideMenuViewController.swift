@@ -59,7 +59,7 @@ class SideMenuViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        menuWidth = UIScreen.main.bounds.width - 10 - padding
+        menuWidth = UIWindow.visibleScreenWidth - 10 - padding
         collectionView.backgroundColor = .systemBackground
 
         view.addSubviews(sideMenuView, collectionView, controllerSeparatorView)

@@ -322,7 +322,7 @@ class StretchyCompositionalLayout: UICollectionViewCompositionalLayout {
 
                     if contentOffsetY < 0 {
 
-                        let width = UIScreen.main.bounds.width
+                        let width = UIWindow.visibleScreenWidth
                         let height = 140 - contentOffsetY
                         attribute.frame = CGRect(x: 0, y: contentOffsetY, width: width, height: height)
                         header.offsetDidMove(contentOffsetY)

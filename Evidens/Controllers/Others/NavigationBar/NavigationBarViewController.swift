@@ -46,25 +46,24 @@ class NavigationBarViewController: UIViewController {
         addNavigationBarLogo(withTintColor: baseColor)
         
         navigationItem.leftBarButtonItem = profileImageItem
-        
-        let searchSize: CGFloat = UIDevice.isPad ? 30 : 27
-        let searchImage = UIImage(named: AppStrings.Icons.compass)?.scalePreservingAspectRatio(targetSize: CGSize(width: searchSize, height: searchSize)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+
+        let searchImage = UIImage(systemName: AppStrings.Icons.squareOnSquare, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         let searchImageView = UIImageView(image: searchImage)
         
         searchImageView.translatesAutoresizingMaskIntoConstraints = false
         searchImageView.clipsToBounds = true
         searchImageView.contentMode = .scaleAspectFill
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: searchImageView)
-        navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleShowExplore)))
-        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: searchImage, style: .done, target: self, action: #selector(handleShowExplore))
+
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNotification(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadConversations), object: nil)
     }
     
     func configureAddButton(primaryAppearance: Bool) {
-        addButton = UIButton(type: .system)
+        addButton = ContentButton(type: .custom)
         addButton.addTarget(self, action: #selector(handleAdd), for: .touchUpInside)
         addButton.translatesAutoresizingMaskIntoConstraints = false
+        
         var configuration = UIButton.Configuration.filled()
         configuration.baseBackgroundColor = primaryAppearance ? primaryColor : .label
         

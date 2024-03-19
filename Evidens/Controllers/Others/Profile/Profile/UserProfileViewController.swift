@@ -23,7 +23,7 @@ private let profileAboutCellReuseIdentifier = "ProfileAboutCellReuseIdentifier"
 private let profileHeaderReuseIdentifier = "ProfileHeaderReuseIdentifier"
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 
-class UserProfileViewController: UIViewController, UINavigationControllerDelegate {
+class UserProfileViewController: UIViewController {
     
     private var viewModel: UserProfileViewModel
     
@@ -42,8 +42,6 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
     
     private var headerTopInset: CGFloat!
     
-    private var zoomTransitioning = ZoomTransitioning()
-
     private var pageView: PageUnavailableView!
     
     private let activityIndicator = LoadingIndicatorView(frame: .zero)
@@ -107,13 +105,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
         getUser()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.delegate = self
-    }
-    
     private func configureLoading() {
-        
         let appearance = UINavigationBarAppearance.profileAppearance()
         navigationItem.scrollEdgeAppearance = appearance
         navigationItem.standardAppearance = appearance
@@ -397,7 +389,7 @@ class UserProfileViewController: UIViewController, UINavigationControllerDelegat
 
         view.layoutIfNeeded()
 
-        toolbarHeight = self.viewModel.user.blockPhase != nil ? 0 : 50.0
+        //toolbarHeight = self.viewModel.user.blockPhase != nil ? 0 : 50.0
         
         heightToolbarAnchorConstraint.constant = toolbarHeight
         profileToolbar.isHidden = self.viewModel.user.blockPhase != nil ? true : false
@@ -949,14 +941,13 @@ extension UserProfileViewController: PostCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        
-        self.navigationController?.delegate = zoomTransitioning
-        
-        viewModel.selectedImage = image[index]
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
@@ -1175,12 +1166,13 @@ extension UserProfileViewController: CaseCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
 
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        viewModel.selectedImage = image[index]
-        navigationController?.delegate = zoomTransitioning
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) {
@@ -1417,12 +1409,6 @@ extension UserProfileViewController: ReferenceMenuViewControllerDelegate {
     }
 }
 
-extension UserProfileViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.selectedImage
-    }
-}
-
 extension UserProfileViewController: ProfileNameViewDelegate {
     func didTapAbout() {
         let controller = AboutProfileViewController(viewModel: viewModel)
@@ -1629,8 +1615,6 @@ extension UserProfileViewController: ConnectMenuViewControllerDelegate {
                         
                         let popupView = PopUpBanner(title: strongSelf.viewModel.sendConnectionText(), image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                         popupView.showTopPopup(inView: strongSelf.view)
-                        
-                        
                     }
                 }
             case .rejected:
@@ -1661,7 +1645,7 @@ extension UserProfileViewController: ConnectMenuViewControllerDelegate {
             case .withdraw:
                 // The owner withdrawed the request and can send a request again.
                 guard viewModel.hasWeeksPassedSince(forWeeks: 3, timestamp: connection.timestamp) else {
-                    displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection)
+                    displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                     return
                 }
                 
@@ -1685,7 +1669,7 @@ extension UserProfileViewController: ConnectMenuViewControllerDelegate {
             case .unconnect:
                 // Connection was removed by one of the users so connection can be sent again
                 guard viewModel.hasWeeksPassedSince(forWeeks: 5, timestamp: connection.timestamp) else {
-                    displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.connection5)
+                    displayAlert(withTitle: AppStrings.Error.title, withMessage: AppStrings.Error.unknown)
                     return
                 }
                 

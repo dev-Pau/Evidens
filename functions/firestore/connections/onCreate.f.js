@@ -78,67 +78,26 @@ async function addFollowing(userId, connectedUserId, timestampData) {
 }
 
 async function addNotification(userId, connectionId, snapshot) {
+    
     const data = snapshot.data();
 
     const kind = 311;
+    const timestamp = admin.firestore.Timestamp.now();
+    const notificationData = {
+        kind: kind,
+        timestamp: timestamp,
+        uid: connectionId,
+    };
 
-    const notificationQuery = await admin
+    const userNotificationsRef = admin
         .firestore()
         .collection('notifications')
         .doc(userId)
-        .collection('user-notifications')
-        .where('kind', '==', kind)
-        .where('uid', '==', connectionId)
-        .get();
+        .collection('user-notifications');
 
-    /*
-        If there's no notification, means that it's the first time this users established connection or;
-        It was from user's network previously but they break relationship somehow and want to connect again.
-        Either way, we create a new notification with this user's data and notify the receiver.
-    */
+    const notificationRef = await userNotificationsRef.add(notificationData);
+    const notificationId = notificationRef.id;
 
-    if (notificationQuery.empty) {
-
-        const timestamp = admin.firestore.Timestamp.now();
-        const notificationData = {
-            kind: kind,
-            timestamp: timestamp,
-            uid: connectionId,
-        };
-
-
-        const userNotificationsRef = admin
-            .firestore()
-            .collection('notifications')
-            .doc(userId)
-            .collection('user-notifications');
-
-        const notificationRef = await userNotificationsRef.add(notificationData);
-        const notificationId = notificationRef.id;
-
-        await notificationRef.update({ id: notificationId });
-        console.log("Firestore connection notification added", userId, connectionId);
-        //TODO: Send Notification Here
-
-    } else {
-        /*
-        If the notification exists, the user still hasn't fetched it.
-        In this case, we just update the timestamp but we don't send any notification, as it has been sent previoiusly
-        */
-        const existingNotificationDocRef = existingNotificationQuerySnapshot.docs[0].ref;
-        const existingNotificationData = existingNotificationQuerySnapshot.docs[0].data();
-
-        const notificationId = existingNotificationData.notificationId;
-
-        const timestamp = admin.firestore.Timestamp.now()
-
-        await existingNotificationDocRef.update(
-            {
-                timestamp: timestamp,
-                uid: connectionId,
-            }
-        );
-
-        console.log("Firestore connection notification updated", userId, connectionId);
-    }
+    await notificationRef.update({ id: notificationId });
+    console.log("Firestore connection notification added", userId, connectionId);
 };

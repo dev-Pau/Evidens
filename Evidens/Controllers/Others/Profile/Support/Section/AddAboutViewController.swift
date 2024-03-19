@@ -203,7 +203,7 @@ class AddAboutViewController: UIViewController {
                     strongSelf.delegate?.handleUpdateAbout()
                     strongSelf.navigationController?.popViewController(animated: true)
                     
-                    let popupView = PopUpBanner(title: AppStrings.PopUp.aboutRemoved, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                    let popupView = PopUpBanner(title: AppStrings.PopUp.profileModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                     popupView.showTopPopup(inView: strongSelf.view)
                 }
             }
@@ -219,7 +219,7 @@ class AddAboutViewController: UIViewController {
                 strongSelf.delegate?.handleUpdateAbout()
                 strongSelf.navigationController?.popViewController(animated: true)
                 
-                let popupView = PopUpBanner(title: AppStrings.PopUp.aboutAdded, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
+                let popupView = PopUpBanner(title: AppStrings.PopUp.profileModified, image: AppStrings.Icons.checkmarkCircleFill, popUpKind: .regular)
                 popupView.showTopPopup(inView: strongSelf.view)
             }
         }

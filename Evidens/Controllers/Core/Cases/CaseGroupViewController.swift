@@ -89,8 +89,8 @@ class CaseGroupViewController: UIViewController {
             guard let strongSelf = self else { return nil }
             
             if strongSelf.viewModel.cases.isEmpty && strongSelf.viewModel.casesLoaded {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIScreen.main.bounds.height * 0.6)), subitems: [item])
+                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIWindow.visibleScreenWidth * 0.6)))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(UIWindow.visibleScreenWidth * 0.6)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 return section
             } else {
@@ -243,7 +243,7 @@ extension CaseGroupViewController: CaseCellDelegate {
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeUpdatesForCase clinicalCase: Case) { return }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) { return }
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView) { return }
 
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
         let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: user)

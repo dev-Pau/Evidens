@@ -10,15 +10,16 @@ import UIKit
 class ContainerViewController: UIViewController {
     
     private var scrollView: UIScrollView!
-
+    
     var baseLogoView: BaseLogoView!
     private var loadingView: Bool?
-
+    
     private let padding: CGFloat = UIDevice.isPad ? 150 : 35
     private var menuWidth: CGFloat!
     
     let menuController = SideMenuViewController()
     let mainController = MainViewController()
+    let sideTabController = SideTabViewController()
     
     private lazy var baseView: UIView = {
         let view = UIView()
@@ -47,7 +48,8 @@ class ContainerViewController: UIViewController {
     }
     
     private func addChildVCs() {
-        menuWidth = UIScreen.main.bounds.width - 10 - padding
+        menuWidth = UIWindow.visibleScreenWidth - 10 - padding
+        
         scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.isScrollEnabled = false
@@ -55,50 +57,79 @@ class ContainerViewController: UIViewController {
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.bounces = false
         scrollView.delegate = self
-       
-        addChild(menuController)
-        menuController.delegate = self
-        menuController.didMove(toParent: self)
         
         addChild(mainController)
         mainController.delegate = self
         mainController.view.translatesAutoresizingMaskIntoConstraints = false
         mainController.didMove(toParent: self)
-        menuController.view.translatesAutoresizingMaskIntoConstraints = false
-       
         mainController.view.addSubview(baseView)
         
-        view.addSubview(scrollView)
-        scrollView.addSubviews(menuController.view, mainController.view)
+        if UIDevice.isPad {
+            addChild(sideTabController)
+            sideTabController.didMove(toParent: self)
+            sideTabController.view.translatesAutoresizingMaskIntoConstraints = false
 
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            scrollView.heightAnchor.constraint(equalToConstant: view.frame.height),
+            view.addSubviews(sideTabController.view, mainController.view)
+
+            NSLayoutConstraint.activate([
             
-            menuController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            menuController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            menuController.view.widthAnchor.constraint(equalToConstant: menuWidth),
-            menuController.view.heightAnchor.constraint(equalToConstant: view.frame.height),
+                sideTabController.view.topAnchor.constraint(equalTo: view.topAnchor),
+                sideTabController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                sideTabController.view.widthAnchor.constraint(equalToConstant: UIWindow.visibleScreenWidth * 0.1),
+                sideTabController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                
+                mainController.view.topAnchor.constraint(equalTo: view.topAnchor),
+                mainController.view.leadingAnchor.constraint(equalTo: sideTabController.view.trailingAnchor),
+                mainController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                mainController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
             
-            mainController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            mainController.view.leadingAnchor.constraint(equalTo: menuController.view.trailingAnchor),
-            mainController.view.widthAnchor.constraint(equalToConstant: view.frame.width),
-            mainController.view.heightAnchor.constraint(equalToConstant: view.frame.height)
-        ])
+        } else {
+            addChild(menuController)
+
+            menuController.delegate = self
+            menuController.view.translatesAutoresizingMaskIntoConstraints = false
+            menuController.didMove(toParent: self)
+            
+            view.addSubview(scrollView)
+            scrollView.addSubviews(menuController.view, mainController.view)
+
+            NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scrollView.widthAnchor.constraint(equalToConstant: view.frame.width),
+                scrollView.heightAnchor.constraint(equalToConstant: view.frame.height),
+                
+                menuController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                menuController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                menuController.view.widthAnchor.constraint(equalToConstant: menuWidth),
+                menuController.view.heightAnchor.constraint(equalToConstant: view.frame.height),
+                
+                mainController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                mainController.view.leadingAnchor.constraint(equalTo: menuController.view.trailingAnchor),
+                mainController.view.widthAnchor.constraint(equalToConstant: view.frame.width),
+                mainController.view.heightAnchor.constraint(equalToConstant: view.frame.height)
+            ])
+            
+            scrollView.setContentOffset(CGPoint(x: menuWidth, y: 0), animated: false)
+            scrollView.contentSize.width = view.frame.width + menuWidth
+        }
         
         baseView.frame = mainController.view.bounds
-        scrollView.setContentOffset(CGPoint(x: menuWidth, y: 0), animated: false)
-        scrollView.contentSize.width = view.frame.width + menuWidth
         
         if let _ = loadingView {
             baseLogoView = BaseLogoView(frame: view.bounds)
             baseLogoView.backgroundColor = baseColor
             view.addSubview(baseLogoView)
         }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            print(UIWindow.visibleScreenWidth)
+            print(self.sideTabController.view.frame.width)
+            print(self.mainController.view.frame.width)
+        }
     }
-
+    
     @objc func dismissMenu() {
         scrollView.setContentOffset(CGPoint(x: menuWidth, y: 0), animated: true)
     }
@@ -112,7 +143,7 @@ extension ContainerViewController: MainViewControllerDelegate {
     func handleUserIconTap() {
         scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     }
-
+    
     func controllersLoaded() {
         let auth = UserDefaults.getAuth()
         
@@ -120,7 +151,7 @@ extension ContainerViewController: MainViewControllerDelegate {
             
             baseLogoView.removeFromSuperview()
             loadingView = nil
-
+            
             if !auth {
                 logout()
                 let controller = OpeningViewController()
@@ -129,14 +160,13 @@ extension ContainerViewController: MainViewControllerDelegate {
                 return
             }
         }
-
+        
         if let uid = UserDefaults.getUid() {
             DataService.shared.initialize(userId: uid)
             getNewNotificationCount()
         }
         
         scrollView.isScrollEnabled = true
-        
     }
     
     func configureMenuWithUser(user: User) {
@@ -152,9 +182,9 @@ extension ContainerViewController: MainViewControllerDelegate {
         
         NotificationService.fetchNewNotificationCount(since: date) { [weak self] results in
             guard let _ = self else { return }
-
+            
             switch results {
-
+                
             case .success(let notifications):
                 NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil, userInfo: ["notifications": notifications])
             case .failure(_):
@@ -177,7 +207,7 @@ extension ContainerViewController: SideMenuViewControllerDelegate {
         mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
         mainController.pushMenuOptionController(option: option)
     }
-
+    
     func didTapMenuHeader() {
         scrollView.setContentOffset(CGPoint(x: menuWidth, y: 0), animated: true)
         mainController.updateUserProfileImageViewAlpha(withAlfa: 1)
@@ -193,10 +223,10 @@ extension ContainerViewController: UIScrollViewDelegate {
         
         if scrollView == self.scrollView {
             let normalizedOffsetX = max(0.0, min(1.0, 1 - (offsetX / menuWidth)))
-
+            
             let baseAlpha = 0.3 * normalizedOffsetX
             let imageAlpha = 1 - normalizedOffsetX
-
+            
             baseView.backgroundColor = separatorColor.withAlphaComponent(baseAlpha)
             mainController.updateUserProfileImageViewAlpha(withAlfa: imageAlpha)
         }

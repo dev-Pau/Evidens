@@ -1,19 +1,21 @@
 //
-//  ZoomImageViewController.swift
+//  ContentImageViewController.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 1/7/22.
+//  Created by Pau Fernández Solà on 18/3/24.
 //
 
 import UIKit
 
-class ZoomImageViewController: UIViewController {
+protocol ContentImageViewControllerDelegate: AnyObject {
     
-    private var viewModel: HomeImageViewModel
-    private var zoomTransitioning = ZoomTransitioning()
+}
+
+class ContentImageViewController: UIViewController {
+    
+    private var viewModel: ContentImageViewModel
     private var topButtonConstraint: NSLayoutConstraint!
-    
-    
+
     private var scrollView: UIScrollView!
     
     var singleTap: UITapGestureRecognizer!
@@ -58,16 +60,15 @@ class ZoomImageViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         scrollView.delegate = self
         singleTap = UITapGestureRecognizer(target: self, action: #selector(handleSingleTap))
         view.addGestureRecognizer(singleTap)
+        scrollView.backgroundColor = .clear
         view.backgroundColor = .black
-        navigationController?.delegate = zoomTransitioning
     }
-    
-    init(images: [UIImage], index: Int) {
-        self.viewModel = HomeImageViewModel(images: images, index: index)
+
+    init(image: UIImage, navVC: UINavigationController?) {
+        self.viewModel = ContentImageViewModel(image: image, navVC: navVC)
         super.init(nibName: nil, bundle: nil)
         configure()
     }
@@ -76,46 +77,21 @@ class ZoomImageViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        var offset = 0.0
-        
-        let index = viewModel.index
-        
-        switch index {
-        case 0:
-            offset = 0.0
-        case 1:
-            offset = CGFloat(index) * UIScreen.main.bounds.width + CGFloat(index + 1) * padding
-        case 2:
-            offset = CGFloat(index) * UIScreen.main.bounds.width + CGFloat(index + 2) * padding
-        case 3:
-            offset = CGFloat(index) * UIScreen.main.bounds.width + CGFloat(index + 3) * padding
-        default:
-            break
-        }
-        
-        scrollView.contentOffset = CGPoint(x: offset, y: 0)
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.tabBarController?.tabBar.isHidden = true
-        navigationController?.isNavigationBarHidden = true
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.tabBarController?.tabBar.isHidden = false
-        navigationController?.isNavigationBarHidden = false
-        scrollView.backgroundColor = .clear
+        viewModel.navVC?.tabBarController?.tabBar.isHidden = true
+        
+        if let mainTabController = viewModel.navVC?.tabBarController as? MainTabController {
+            mainTabController.disable()
+        }
     }
     
     private func configure() {
-        var frame = UIScreen.main.bounds
+
+        var frame = UIWindow.visibleScreenBounds
         frame.origin.x -= padding
         frame.size.width += 2 * padding
-
+        
         scrollView = UIScrollView(frame: frame)
         scrollView.showsVerticalScrollIndicator = false
         scrollView.showsHorizontalScrollIndicator = false
@@ -126,21 +102,18 @@ class ZoomImageViewController: UIViewController {
         scrollView.addGestureRecognizer(panGesture)
 
         let bounds = scrollView.bounds
-        let contentSize = CGSize(width: bounds.size.width * CGFloat(viewModel.images.count), height: bounds.size.height)
+        let contentSize = CGSize(width: bounds.size.width, height: bounds.size.height)
         
         scrollView.contentSize = contentSize
         scrollView.contentInsetAdjustmentBehavior = .never
         
-        view.addSubview(scrollView)
+        view.addSubviews(scrollView)
         
-        for index in 0 ..< viewModel.images.count {
-            let page = ZoomImageView()
-            page.zoomDelegate = self
-            configure(page, for: index)
-            scrollView.addSubview(page)
-            viewModel.pageImages.append(page)
-        }
-        
+        let page = ContentImageView()
+        page.zoomDelegate = self
+        configure(page, for: 0)
+        scrollView.addSubview(page)
+
         view.addSubviews(dismissButon, dotButton)
         
         let padding: CGFloat = UIDevice.isPad ? 55 : 45
@@ -169,28 +142,7 @@ class ZoomImageViewController: UIViewController {
         
         switch gesture.state {
         case .changed:
-            let index = viewModel.index
-            
-            var canSwipeVertical: Bool = false
-            
-            switch index {
-            case 0:
-                canSwipeVertical = scrollView.contentOffset.x == 0.0
-            case 1:
-                canSwipeVertical = scrollView.contentOffset.x == CGFloat(index) * UIScreen.main.bounds.width + CGFloat(index + 1) * padding
-            case 2:
-                canSwipeVertical = scrollView.contentOffset.x == CGFloat(index) * UIScreen.main.bounds.width + CGFloat(index + 2) * padding
-            case 3:
-                canSwipeVertical = scrollView.contentOffset.x == CGFloat(index) * UIScreen.main.bounds.width + CGFloat(index + 3) * padding
-            default:
-                canSwipeVertical = false
-            }
-
-            guard canSwipeVertical else {
-                viewModel.isScrollingHorizontal = true
-                return
-            }
-
+           
             if abs(translation.y) > 1.2 * abs(translation.x) && !viewModel.isScrollingHorizontal {
                 scrollView.isScrollEnabled = false
                 handleButtonsFrame(hidden: true)
@@ -206,7 +158,7 @@ class ZoomImageViewController: UIViewController {
             scrollView.isScrollEnabled = true
             
             if abs(velocity.y) > 1500 {
-                navigationController?.popViewController(animated: true)
+                handleDismiss()
             } else {
                 UIView.animate(withDuration: 0.3) { [weak self] in
                     guard let strongSelf = self else { return }
@@ -223,9 +175,9 @@ class ZoomImageViewController: UIViewController {
         }
     }
     
-    func configure(_ page: ZoomImageView, for index: Int) {
+    func configure(_ page: ContentImageView, for index: Int) {
         page.frame = frameForPage(at: index)
-        page.display(image: viewModel.images[index])
+        page.display(image: viewModel.image)
         singleTap.require(toFail: page.zoomingTap)
     }
     
@@ -264,53 +216,54 @@ class ZoomImageViewController: UIViewController {
     }
     
     @objc func handleDismiss() {
-        dismissButon.alpha = 0
-        dotButton.alpha = 0
-        navigationController?.popViewController(animated: true)
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) { [weak self] in
+            guard let strongSelf = self else { return }
+            
+            strongSelf.viewModel.navVC?.tabBarController?.tabBar.isHidden = false
+            
+            strongSelf.view.backgroundColor = .black.withAlphaComponent(0)
+            strongSelf.dismissButon.alpha = 0
+            strongSelf.dotButton.alpha = 0
+            
+            if strongSelf.scrollView.frame.midY > strongSelf.view.frame.midY {
+                strongSelf.scrollView.frame.origin.y = strongSelf.view.frame.height
+            } else {
+                strongSelf.scrollView.frame.origin.y = -strongSelf.view.frame.height
+            }
+
+            strongSelf.view.layoutIfNeeded()
+        } completion: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            
+            if let mainTabController = strongSelf.viewModel.navVC?.tabBarController as? MainTabController, let viewControllers = strongSelf.viewModel.navVC?.viewControllers {
+                
+                if viewControllers.count == 1 {
+                    if let currentController = viewControllers.last as? SearchViewController {
+                        if !currentController.isPresentingSearchResults() {
+                            mainTabController.enable()
+                        }
+                    } else {
+                        mainTabController.enable()
+                    }
+                }
+            }
+            
+            strongSelf.dismiss(animated: false)
+        }
     }
     
     @objc func didTapThreeDots() {
-        let activityVC = UIActivityViewController(activityItems: [viewModel.images[viewModel.index] as Any], applicationActivities: nil)
+        let activityVC = UIActivityViewController(activityItems: [viewModel.image as UIImage], applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = view
         present(activityVC, animated: true, completion: nil)
     }
-    
-    func updateBackgroundColor() {
-        view.backgroundColor = .systemBackground
-    }
-
-    func updateBackground(to color: UIColor) {
-        view.backgroundColor = color
-        scrollView?.backgroundColor = color
-    }
 }
 
-
-extension ZoomImageViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.pageImages[viewModel.index].zoomImageView
-    }
+extension ContentImageViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) { }
 }
 
-extension ZoomImageViewController: UIScrollViewDelegate {
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    
-        switch scrollView.contentOffset.x {
-        case 0.0 ..< UIScreen.main.bounds.width + 2 * padding:
-            viewModel.index = 0
-        case UIScreen.main.bounds.width + 2 * padding ..< 2 * UIScreen.main.bounds.width + 3 * padding:
-            viewModel.index = 1
-        case 2 * UIScreen.main.bounds.width + 3 * padding ..< 3 * UIScreen.main.bounds.width + 4 * padding:
-            viewModel.index = 2
-        case 3 * UIScreen.main.bounds.width + 4 * padding ..< 4 * UIScreen.main.bounds.width + 5 * padding:
-            viewModel.index = 3
-        default:
-            break
-        }
-    }
-}
-
-extension ZoomImageViewController: ZoomImageViewDelegate {
+extension ContentImageViewController: ContentImageViewDelegate {
     func isZoom(_ zoom: Bool) {
         handleButtonsFrame(hidden: zoom)
         viewModel.isZoom = zoom
@@ -318,14 +271,8 @@ extension ZoomImageViewController: ZoomImageViewDelegate {
     }
 }
 
-
-extension ZoomImageViewController: UIGestureRecognizerDelegate {
+extension ContentImageViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
 }
-
-
-
-
-

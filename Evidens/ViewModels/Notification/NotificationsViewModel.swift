@@ -30,11 +30,22 @@ class NotificationsViewModel {
         let group = DispatchGroup()
         let date = DataService.shared.getLastNotificationDate()
         
+        let mutableNotifications = notifications
+        
+        mutableNotifications.forEach { notification in
+            var mutableNotification = notification
+            mutableNotification.set(isRead: true)
+        }
+        
+        notifications = mutableNotifications
+        
         NotificationService.fetchNotifications(since: date) { [weak self] result in
             guard let strongSelf = self else { return }
             
             switch result {
             case .success(let notifications):
+                
+                
                 strongSelf.newNotifications = notifications
 
                 strongSelf.fetchAdditionalData(for: notifications, group: group)

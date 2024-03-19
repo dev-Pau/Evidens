@@ -37,11 +37,10 @@ class MainViewController: UIViewController {
        
         view.addSubview(mainController.view)
         NSLayoutConstraint.activate([
-
             mainController.view.topAnchor.constraint(equalTo: view.topAnchor),
             mainController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            mainController.view.widthAnchor.constraint(equalToConstant: view.frame.width),
-            mainController.view.heightAnchor.constraint(equalToConstant: view.frame.height),
+            mainController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            mainController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
     

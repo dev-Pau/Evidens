@@ -16,14 +16,12 @@ private let postLinkCellReuseIdentifier = "PostLinkCellReuseIdentifier"
 private let networkFailureCellReuseIdentifier = "NetworkFailureCellReuseIdentifier"
 private let loadingReuseIdentifier = "LoadingHeaderReuseIdentifier"
 
-class PostsViewController: NavigationBarViewController, UINavigationControllerDelegate {
+class PostsViewController: NavigationBarViewController {
     
     //MARK: - Properties
     
     private var viewModel: HomeViewModel
 
-    private var zoomTransitioning = ZoomTransitioning()
-  
     private var collectionView: UICollectionView!
 
     //MARK: - Lifecycle
@@ -47,18 +45,6 @@ class PostsViewController: NavigationBarViewController, UINavigationControllerDe
         configureNotificationObservers()
         fetchFirstPostsGroup()
 
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        switch viewModel.source {
-            
-        case .home:
-            self.navigationController?.delegate = zoomTransitioning
-        case .search:
-            self.navigationController?.delegate = self
-        }
     }
     
     //MARK: - Helpers
@@ -346,8 +332,6 @@ extension PostsViewController: PostCellDelegate {
     }
     
     func cell(wantsToSeeHashtag hashtag: String) {
-        self.navigationController?.delegate = self
-        
         let controller = HashtagViewController(hashtag: hashtag)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -380,27 +364,17 @@ extension PostsViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-        self.navigationController?.delegate = self
-        
         let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        
-        viewModel.selectedImage = image[index]
-        
-        let controller = ZoomImageViewController(images: map, index: index)
-        
-        switch viewModel.source {
-        case .home:
-            break
-        case .search:
-            self.navigationController?.delegate = zoomTransitioning
-        }
-        
-        navigationController?.pushViewController(controller, animated: true)
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
@@ -410,8 +384,6 @@ extension PostsViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        self.navigationController?.delegate = self
-        
         let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -429,19 +401,12 @@ extension PostsViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowProfileFor user: User) {
-        self.navigationController?.delegate = self
         let controller = UserProfileViewController(user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
     
     func scrollCollectionViewToTop() {
         collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
-    }
-}
-
-extension PostsViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.selectedImage
     }
 }
 

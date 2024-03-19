@@ -23,11 +23,11 @@ private let deletedCellReuseIdentifier = "DeletedCellReuseIdentifier"
 
 private let disabledCellReuseIdentifier = "DisabledCellReuseIdentifier"
 
-class DetailsPostViewController: UIViewController, UINavigationControllerDelegate {
+class DetailsPostViewController: UIViewController {
     
     var viewModel: DetailsPostViewModel
     
-    private var zoomTransitioning = ZoomTransitioning()
+    //private var zoomTransitioning = ZoomTransitioning()
 
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
@@ -73,8 +73,7 @@ class DetailsPostViewController: UIViewController, UINavigationControllerDelegat
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.delegate = self
-        
+
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear
@@ -467,7 +466,7 @@ extension DetailsPostViewController: PostCellDelegate {
             guard let referenceKind = post.reference, let tab = tabBarController as? MainTabController else { return }
             let controller = ReferenceMenuViewController(postId: post.postId, kind: referenceKind)
             controller.delegate = self
-            controller.modalPresentationStyle = .overCurrentContext
+            controller.modalPresentationStyle = .fullScreen
             tab.showMenu(controller)
         }
     }
@@ -491,12 +490,13 @@ extension DetailsPostViewController: PostCellDelegate {
         handleBookmarkUnbookmark(for: currentCell, at: IndexPath(item: 0, section: 0))
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        self.navigationController?.delegate = zoomTransitioning
-        viewModel.selectedImage = image[index]
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
@@ -580,13 +580,13 @@ extension DetailsPostViewController: CommentCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
 }
-
+/*
 extension DetailsPostViewController: ZoomTransitioningDelegate {
     func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
         return viewModel.selectedImage
     }
 }
-
+*/
 extension DetailsPostViewController: ReferenceMenuViewControllerDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {

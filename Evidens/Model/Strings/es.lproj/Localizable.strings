@@ -90,7 +90,7 @@
 "alerts.subtitle.reportPost" = "¿Seguro que quieres denunciar esta publicación a nuestro equipo de moderación?";
 "alerts.subtitle.deactivate" = "Tu cuenta será desactivada.";
 "alerts.subtitle.deactivateWarning" = "Tu cuenta será desactivada. Por favor, escribe DESACTIVAR para confirmar.";
-"alerts.subtitle.faces" = "Se ha(n) detectado una o más cara(s). Por favor, revise sus imágenes para asegurarse de proteger la privacidad del paciente.";
+"alerts.subtitle.faces" = "Se ha(n) detectado una o más cara(s). Por favor, revisa tus imágenes o déjanos encargarnos de ello por ti.";
 "alerts.subtitle.unfollowPre" = "Dejar de ver publicaciones de";
 "alerts.subtitle.unfollowPost" = "en tu muro.";
 "alerts.subtitle.unfollowAction" = "no recibirá ninguna notificación al respecto.";
@@ -222,6 +222,8 @@
 
 "block.message" = "ya no podrá seguirte ni conectar contigo, y no verás notificaciones de";
 "block.unblock" = "ahora podrá seguirte o conectar contigo, y verás notificaciones de";
+"block.emptyTitle" = "Bloquear cuentas no deseadas";
+"block.emptyContent" = "Cuando bloqueas a alguien, no podrán seguirte ni conectarse contigo, y no recibirás sus notificaciones.";
 
 "content.post.share" = "¿Qué está pasando?";
 "content.post.post" = "Publicación";

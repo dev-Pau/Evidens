@@ -300,7 +300,7 @@ extension CaseTextImageCell: CaseImageCellDelegate {
     
     func didTapImage(_ imageView: UIImageView) {
         guard let _ = imageView.image else { return }
-        delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
+        delegate?.clinicalCase(self, didTapImage: imageView)
     }
 }
 

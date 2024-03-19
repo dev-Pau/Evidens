@@ -31,7 +31,7 @@ protocol SearchResultsUpdatingViewControllerDelegate: AnyObject {
     func dismissKeyboard()
 }
 
-class SearchResultsUpdatingViewController: UIViewController, UINavigationControllerDelegate {
+class SearchResultsUpdatingViewController: UIViewController {
     
     private var viewModel = SearchResultsUpdatingViewModel()
 
@@ -43,8 +43,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         }
     }
     
-    private var zoomTransitioning = ZoomTransitioning()
-
     private var searchToolbar = SearchToolbar()
 
      private let scrollView: UIScrollView = {
@@ -121,11 +119,6 @@ class SearchResultsUpdatingViewController: UIViewController, UINavigationControl
         self.definesPresentationContext = true
         configureUI()
         configureNotificationObservers()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.delegate = self
     }
     
     private func createSearchLayout() -> UICollectionViewCompositionalLayout {
@@ -1071,8 +1064,6 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        self.navigationController?.delegate = self
-        
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
             let controller = DetailsPostViewController(post: post, user: user)
             navVC.pushViewController(controller, animated: true)
@@ -1153,31 +1144,13 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
         }
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-       
-        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-            switch viewModel.scrollIndex {
-            case 0:
-                guard let indexPath = featuredCollectionView.indexPath(for: cell) else { return }
-                let post = viewModel.topPosts[indexPath.row]
-                
-                if let index = viewModel.topPostUsers.firstIndex(where: { $0.uid! == post.uid }) {
-                    let controller = DetailsPostViewController(post: post, user: viewModel.topPostUsers[index])
-                    navVC.pushViewController(controller, animated: true)
-                }
-            case 3:
-                guard let indexPath = postsCollectionView.indexPath(for: cell) else { return }
-                let post = viewModel.posts[indexPath.row]
-                
-                if let index = viewModel.postUsers.firstIndex(where: { $0.uid! == post.uid }) {
-                    let controller = DetailsPostViewController(post: post, user: viewModel.postUsers[index])
-                    navVC.pushViewController(controller, animated: true)
-                }
-
-            default:
-                break
-            }
-        }
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image, let searchViewController = presentingViewController as? SearchViewController, let searchNavigationController = searchViewController.navigationController else { return }
+        let controller = ContentImageViewController(image: img, navVC: searchNavigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        searchNavigationController.present(navVC, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
@@ -1190,9 +1163,6 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-      
-        self.navigationController?.delegate = self
-        
         let controller = DetailsPostViewController(post: post, user: user)
      
         if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
@@ -1316,44 +1286,14 @@ extension SearchResultsUpdatingViewController: CaseCellDelegate {
         }
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-     
-        if let searchViewController = presentingViewController as? SearchViewController, let navVC = searchViewController.navigationController {
-            switch viewModel.scrollIndex {
-            case 0:
-                guard let indexPath = featuredCollectionView.indexPath(for: cell) else { return }
-                let clinicalCase = viewModel.topCases[indexPath.row]
-                
-                switch clinicalCase.privacy {
-                    
-                case .regular:
-                    if let index = viewModel.topCaseUsers.firstIndex(where: { $0.uid! == clinicalCase.uid }) {
-                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.topCaseUsers[index])
-                        navVC.pushViewController(controller, animated: true)
-                    }
-                case .anonymous:
-                    let controller = DetailsCaseViewController(clinicalCase: clinicalCase)
-                        navVC.pushViewController(controller, animated: true)
-                }
-            case 2:
-                guard let indexPath = casesCollectionView.indexPath(for: cell) else { return }
-                let clinicalCase = viewModel.cases[indexPath.row]
-                
-                switch clinicalCase.privacy {
-                    
-                case .regular:
-                    if let index = viewModel.caseUsers.firstIndex(where: { $0.uid == clinicalCase.uid }) {
-                        let controller = DetailsCaseViewController(clinicalCase: clinicalCase, user: viewModel.caseUsers[index])
-                        navVC.pushViewController(controller, animated: true)
-                    }
-                case .anonymous:
-                    let controller = DetailsCaseViewController(clinicalCase: clinicalCase)
-                        navVC.pushViewController(controller, animated: true)
-                }
-            default:
-                break
-            }
-        }
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image, let searchViewController = presentingViewController as? SearchViewController, let searchNavigationController = searchViewController.navigationController else { return }
+
+        let controller = ContentImageViewController(image: img, navVC: searchNavigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        searchNavigationController.present(navVC, animated: true)
     }
 }
 

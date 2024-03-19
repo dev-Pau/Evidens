@@ -121,22 +121,16 @@ class ProfileNameView: UIView {
         return button
     }()
     
-    private lazy var aboutTextView: UITextView = {
-        let tv = UITextView()
-        tv.tintColor = primaryColor
-        tv.textColor = primaryGray
-        let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
-        tv.font = UIFont.addFont(size: smallFont, scaleStyle: .title2, weight: .regular)
-        tv.isScrollEnabled = false
-        tv.isSelectable = false
-        tv.isEditable = false
-        tv.contentInset = UIEdgeInsets.zero
-        tv.textContainerInset = UIEdgeInsets.zero
-        tv.textContainer.lineFragmentPadding = .zero
-        tv.textContainer.maximumNumberOfLines = 2
-        tv.translatesAutoresizingMaskIntoConstraints = false
-        return tv
-    }()
+    private let aboutLabel: UILabel = {
+            let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.textColor = primaryGray
+            label.numberOfLines = 2
+            label.isUserInteractionEnabled = true
+            let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
+            label.font = UIFont.addFont(size: smallFont, scaleStyle: .largeTitle, weight: .regular)
+            return label
+        }()
     
     private let chevronImage: UIImageView = {
         let iv = UIImageView()
@@ -157,11 +151,15 @@ class ProfileNameView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+    }
+    
     private func configure() {
         backgroundColor = .systemBackground
         translatesAutoresizingMaskIntoConstraints = false
         
-        let bannerHeight = (UIScreen.main.bounds.width - 20.0) / bannerAR
+        let bannerHeight = (UIWindow.visibleScreenWidth - 20.0) / bannerAR
         let imageHeight = UIDevice.isPad ? 120.0 : 75.0
         _ = UIDevice.isPad ? 50.0 : 40.0
         
@@ -179,10 +177,10 @@ class ProfileNameView: UIView {
         nameStackView.translatesAutoresizingMaskIntoConstraints = false
         nameStackView.axis = .vertical
         nameStackView.spacing = 5
+
+        topAnchorAboutConstraint = aboutLabel.topAnchor.constraint(equalTo: nameStackView.bottomAnchor)
         
-        topAnchorAboutConstraint = aboutTextView.topAnchor.constraint(equalTo: nameStackView.bottomAnchor)
-        
-        addSubviews(bannerImage, profileImage, nameStackView, websiteButton, actionButton, aboutTextView, chevronImage)
+        addSubviews(bannerImage, profileImage, nameStackView, websiteButton, actionButton, aboutLabel, chevronImage)
         
         NSLayoutConstraint.activate([
             bannerImage.topAnchor.constraint(equalTo: topAnchor),
@@ -200,15 +198,15 @@ class ProfileNameView: UIView {
             nameStackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
             
             topAnchorAboutConstraint,
-            aboutTextView.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
-            aboutTextView.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
+            aboutLabel.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
+            aboutLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
             
             chevronImage.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
-            chevronImage.centerYAnchor.constraint(equalTo: aboutTextView.centerYAnchor),
+            chevronImage.centerYAnchor.constraint(equalTo: aboutLabel.centerYAnchor),
             chevronImage.widthAnchor.constraint(equalToConstant: 20),
             chevronImage.heightAnchor.constraint(equalToConstant: 20),
             
-            websiteButton.topAnchor.constraint(greaterThanOrEqualTo: aboutTextView.bottomAnchor),
+            websiteButton.topAnchor.constraint(greaterThanOrEqualTo: aboutLabel.bottomAnchor),
             websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
 
@@ -222,7 +220,7 @@ class ProfileNameView: UIView {
         profileImage.layer.cornerRadius = imageHeight / 2
 
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleAboutTap(_:)))
-        aboutTextView.addGestureRecognizer(gestureRecognizer)
+        aboutLabel.addGestureRecognizer(gestureRecognizer)
         
         chevronImage.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAboutTap)))
     }
@@ -252,20 +250,21 @@ class ProfileNameView: UIView {
         
         let buttonPadding: CGFloat = 2 * padding
         
-        aboutTextView.text = viewModel.about
+        aboutLabel.text = viewModel.about
       
         websiteButton.configuration?.attributedTitle = viewModel.website(viewModel.website)
         
         let hasWebsite = !viewModel.website.isEmpty
         let hasAbout = !viewModel.about.isEmpty
-        
-        let topWebsitePadding = hasWebsite ? buttonPadding : hasAbout ? 0 : buttonPadding / 2
-        let bottomWebsitePadding = hasWebsite ? hasAbout ? buttonPadding : buttonPadding / 2 : 0
+
+        let topWebsitePadding = hasWebsite ? buttonPadding : 0
+        let bottomWebsitePadding = hasWebsite ? buttonPadding : 0
         
         topAnchorAboutConstraint.constant = hasAbout ? buttonPadding : 0
+        
         websiteButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: topWebsitePadding, leading: 0, bottom: bottomWebsitePadding, trailing: 0)
 
-        aboutTextView.isHidden = !hasAbout
+        aboutLabel.isHidden = !hasAbout
         chevronImage.isHidden = !hasAbout
         
         connections.isUserInteractionEnabled = viewModel.user.blockPhase != nil ? false : true
@@ -292,10 +291,8 @@ class ProfileNameView: UIView {
         configuration.imagePadding = 10
 
         if let phase = viewModel.user.blockPhase, phase == .blocked {
-            configuration.contentInsets = .zero
             actionButton.isHidden = true
         } else {
-            configuration.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0)
             actionButton.isHidden = false
         }
 

@@ -28,6 +28,8 @@ class CaseImageCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        backgroundColor = .quaternarySystemFill
+        
         addSubview(caseImageView)
         
         NSLayoutConstraint.activate([

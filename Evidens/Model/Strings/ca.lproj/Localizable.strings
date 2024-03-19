@@ -90,7 +90,7 @@
 "alerts.subtitle.reportPost" = "Segur que vols denunciar aquesta publicació al nostre equip de moderació?";
 "alerts.subtitle.deactivate" = "El teu compte es desactivarà.";
 "alerts.subtitle.deactivateWarning" = "El teu compte es desactivarà. Si us plau, escriu DESACTIVAR per confirmar.";
-"alerts.subtitle.faces" = "S'ha(n) detectat una o més cara(es). Si us plau, reviseu les vostres imatges per garantir la privacitat del pacient.";
+"alerts.subtitle.faces" = "Una o més cara(s) han estat detectades. Si us plau, revisa les teves imatges o deixa'ns que ens en ocupem per tu.";
 "alerts.subtitle.unfollowPre" = "Deixar de veure publicacions de";
 "alerts.subtitle.unfollowPost" = "en el teu mur.";
 "alerts.subtitle.unfollowAction" = "no rebrà cap notificació al respecte.";
@@ -222,6 +222,8 @@
 
 "block.message" = "ja no podrà seguir-te ni connectar amb tu, i no veuràs notificacions de";
 "block.unblock" = "ara podrà seguir-te o connectar amb tu, i veuràs notificacions de";
+"block.emptyTitle" = "Bloquejar comptes no desitjats";
+"block.emptyContent" = "Quan bloqueges algú, no podrà seguir-te ni connectar amb tu, i no rebràs les seves notificacions.";
 
 "content.post.share" = "Què està passant?";
 "content.post.post" = "Publicació";

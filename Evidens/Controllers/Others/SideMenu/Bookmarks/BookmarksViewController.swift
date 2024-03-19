@@ -20,14 +20,11 @@ private let emptyBookmarkCellCaseReuseIdentifier = "EmptyBookmarkCellCaseReuseId
 
 private let networkCellReuseIdentifier = "NetworkCellReuseIdentifer"
 
-class BookmarksViewController: UIViewController, UINavigationControllerDelegate {
+class BookmarksViewController: UIViewController {
     
     private var viewModel = BookmarksViewModel()
     private var bookmarkToolbar = BookmarkToolbar()
     private var spacingView = SpacingView()
-    
-    private var zoomTransitioning = ZoomTransitioning()
-
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -49,11 +46,6 @@ class BookmarksViewController: UIViewController, UINavigationControllerDelegate 
         configureCollectionViews()
         configureNotificationObservers()
         fetchBookmarkedCases()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.delegate = self
     }
     
     deinit {
@@ -607,8 +599,6 @@ extension BookmarksViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToShowCommentsFor post: Post, forAuthor user: User) {
-        self.navigationController?.delegate = self
-        
         let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -650,12 +640,13 @@ extension BookmarksViewController: PostCellDelegate {
         handleBookmarkUnbookmark(for: currentCell, at: indexPath)
     }
     
-    func cell(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        self.navigationController?.delegate = zoomTransitioning
-        viewModel.selectedImage = image[index]
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func cell(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     func cell(wantsToSeeLikesFor post: Post) {
@@ -665,8 +656,6 @@ extension BookmarksViewController: PostCellDelegate {
     }
     
     func cell(_ cell: UICollectionViewCell, wantsToSeePost post: Post, withAuthor user: User) {
-        self.navigationController?.delegate = self
-        
         let controller = DetailsPostViewController(post: post, user: user)
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -737,12 +726,13 @@ extension BookmarksViewController: CaseCellDelegate {
         }
     }
     
-    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: [UIImageView], index: Int) {
-        let map: [UIImage] = image.compactMap { $0.image }
-        viewModel.selectedImage = image[index]
-        navigationController?.delegate = zoomTransitioning
-        let controller = ZoomImageViewController(images: map, index: index)
-        navigationController?.pushViewController(controller, animated: true)
+    func clinicalCase(_ cell: UICollectionViewCell, didTapImage image: UIImageView) {
+        guard let img = image.image else { return }
+        let controller = ContentImageViewController(image: img, navVC: navigationController)
+        let navVC = UINavigationController(rootViewController: controller)
+        navVC.setNavigationBarHidden(true, animated: false)
+        navVC.modalPresentationStyle = .overCurrentContext
+        present(navVC, animated: true)
     }
     
     func clinicalCase(_ cell: UICollectionViewCell, wantsToSeeCase clinicalCase: Case, withAuthor user: User?) {
@@ -1028,11 +1018,5 @@ extension BookmarksViewController {
                 casesCollectionView.reloadData()
             }
         }
-    }
-}
-
-extension BookmarksViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.selectedImage
     }
 }

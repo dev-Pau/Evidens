@@ -202,8 +202,6 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
         contentTextView.addHashtags(withColor: .link)
 
         tagCollectionView.reloadData()
-        
-        //layoutIfNeeded()
     }
     
     func set(user: User) {
@@ -329,7 +327,7 @@ extension CaseTextImageExpandedCell: ContentRevisionViewDelegate {
 extension CaseTextImageExpandedCell: CaseImageCellDelegate {
     func didTapImage(_ imageView: UIImageView) {
         guard let _ = imageView.image else { return }
-        delegate?.clinicalCase(self, didTapImage: [imageView] , index: 0)
+        delegate?.clinicalCase(self, didTapImage: imageView)
     }
 }
 

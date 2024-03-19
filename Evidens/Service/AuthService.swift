@@ -458,6 +458,7 @@ struct AuthService {
             }
             
             if let providers = providers {
+
                 if providers.contains(Provider.google.id) {
                     completion(.success(.google))
                     return
@@ -472,6 +473,7 @@ struct AuthService {
                     return
                 }
             } else {
+
                 completion(.failure(.userNotFound))
             }
         }

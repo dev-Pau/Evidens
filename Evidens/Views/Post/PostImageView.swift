@@ -8,7 +8,7 @@
 import UIKit
 
 protocol PostImagesDelegate: AnyObject {
-    func zoomImage(_ image: [UIImageView], index: Int)
+    func zoomImage(_ image: UIImageView)
 }
 
 class PostImages: UIView {
@@ -46,7 +46,7 @@ class PostImages: UIView {
         
         let padding: CGFloat = UIDevice.isPad ? 65 : 55
         
-        let size = UIScreen.main.bounds.width - (padding + 10)
+        let size = UIWindow.visibleScreenWidth - (padding + 10)
 
         guard let kind = kind else { return }
         
@@ -199,30 +199,30 @@ extension PostImages: PostImageViewDelegate {
         switch kind {
             
         case .one:
-            zoomDelegate?.zoomImage(images, index: 0)
+            zoomDelegate?.zoomImage(images[0])
         case .two:
             if image == images[0] {
-                zoomDelegate?.zoomImage(images, index: 0)
+                zoomDelegate?.zoomImage(images[0])
             } else {
-                zoomDelegate?.zoomImage(images, index: 1)
+                zoomDelegate?.zoomImage(images[1])
             }
         case .three:
             if image == images[0] {
-                zoomDelegate?.zoomImage(images, index: 0)
+                zoomDelegate?.zoomImage(images[0])
             } else if image == images[1] {
-                zoomDelegate?.zoomImage(images, index: 1)
+                zoomDelegate?.zoomImage(images[1])
             } else {
-                zoomDelegate?.zoomImage(images, index: 2)
+                zoomDelegate?.zoomImage(images[2])
             }
         case .four:
             if image == images[0] {
-                zoomDelegate?.zoomImage(images, index: 0)
+                zoomDelegate?.zoomImage(images[0])
             } else if image == images[1] {
-                zoomDelegate?.zoomImage(images, index: 1)
+                zoomDelegate?.zoomImage(images[1])
             } else if image == images[2] {
-                zoomDelegate?.zoomImage(images, index: 2)
+                zoomDelegate?.zoomImage(images[2])
             } else {
-                zoomDelegate?.zoomImage(images, index: 3)
+                zoomDelegate?.zoomImage(images[3])
             }
         }
     }

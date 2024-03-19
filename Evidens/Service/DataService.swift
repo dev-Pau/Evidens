@@ -342,9 +342,9 @@ extension DataService {
         }
     }
     
-    func getNotificationCount(forUid uid: String) -> Int {
+    func getNotificationCount(forKind kind: NotificationKind, withUid uid: String) -> Int {
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
-        request.predicate = NSPredicate(format: "uid == %@", uid as CVarArg)
+        request.predicate = NSPredicate(format: "uid == %@ AND kind == %@", uid, NSNumber(value: kind.rawValue))
         
         do {
             let count = try managedObjectContext.count(for: request)
@@ -367,6 +367,7 @@ extension DataService {
     ///   - value: The new value to be set.
     ///   - key: The key for which the value should be set.
     func read(notification: Notification) {
+
         let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
         request.predicate = NSPredicate(format: "id = %@", notification.id)
         
@@ -375,35 +376,16 @@ extension DataService {
             
             if let notificationEntity = notificationEntities.first {
                 notificationEntity.setValue(true, forKey: "isRead")
+                
+                do {
+                    try managedObjectContext.save()
+                    print(notificationEntity)
+                } catch {
+                    print(error.localizedDescription)
+                }
+            } else {
+                print("Not found")
             }
-            do {
-                try managedObjectContext.save()
-            } catch {
-                print(error.localizedDescription)
-            }
-
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
-    /// Edits a Notification by setting a specific value for the given key.
-    ///
-    /// - Parameters:
-    ///   - message: The Notification to be edited.
-    ///   - value: The new value to be set.
-    ///   - key: The key for which the value should be set.
-    func edit(notification: Notification, set value: Any?, forKey key: String) {
-        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
-        request.predicate = NSPredicate(format: "id = %@", notification.id)
-        
-        do {
-            let notificationEntities = try managedObjectContext.fetch(request)
-            if let notificationEntity = notificationEntities.first {
-                notificationEntity.setValue(value, forKey: key)
-            }
-            
-            try managedObjectContext.save()
         } catch {
             print(error.localizedDescription)
         }
@@ -429,42 +411,14 @@ extension DataService {
             
             try managedObjectContext.save()
             
-            if let currentUid = UserDefaults.getUid(), currentUid != notification.uid {
-                let count = getNotificationCount(forUid: notification.uid)
-                
-                if count == 0 {
-                    FileGateway.shared.deleteImage(userId: notification.uid)
-                }
-            }
-            
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
-    /// Deletes notifications of a specific kind for a given UID from the managed object context.
-    /// - Parameters:
-    ///   - kind: The kind of notification to be deleted.
-    ///   - uid: The UID associated with the notifications.
-    func deleteNotification(forKind kind: NotificationKind, withUid uid: String) {
-        let request = NSFetchRequest<NotificationEntity>(entityName: "NotificationEntity")
-        
-        request.predicate = NSPredicate(format: "uid == %@ AND kind == %@", uid, NSNumber(value: kind.rawValue))
-        
-        do {
-            let notificationEntities = try managedObjectContext.fetch(request)
-            
-            if let notificationEntity = notificationEntities.first {
-                managedObjectContext.delete(notificationEntity)
-            }
-            
-            try managedObjectContext.save()
-            
-            
-            if let currentUid = UserDefaults.getUid(), currentUid != uid {
-                let count = getNotificationCount(forUid: uid)
-                if count == 0 {
-                    FileGateway.shared.deleteImage(userId: uid)
+            if notification.kind == .connectionAccept || notification.kind == .connectionRequest {
+                if let currentUid = UserDefaults.getUid(), currentUid != notification.uid {
+                    let requestCount = getNotificationCount(forKind: .connectionRequest, withUid: notification.uid)
+                    let acceptCount = getNotificationCount(forKind: .connectionAccept, withUid: notification.uid)
+                    
+                    if requestCount == 0 && acceptCount == 0 {
+                        FileGateway.shared.deleteImage(userId: notification.uid)
+                    }
                 }
             }
         } catch {

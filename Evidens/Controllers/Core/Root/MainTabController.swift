@@ -222,24 +222,24 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         searchController.delegate = self
         
         let cases = UINavigationController(rootViewController: casesController)
-        cases.tabBarItem.image = UIImage(systemName: AppStrings.Icons.clipboard)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        cases.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.clipboard)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        cases.tabBarItem.title = AppStrings.Tab.cases
+        cases.tabBarItem.image = TabIcon.cases.image
+        cases.tabBarItem.selectedImage = TabIcon.cases.selectedImage
+        cases.tabBarItem.title = TabIcon.cases.title
 
         let posts = UINavigationController(rootViewController: postsController)
-        posts.tabBarItem.image = UIImage(systemName: AppStrings.Icons.network)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        posts.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.network)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        posts.tabBarItem.title = AppStrings.Tab.network
+        posts.tabBarItem.image = TabIcon.network.image
+        posts.tabBarItem.selectedImage = TabIcon.network.selectedImage
+        posts.tabBarItem.title = TabIcon.network.title
         
         let notifications = UINavigationController(rootViewController: notificationsController)
-        notifications.tabBarItem.image = UIImage(systemName: AppStrings.Icons.fillBell)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        notifications.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.fillBell)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        notifications.tabBarItem.title = AppStrings.Tab.notifications
+        notifications.tabBarItem.image = TabIcon.notifications.image
+        notifications.tabBarItem.selectedImage = TabIcon.notifications.selectedImage
+        notifications.tabBarItem.title = TabIcon.notifications.title
         
         let search = UINavigationController(rootViewController: searchController)
-        search.tabBarItem.image = UIImage(systemName: AppStrings.Icons.magnifyingglass)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel)
-        search.tabBarItem.selectedImage = UIImage(systemName: AppStrings.Icons.magnifyingglass)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
-        search.tabBarItem.title = AppStrings.Tab.search
+        search.tabBarItem.image = TabIcon.search.image
+        search.tabBarItem.selectedImage = TabIcon.search.selectedImage
+        search.tabBarItem.title = TabIcon.search.title
        
         viewControllers = [cases, posts, notifications, search]
         
@@ -324,15 +324,6 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             navVC.modalPresentationStyle = .fullScreen
             strongSelf.present(navVC, animated: true)
         }
-    }
-    
-    func templateNavigationController(title: String?, unselectedImage: UIImage, selectedImage: UIImage, rootViewController: UIViewController) -> UINavigationController {
-        
-        let nav = UINavigationController(rootViewController: rootViewController)
-        nav.tabBarItem.image = unselectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24))
-        nav.tabBarItem.title = title
-        nav.tabBarItem.selectedImage = selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24))
-        return nav
     }
     
     func pushUserProfileViewController() {

@@ -432,6 +432,7 @@ extension PostService {
                     let nsError = error as NSError
                     let _ = FirestoreErrorCode(_nsError: nsError)
                     completion(.failure(.unknown))
+                    return
                 }
                 
                 guard let snapshot = snapshot, !snapshot.isEmpty else {

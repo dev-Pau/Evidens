@@ -197,13 +197,13 @@ extension UIViewController {
             let navigationBarHeight = navigationController?.navigationBar.frame.height ?? 0
             let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
             
-            let screenHeight = UIScreen.main.bounds.height
+            let screenHeight = UIWindow.visibleScreenHeight
             let heightMinusBars = screenHeight - statusBarHeight - navigationBarHeight - tabBarHeight
             
             return heightMinusBars
         }
         
-        return UIScreen.main.bounds.height
+        return UIWindow.visibleScreenHeight
     }
     
     /// Logs out the user from the application.

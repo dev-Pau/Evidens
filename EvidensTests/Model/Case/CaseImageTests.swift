@@ -22,12 +22,12 @@ final class CaseImageTests: XCTestCase {
         let mainImage = UIImage(named: "AppIcon")!
         let faceImage = UIImage(named: "AppIcon")!
         
-        let caseImageWithFace = CaseImage(image: mainImage, faceImage: faceImage)
+        let caseImageWithFace = CaseImage(image: mainImage, containsFaces: true)
         XCTAssertTrue(caseImageWithFace.containsFaces)
         XCTAssertFalse(caseImageWithFace.isRevealed)
         XCTAssertEqual(caseImageWithFace.getImage(), faceImage)
         
-        let caseImageWithoutFace = CaseImage(image: mainImage, faceImage: nil)
+        let caseImageWithoutFace = CaseImage(image: mainImage, containsFaces: false)
         XCTAssertFalse(caseImageWithoutFace.containsFaces)
         XCTAssertTrue(caseImageWithoutFace.isRevealed)
         XCTAssertEqual(caseImageWithoutFace.getImage(), mainImage)
@@ -37,10 +37,10 @@ final class CaseImageTests: XCTestCase {
         let mainImage = UIImage(named: "AppIcon")!
         let faceImage = UIImage(named: "AppIcon")!
         
-        let caseImageWithFace = CaseImage(image: mainImage, faceImage: faceImage)
+        let caseImageWithFace = CaseImage(image: mainImage, containsFaces: true)
         XCTAssertEqual(caseImageWithFace.getImage(), faceImage)
         
-        let caseImageWithoutFace = CaseImage(image: mainImage, faceImage: nil)
+        let caseImageWithoutFace = CaseImage(image: mainImage, containsFaces: false)
         XCTAssertEqual(caseImageWithoutFace.getImage(), mainImage)
     }
 }

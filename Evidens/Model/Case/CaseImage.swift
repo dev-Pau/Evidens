@@ -10,29 +10,17 @@ import UIKit
 /// The model for a CaseImage.
 struct CaseImage {
     let image: UIImage
-    var faceImage: UIImage?
-    
+
     var containsFaces: Bool
     var isRevealed: Bool
     
-    init(image: UIImage, faceImage: UIImage?) {
+    init(image: UIImage, containsFaces: Bool = false) {
         self.image = image
-        
-        if let faceImage {
-            self.faceImage = faceImage
-            self.containsFaces = true
-            self.isRevealed = false
-        } else {
-            self.containsFaces = false
-            self.isRevealed = true
-        }
+        self.containsFaces = containsFaces
+        self.isRevealed = !containsFaces
     }
     
     func getImage() -> UIImage {
-        if let faceImage {
-            return faceImage
-        } else {
-            return image
-        }
+        return image
     }
 }
