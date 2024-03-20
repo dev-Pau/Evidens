@@ -62,6 +62,8 @@ class SpecialityListViewController: UIViewController {
         navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
     }
     
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -118,8 +120,13 @@ class SpecialityListViewController: UIViewController {
         searchController.searchBar.placeholder = AppStrings.Opening.speciality
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
+        
+        if #available(iOS 16.0, *) {
+            navigationItem.preferredSearchBarPlacement = .stacked
+        }
     }
     
+    #warning("Fer-ho amb compositional")
     func createTwoColumnFlowLayout() -> UICollectionViewFlowLayout {
         let width = view.bounds.width
         let padding: CGFloat = 12
@@ -154,7 +161,7 @@ class SpecialityListViewController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -10),
             
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -20 : 0),
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.heightAnchor.constraint(equalToConstant: 50),

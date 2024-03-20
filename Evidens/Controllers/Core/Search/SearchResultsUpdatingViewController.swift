@@ -117,8 +117,16 @@ class SearchResultsUpdatingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.definesPresentationContext = true
-        configureUI()
+        //configureUI()
         configureNotificationObservers()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !viewModel.isFirstLayoutLoad {
+            configureUI()
+            viewModel.isFirstLayoutLoad = true
+        }
     }
     
     private func createSearchLayout() -> UICollectionViewCompositionalLayout {

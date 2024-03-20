@@ -147,14 +147,14 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                     NotificationService.syncPreferences(settings.authorizationStatus)
                 }
                 
-                tabBar.isHidden = false
+                if !UIDevice.isPad { tabBar.isHidden = false }
             case .review:
                 configureViewControllers(withUser: user)
                 
                 UNUserNotificationCenter.current().getNotificationSettings { settings in
                     NotificationService.syncPreferences(settings.authorizationStatus)
                 }
-                tabBar.isHidden = false
+                if !UIDevice.isPad { tabBar.isHidden = false }
                 
             case .verified:
                 configureViewControllers(withUser: user)
@@ -163,7 +163,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                     NotificationService.syncPreferences(settings.authorizationStatus)
                 }
                 
-                tabBar.isHidden = false
+                if !UIDevice.isPad { tabBar.isHidden = false }
                 
             case .deactivate:
                 let controller = ActivateAccountViewController(user: user)
@@ -194,7 +194,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
             case  .verified:
                 menuDelegate?.controllersLoaded()
                 configureViewControllers()
-                tabBar.isHidden = false
+                if !UIDevice.isPad { tabBar.isHidden = false }
             }
         }
     }
@@ -205,43 +205,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         view.backgroundColor = .systemBackground
         self.delegate = self
         
-        let casesController = CasesViewController()
-        casesController.delegate = self
-        casesController.scrollDelegate = self
-        
-        let postsController = PostsViewController(source: .home)
-        postsController.delegate = self
-        postsController.scrollDelegate = self
-        
-        let notificationsController = NotificationsViewController()
-        notificationsController.delegate = self
-        notificationsController.scrollDelegate = self
-        
-        let searchController = SearchViewController()
-        searchController.scrollDelegate = self
-        searchController.delegate = self
-        
-        let cases = UINavigationController(rootViewController: casesController)
-        cases.tabBarItem.image = TabIcon.cases.image
-        cases.tabBarItem.selectedImage = TabIcon.cases.selectedImage
-        cases.tabBarItem.title = TabIcon.cases.title
-
-        let posts = UINavigationController(rootViewController: postsController)
-        posts.tabBarItem.image = TabIcon.network.image
-        posts.tabBarItem.selectedImage = TabIcon.network.selectedImage
-        posts.tabBarItem.title = TabIcon.network.title
-        
-        let notifications = UINavigationController(rootViewController: notificationsController)
-        notifications.tabBarItem.image = TabIcon.notifications.image
-        notifications.tabBarItem.selectedImage = TabIcon.notifications.selectedImage
-        notifications.tabBarItem.title = TabIcon.notifications.title
-        
-        let search = UINavigationController(rootViewController: searchController)
-        search.tabBarItem.image = TabIcon.search.image
-        search.tabBarItem.selectedImage = TabIcon.search.selectedImage
-        search.tabBarItem.title = TabIcon.search.title
-       
-        viewControllers = [cases, posts, notifications, search]
+        assignViewControllers()
         
         if let user {
 
@@ -264,7 +228,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 return
             }
 
-            viewControllers = [cases, posts, notifications, search]
+            //viewControllers = [cases, posts, notifications, search]
         }
     }
     
@@ -315,6 +279,59 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
         }
     }
     
+    private func assignViewControllers() {
+        
+        let casesController = CasesViewController()
+        casesController.delegate = self
+        casesController.scrollDelegate = self
+        
+        let postsController = PostsViewController(source: .home)
+        postsController.delegate = self
+        postsController.scrollDelegate = self
+        
+        let notificationsController = NotificationsViewController()
+        notificationsController.delegate = self
+        notificationsController.scrollDelegate = self
+        
+        let searchController = SearchViewController()
+        searchController.scrollDelegate = self
+        searchController.delegate = self
+        
+        lazy var bookmarkController = BookmarksViewController()
+        lazy var draftsController = DraftsViewController()
+        lazy var profileController = UIViewController()
+
+        let cases = UINavigationController(rootViewController: casesController)
+        cases.tabBarItem.image = TabIcon.cases.regularImage
+        cases.tabBarItem.selectedImage = TabIcon.cases.selectedImage
+        cases.tabBarItem.title = TabIcon.cases.title
+
+        let posts = UINavigationController(rootViewController: postsController)
+        posts.tabBarItem.image = TabIcon.network.regularImage
+        posts.tabBarItem.selectedImage = TabIcon.network.selectedImage
+        posts.tabBarItem.title = TabIcon.network.title
+        
+        let notifications = UINavigationController(rootViewController: notificationsController)
+        notifications.tabBarItem.image = TabIcon.notifications.regularImage
+        notifications.tabBarItem.selectedImage = TabIcon.notifications.selectedImage
+        notifications.tabBarItem.title = TabIcon.notifications.title
+        
+        let search = UINavigationController(rootViewController: searchController)
+        search.tabBarItem.image = TabIcon.search.regularImage
+        search.tabBarItem.selectedImage = TabIcon.search.selectedImage
+        search.tabBarItem.title = TabIcon.search.title
+       
+        lazy var bookmarks = UINavigationController(rootViewController: bookmarkController)
+        lazy var drafts = UINavigationController(rootViewController: draftsController)
+        lazy var profile = UINavigationController(rootViewController: profileController)
+
+        if UIDevice.isPad {
+            viewControllers = [cases, posts, notifications, search, bookmarks, drafts, profile]
+        } else {
+            viewControllers = [cases, posts, notifications, search]
+        }
+    }
+    
     private func showVerificationController() {
         guard let user = user else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
@@ -350,16 +367,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 currentNavController.delegate = self
                 currentNavController.pushViewController(controller, animated: true)
             case .create:
-                if let phase = UserDefaults.getPhase(), phase == .verified {
-                    let controller = ContentMenuViewController()
-                    controller.delegate = self
-                    controller.modalPresentationStyle = .overCurrentContext
-                    present(controller, animated: false) { [weak self] in
-                        self?.disable()
-                    }
-                } else {
-                    ContentManager.shared.permissionAlert(kind: .share)
-                }
+                didTapAddButton()
             case .draft:
                 let controller = DraftsViewController()
                 currentNavController.pushViewController(controller, animated: true)
@@ -496,12 +504,12 @@ extension MainTabController: ContentMenuViewControllerDelegate {
         case .post:
             let postController = ContentDisciplinesViewController(kind: .post, user: user)
             let nav = UINavigationController(rootViewController: postController)
-            nav.modalPresentationStyle = .fullScreen
+            nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(nav, animated: true, completion: nil)
         case .clinicalCase:
             let clinicalCaseController = ContentDisciplinesViewController(kind: .clinicalCase, user: user)
             let nav = UINavigationController(rootViewController: clinicalCaseController)
-            nav.modalPresentationStyle = .fullScreen
+            nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(nav, animated: true, completion: nil)
         }
     }
@@ -525,9 +533,22 @@ extension MainTabController: NavigationBarViewControllerDelegate {
         if let phase = UserDefaults.getPhase(), phase == .verified {
             let controller = ContentMenuViewController()
             controller.delegate = self
-            controller.modalPresentationStyle = .overCurrentContext
-            present(controller, animated: false) { [weak self] in
-                self?.disable()
+            
+            if UIDevice.isPad {
+                
+                if let sheet = controller.sheetPresentationController {
+                    sheet.detents = [.medium()]
+                }
+                
+                present(controller, animated: true)
+                
+                //controller.modalPresentationStyle = .formSheet
+                //present(controller, animated: true)
+            } else {
+                controller.modalPresentationStyle = .overCurrentContext
+                present(controller, animated: false) { [weak self] in
+                    self?.disable()
+                }
             }
         } else {
             ContentManager.shared.permissionAlert(kind: .share)
@@ -574,5 +595,40 @@ extension MainTabController: NetworkDelegate {
                 }
             }
         }
+    }
+}
+
+extension MainTabController: SideTabViewControllerDelegate {
+    func didTapTabIcon(_ tab: TabIcon) {
+        switch tab {
+            
+        case .icon, .resources:
+            break
+        case .cases:
+            selectedIndex = 0
+        case .network:
+            selectedIndex = 1
+        case .notifications:
+            selectedIndex = 2
+        case .search:
+            selectedIndex = 3
+        case .bookmark:
+            selectedIndex = 4
+        case .drafts:
+            selectedIndex = 5
+#warning("això si, em d'afegir a draft i a cases un mecanisme per mirar si hi ha de nous com tenim a notificationVC quan estem a IPAD")
+        case .profile:
+            guard let index = TabIcon.allCases.firstIndex(of: tab), let user else { return }
+            let controller = UserProfileViewController(user: user)
+            let navVC = UINavigationController(rootViewController: controller)
+            let profileIndex = index - 1
+            viewControllers?[profileIndex] = navVC
+            selectedIndex = profileIndex
+            #warning("aquí en comptes de cada vegada obrirlo seria interessant que sempr estigués obert o no eh potser el podríem deixar així i que cada vegada que s'apreti es carregui, ho mirem")
+        }
+    }
+    
+    func didTapAdd() {
+        didTapAddButton()
     }
 }

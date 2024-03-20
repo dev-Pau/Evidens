@@ -27,8 +27,6 @@ class DetailsPostViewController: UIViewController {
     
     var viewModel: DetailsPostViewModel
     
-    //private var zoomTransitioning = ZoomTransitioning()
-
     private lazy var commentInputView: CommentInputAccessoryView = {
         let cv = CommentInputAccessoryView()
         cv.accessoryViewDelegate = self
@@ -68,7 +66,6 @@ class DetailsPostViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(postEditChange(_:)), name: NSNotification.Name(AppPublishers.Names.postEdit), object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(postCommentLikeChange(_:)), name: NSNotification.Name(AppPublishers.Names.postCommentLike), object: nil)
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -97,6 +94,7 @@ class DetailsPostViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+
         if !viewModel.firstLoad {
             let height = commentInputView.frame.height - 1
             collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: height, right: 0)
@@ -133,7 +131,7 @@ class DetailsPostViewController: UIViewController {
         
         let keyboardHeight = view.bounds.maxY - intersection.minY
         
-        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+        let tabBarHeight = UIDevice.isPad ? view.safeAreaInsets.bottom : (tabBarController?.tabBar.frame.height ?? 0)
         
         let constant = -(keyboardHeight - tabBarHeight)
         UIView.animate(withDuration: animationDuration) { [weak self] in
@@ -151,10 +149,10 @@ class DetailsPostViewController: UIViewController {
     
     func configureCollectionView() {
         view.backgroundColor = .systemBackground
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -172,6 +170,13 @@ class DetailsPostViewController: UIViewController {
         collectionView.register(PageDisabledCell.self, forCellWithReuseIdentifier: disabledCellReuseIdentifier)
         
         view.addSubview(collectionView)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
         
         if viewModel.postId == nil && viewModel.post.visible == .regular {
             configureCommentInputView()

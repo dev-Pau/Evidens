@@ -51,7 +51,11 @@ class PostsViewController: NavigationBarViewController {
     
     func configure() {
         view.backgroundColor = .systemBackground
-
+        
+        if UIDevice.isPad {
+            title = AppStrings.Tab.network
+        }
+        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyPrimaryCellReuseIdentifier)
         collectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
@@ -69,7 +73,7 @@ class PostsViewController: NavigationBarViewController {
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor)
         ])
 
         if viewModel.source == .home {
@@ -373,7 +377,7 @@ extension PostsViewController: PostCellDelegate {
         let controller = ContentImageViewController(image: img, navVC: navigationController)
         let navVC = UINavigationController(rootViewController: controller)
         navVC.setNavigationBarHidden(true, animated: false)
-        navVC.modalPresentationStyle = .overCurrentContext
+        navVC.modalPresentationStyle = .overFullScreen
         present(navVC, animated: true)
     }
     

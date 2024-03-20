@@ -22,6 +22,8 @@ class SearchResultsUpdatingViewModel {
     
     weak var delegate: SearchResultsUpdatingViewModelDelegate?
     
+    var isFirstLayoutLoad: Bool = false
+    
     var searchMode: SearchMode = .recents
     var searchTopic: SearchTopics = .people
     

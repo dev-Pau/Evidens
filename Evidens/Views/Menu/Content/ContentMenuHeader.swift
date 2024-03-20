@@ -47,7 +47,7 @@ class ContentMenuHeader: UICollectionReusableView {
     
     private func configure() {
         addSubviews(separator, titleLabel, bottomSeparator)
-
+        backgroundColor = .systemBackground
         NSLayoutConstraint.activate([
             separator.centerXAnchor.constraint(equalTo: centerXAnchor),
             separator.topAnchor.constraint(equalTo: topAnchor, constant: 10),

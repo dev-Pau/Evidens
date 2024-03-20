@@ -61,6 +61,8 @@ class ContentMenuCell: UICollectionViewCell {
         addSubview(contentLabel)
         addSubview(separatorView)
         
+        backgroundColor = .systemBackground
+        
         NSLayoutConstraint.activate([
             button.topAnchor.constraint(equalTo: topAnchor, constant: padding),
             button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),

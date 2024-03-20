@@ -123,7 +123,7 @@ class ShareCaseTitleViewController: UIViewController {
         scrollView.bounces = true
         scrollView.alwaysBounceVertical = true
         
-        nextButtonConstraint = nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        nextButtonConstraint = nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -20 : 0)
         view.addSubviews(scrollView)
         scrollView.addSubviews(nextButton, titleLabel, contentLabel, titleTextField)
         NSLayoutConstraint.activate([
@@ -194,7 +194,7 @@ class ShareCaseTitleViewController: UIViewController {
                 UIView.animate(withDuration: duration) { [weak self] in
                     guard let strongSelf = self else { return }
                     
-                    strongSelf.nextButtonConstraint.constant = 0
+                    strongSelf.nextButtonConstraint.constant = UIDevice.isPad ? -20 : 0
                     strongSelf.view.layoutIfNeeded()
                 }
             } else {

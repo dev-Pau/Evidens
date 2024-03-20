@@ -41,9 +41,25 @@ class CasesViewController: NavigationBarViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureCollectionView()
+        configureNavigationBar()
         getCases()
         configureNotificationObservers()
+    }
+    
+    private var firstLoad: Bool = false
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !firstLoad {
+            configureCollectionView()
+            firstLoad = true
+        }
+    }
+    
+    private func configureNavigationBar() {
+        if UIDevice.isPad {
+            title = AppStrings.Tab.cases
+        }
     }
     
     private func configureNotificationObservers() {
@@ -92,7 +108,7 @@ class CasesViewController: NavigationBarViewController {
                 return section
             } else {
                 let width: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.5) : .fractionalWidth(1.0)
-                let height: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.4) : .estimated(300)
+                let height: NSCollectionLayoutDimension = UIDevice.isPad ? .estimated(300) : .estimated(300)
                 
                 let itemSize = NSCollectionLayoutSize(widthDimension: width, heightDimension: height)
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -133,7 +149,7 @@ class CasesViewController: NavigationBarViewController {
                 return section
             } else {
                 let width: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.5) : .fractionalWidth(1.0)
-                let height: NSCollectionLayoutDimension = UIDevice.isPad ? .fractionalWidth(0.4) : .estimated(300)
+                let height: NSCollectionLayoutDimension = UIDevice.isPad ? .estimated(300) : .estimated(300)
                 
                 let itemSize = NSCollectionLayoutSize(widthDimension: width, heightDimension: height)
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -180,6 +196,7 @@ class CasesViewController: NavigationBarViewController {
         scrollView.addSubviews(forYouCollectionView, spacingView, latestCollectionView)
         
         NSLayoutConstraint.activate([
+            
             caseToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             caseToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             caseToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -193,17 +210,17 @@ class CasesViewController: NavigationBarViewController {
             forYouCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             forYouCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             forYouCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            forYouCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            forYouCollectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor),
             
             spacingView.topAnchor.constraint(equalTo: forYouCollectionView.topAnchor),
             spacingView.leadingAnchor.constraint(equalTo: forYouCollectionView.trailingAnchor),
             spacingView.widthAnchor.constraint(equalToConstant: 10),
-            spacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            spacingView.bottomAnchor.constraint(equalTo: forYouCollectionView.bottomAnchor),
             
             latestCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             latestCollectionView.leadingAnchor.constraint(equalTo: spacingView.trailingAnchor),
             latestCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            latestCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            latestCollectionView.bottomAnchor.constraint(equalTo: spacingView.bottomAnchor),
         ])
 
         configureAddButton(primaryAppearance: true)
@@ -211,9 +228,11 @@ class CasesViewController: NavigationBarViewController {
         caseToolbar.toolbarDelegate = self
         scrollView.delegate = self
 
-        forYouCollectionView.contentInset.bottom = 85
-        latestCollectionView.contentInset.bottom = 85
-        
+        if !UIDevice.isPad {
+            forYouCollectionView.contentInset.bottom = 85
+            latestCollectionView.contentInset.bottom = 85
+        }
+
         forYouCollectionView.register(PrimaryCaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         forYouCollectionView.register(PrimaryCaseImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         forYouCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: primaryEmtpyCellReuseIdentifier)
@@ -452,8 +471,8 @@ extension CasesViewController: CaseCellDelegate {
         case .report:
             let controller = ReportViewController(source: .clinicalCase, userId: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
-            self.present(navVC, animated: true)
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
+            present(navVC, animated: true)
         }
     }
     

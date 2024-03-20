@@ -54,8 +54,8 @@ class CaseRevisionViewController: UIViewController {
     
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
-
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.frame = view.bounds
         collectionView.backgroundColor = .systemBackground
         collectionView.delegate = self
@@ -67,6 +67,13 @@ class CaseRevisionViewController: UIViewController {
         collectionView.register(RevisionCaseCell.self, forCellWithReuseIdentifier: revisionCaseCellReuseIdentifier)
         collectionView.register(DiagnosisCaseCell.self, forCellWithReuseIdentifier: diagnosisCaseCellReuseIdentifier)
         view.addSubview(collectionView)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor)
+        ])
     }
     
     private func addLayout() -> UICollectionViewCompositionalLayout {
@@ -116,7 +123,7 @@ class CaseRevisionViewController: UIViewController {
         let controller = AddCaseRevisionViewController(clinicalCase: viewModel.clinicalCase)
 
         let navController = UINavigationController(rootViewController: controller)
-        navController.modalPresentationStyle = .fullScreen
+        navController.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
         present(navController, animated: true)
     }
     

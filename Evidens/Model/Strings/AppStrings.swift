@@ -130,9 +130,12 @@ struct AppStrings {
         static let cross = "cross"
         static let filter = "slider.horizontal.3"
         static let squareOnSquare = "square.on.square"
-        static let network = "person.2.fill"
+        static let fillSquareOnSquare = "square.fill.on.square.fill"
+        static let network = "person.fill"
+        static let padNetwork = "person"
         static let fillBell = "bell.fill"
         static let clipboard = "list.clipboard.fill"
+        static let listClipboard = "list.clipboard"
     }
     
     struct About {

@@ -47,11 +47,6 @@ class PostLinkExpandedCell: UICollectionViewCell {
 
         buttonTopConstraint = actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor)
 
-        let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
-        
-        let linkWidth: CGFloat = frame.width - (textPadding + 10)
-        let linkSize: CGFloat = linkWidth * 0.78
-        
         backgroundColor = .systemBackground
         addSubviews(userPostView, postTextView, linkView, revisionView, contentTimestamp, actionButtonsView, separator)
         
@@ -68,8 +63,7 @@ class PostLinkExpandedCell: UICollectionViewCell {
             linkView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             linkView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             linkView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
-            linkView.heightAnchor.constraint(equalToConstant: linkSize),
-            
+ 
             contentTimestamp.topAnchor.constraint(equalTo: linkView.bottomAnchor),
             contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),

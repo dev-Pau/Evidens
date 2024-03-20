@@ -57,7 +57,7 @@ class LikesViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(ContentLikeCell.self, forCellWithReuseIdentifier: likesCellReuseIdentifier)
         collectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
@@ -66,6 +66,14 @@ class LikesViewController: UIViewController {
         collectionView.dataSource = self
         
         view.addSubviews(collectionView)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
         collectionView.backgroundColor = .systemBackground
     }
     

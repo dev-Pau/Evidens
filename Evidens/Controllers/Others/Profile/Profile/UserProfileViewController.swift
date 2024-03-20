@@ -51,8 +51,7 @@ class UserProfileViewController: UIViewController {
     private let padding: CGFloat = 10.0
 
     private var toolbarHeight = 50.0
-    private let padPadding: CGFloat = UIDevice.isPad ? 30 : 0
-    
+
     init(user: User) {
         self.viewModel = UserProfileViewModel(user: user)
         super.init(nibName: nil, bundle: nil)
@@ -66,27 +65,32 @@ class UserProfileViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        let phase = viewModel.user.phase
-        
-        switch phase {
+        if !viewModel.isFirstLayoutLoad {
+            getUser()
+            viewModel.isFirstLayoutLoad = true
+        } else {
+            let phase = viewModel.user.phase
             
-        case .category, .name, .username:
-            break
-        case .identity, .pending, .review:
-            
-            guard viewModel.user.isCurrentUser else {
-                return
+            switch phase {
+                
+            case .category, .name, .username:
+                break
+            case .identity, .pending, .review:
+                
+                guard viewModel.user.isCurrentUser else {
+                    return
+                }
+                
+                if !viewModel.collectionsLoaded && viewModel.uid == nil {
+                    viewModel.collectionsLoaded = true
+                }
+            case .verified:
+                if !viewModel.collectionsLoaded && viewModel.uid == nil {
+                    viewModel.collectionsLoaded = true
+                }
+            case .deactivate, .ban, .deleted:
+                break
             }
-            
-            if !viewModel.collectionsLoaded && viewModel.uid == nil {
-                viewModel.collectionsLoaded = true
-            }
-        case .verified:
-            if !viewModel.collectionsLoaded && viewModel.uid == nil {
-                viewModel.collectionsLoaded = true
-            }
-        case .deactivate, .ban, .deleted:
-            break
         }
     }
     
@@ -102,7 +106,6 @@ class UserProfileViewController: UIViewController {
         super.viewDidLoad()
         configureLoading()
         configureNotificationObservers()
-        getUser()
     }
     
     private func configureLoading() {
@@ -175,9 +178,9 @@ class UserProfileViewController: UIViewController {
         scrollView.addSubview(pageView)
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.widthAnchor.constraint(equalToConstant: view.frame.width),
             
             pageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -240,62 +243,6 @@ class UserProfileViewController: UIViewController {
         
         scrollView.addSubviews(casesCollectionView, postsCollectionView, repliesCollectionView, casesSpacingView, postsSpacingView, profileNameView)
 
-        if UIDevice.isPad {
-            let line = UIView()
-            line.translatesAutoresizingMaskIntoConstraints = false
-            line.backgroundColor = separatorColor
-            
-            scrollView.addSubviews(line, profileToolbar)
-
-            topToolbarAnchorConstraint = profileToolbar.topAnchor.constraint(equalTo: scrollView.topAnchor)
-            topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor)
-            
-            NSLayoutConstraint.activate([
-                scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + padding),
-                
-                topHeaderAnchorConstraint,
-                profileNameView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                profileNameView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-                topToolbarAnchorConstraint,
-                profileToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                profileToolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                heightToolbarAnchorConstraint,
-                
-                line.topAnchor.constraint(equalTo: profileNameView.bottomAnchor, constant: padPadding - 1),
-                line.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                line.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                line.heightAnchor.constraint(equalToConstant: 0.4),
-                
-                postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                postsCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-                postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-                postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                
-                postsSpacingView.topAnchor.constraint(equalTo: line.bottomAnchor),
-                postsSpacingView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor),
-                postsSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                postsSpacingView.widthAnchor.constraint(equalToConstant: 10),
-
-                casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                casesCollectionView.leadingAnchor.constraint(equalTo: postsSpacingView.trailingAnchor),
-                casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-                casesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                
-                casesSpacingView.topAnchor.constraint(equalTo: line.bottomAnchor),
-                casesSpacingView.leadingAnchor.constraint(equalTo: casesCollectionView.trailingAnchor),
-                casesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                casesSpacingView.widthAnchor.constraint(equalToConstant: 10),
-
-                repliesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                repliesCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
-                repliesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-                repliesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            ])
-        } else {
             scrollView.addSubview(profileToolbar)
 
             topHeaderAnchorConstraint = profileNameView.topAnchor.constraint(equalTo: scrollView.topAnchor)
@@ -304,7 +251,7 @@ class UserProfileViewController: UIViewController {
             NSLayoutConstraint.activate([
                 scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
                 scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
                 scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + padding),
              
                 topHeaderAnchorConstraint,
@@ -319,30 +266,29 @@ class UserProfileViewController: UIViewController {
                 casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
                 casesCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
                 casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-                casesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                casesCollectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor),
                 
                 casesSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
                 casesSpacingView.leadingAnchor.constraint(equalTo: casesCollectionView.trailingAnchor),
-                casesSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                casesSpacingView.bottomAnchor.constraint(equalTo: casesCollectionView.bottomAnchor),
                 casesSpacingView.widthAnchor.constraint(equalToConstant: 10),
 
                 postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
                 postsCollectionView.leadingAnchor.constraint(equalTo: casesSpacingView.trailingAnchor),
                 postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-                postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                postsCollectionView.bottomAnchor.constraint(equalTo: casesCollectionView.bottomAnchor),
                 
                 postsSpacingView.topAnchor.constraint(equalTo: profileToolbar.bottomAnchor),
                 postsSpacingView.leadingAnchor.constraint(equalTo: postsCollectionView.trailingAnchor),
-                postsSpacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                postsSpacingView.bottomAnchor.constraint(equalTo: casesCollectionView.bottomAnchor),
                 postsSpacingView.widthAnchor.constraint(equalToConstant: 10),
 
                 repliesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
                 repliesCollectionView.leadingAnchor.constraint(equalTo: postsSpacingView.trailingAnchor),
                 repliesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-                repliesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                repliesCollectionView.bottomAnchor.constraint(equalTo: casesCollectionView.bottomAnchor),
             ])
-        }
-        
+
         scrollView.contentSize.width = view.frame.width * 3 + 3 * 10
 
         casesCollectionView.backgroundColor = .systemBackground
@@ -389,15 +335,13 @@ class UserProfileViewController: UIViewController {
 
         view.layoutIfNeeded()
 
-        //toolbarHeight = self.viewModel.user.blockPhase != nil ? 0 : 50.0
-        
         heightToolbarAnchorConstraint.constant = toolbarHeight
         profileToolbar.isHidden = self.viewModel.user.blockPhase != nil ? true : false
         scrollView.isScrollEnabled = self.viewModel.user.blockPhase != nil ? false : true
        
         headerTopInset = profileNameView.frame.height
         
-        let paddingTop =  headerTopInset + toolbarHeight + padPadding
+        let paddingTop =  headerTopInset + toolbarHeight
         
         casesCollectionView.contentInset.top = paddingTop
         casesCollectionView.verticalScrollIndicatorInsets.top = paddingTop
@@ -574,7 +518,6 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 repliesCollectionView.contentInset.bottom = max(0, minimumContentHeight - repliesCollectionView.contentSize.height)
             }
             
-            if !UIDevice.isPad {
                 switch viewModel.index {
                 case 0:
                     topToolbarAnchorConstraint.constant = max(0, -(offset.y + postsCollectionView.contentInset.top - headerTopInset))
@@ -585,16 +528,6 @@ extension UserProfileViewController: UIScrollViewDelegate {
                 default:
                     topToolbarAnchorConstraint.constant = max(0, -(offset.y + repliesCollectionView.contentInset.top - headerTopInset))
                     topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
-                }
-            } else {
-                switch viewModel.index {
-                case 0:
-                    topHeaderAnchorConstraint.constant = -(offset.y + casesCollectionView.contentInset.top - padding)
-                case 1:
-                    topHeaderAnchorConstraint.constant = -(offset.y + postsCollectionView.contentInset.top - padding)
-                default:
-                    topHeaderAnchorConstraint.constant = -(offset.y + repliesCollectionView.contentInset.top - padding)
-                }
             }
             
             if offset.y < -toolbarHeight {
@@ -918,13 +851,13 @@ extension UserProfileViewController: PostCellDelegate {
         case .edit:
             let controller = EditPostViewController(post: post)
             let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
+            nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(nav, animated: true)
             
         case .report:
             let controller = ReportViewController(source: .post, userId: post.uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             self.present(navVC, animated: true)
             
         case .reference:
@@ -1463,7 +1396,7 @@ extension UserProfileViewController: ProfileNameViewDelegate {
             controller.delegate = self
             
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(navVC, animated: true)
         } else {
             if let phase = UserDefaults.getPhase(), phase == .verified {
@@ -1737,7 +1670,7 @@ extension UserProfileViewController: ConnectMenuViewControllerDelegate {
         case .report:
             let controller = ReportViewController(source: .user, userId: viewModel.user.uid!, contentId: "")
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(navVC, animated: true)
         case .block:
             let title = AppStrings.Alerts.Actions.block + AppStrings.Characters.space + viewModel.user.getUsername()

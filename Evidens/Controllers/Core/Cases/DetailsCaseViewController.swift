@@ -48,6 +48,7 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear
@@ -74,6 +75,8 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
             collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: height, right: 0)
             collectionView.verticalScrollIndicatorInsets.bottom = height
             viewModel.firstLoad = true
+        } else if !viewModel.secondLoad {
+            
         }
     }
     
@@ -122,10 +125,10 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
         collectionView.delegate = self
         collectionView.dataSource = self
-        
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
@@ -141,6 +144,13 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
         collectionView.register(PageDisabledCell.self, forCellWithReuseIdentifier: disabledCellReuseIdentifier)
         
         view.addSubview(collectionView)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
         
         if viewModel.caseId == nil {
             configureCommentInputView()
@@ -302,8 +312,8 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
         let intersection = convertedKeyboardFrame.intersection(view.bounds)
         
         let keyboardHeight = view.bounds.maxY - intersection.minY
-        
-        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
+
+        let tabBarHeight = UIDevice.isPad ? view.safeAreaInsets.bottom : (tabBarController?.tabBar.frame.height ?? 0)
         
         let constant = -(keyboardHeight - tabBarHeight)
         UIView.animate(withDuration: animationDuration) { [weak self] in
@@ -535,12 +545,12 @@ extension DetailsCaseViewController: CaseCellDelegate {
         case .solve:
             let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
             let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
+            nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(nav, animated: true)
         case .report:
             let controller = ReportViewController(source: .clinicalCase, userId: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             self.present(navVC, animated: true)
         }
     }
@@ -549,7 +559,6 @@ extension DetailsCaseViewController: CaseCellDelegate {
     
     func clinicalCase(wantsToSeeHashtag hashtag: String) {
         let controller = HashtagViewController(hashtag: hashtag)
-
         navigationController?.pushViewController(controller, animated: true)
     }
     

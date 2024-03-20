@@ -42,9 +42,16 @@ class HashtagViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
-        configure()
         configureNotificationObservers()
         fetchCases()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !viewModel.isLayoutFirstLoad {
+            configure()
+            viewModel.isLayoutFirstLoad = true
+        }
     }
     
     init(hashtag: String) {
@@ -91,6 +98,7 @@ class HashtagViewController: UIViewController {
         view.addSubviews(hashtagToolbar, scrollView)
         
         scrollView.addSubviews(casesCollectionView, spacingView, postsCollectionView)
+        
         NSLayoutConstraint.activate([
             hashtagToolbar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             hashtagToolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -105,17 +113,17 @@ class HashtagViewController: UIViewController {
             casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             casesCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            casesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            casesCollectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor),
 
             spacingView.topAnchor.constraint(equalTo: casesCollectionView.topAnchor),
             spacingView.leadingAnchor.constraint(equalTo: casesCollectionView.trailingAnchor),
             spacingView.widthAnchor.constraint(equalToConstant: 10),
-            spacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            spacingView.bottomAnchor.constraint(equalTo: casesCollectionView.bottomAnchor),
             
             postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             postsCollectionView.leadingAnchor.constraint(equalTo: spacingView.trailingAnchor),
             postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            postsCollectionView.bottomAnchor.constraint(equalTo: casesCollectionView.bottomAnchor),
         ])
         
         scrollView.delegate = self
@@ -541,14 +549,14 @@ extension HashtagViewController: BookmarkToolbarDelegate {
         default:
             break
         }
-
+/*
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
             scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
             viewModel.scrollIndex = index
             return
         }
-        
+        */
         casesCollectionView.isScrollEnabled = false
         postsCollectionView.isScrollEnabled = false
         self.scrollView.isUserInteractionEnabled = false

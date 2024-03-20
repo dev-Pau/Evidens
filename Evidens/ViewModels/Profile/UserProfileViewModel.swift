@@ -14,6 +14,7 @@ class UserProfileViewModel {
     private(set) var user: User
     private(set) var uid: String?
     
+    var isFirstLayoutLoad: Bool = false
     var isFirstLoad: Bool = false
     
     var postsLoaded: Bool = false

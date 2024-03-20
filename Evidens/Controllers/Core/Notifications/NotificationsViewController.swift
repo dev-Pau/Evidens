@@ -32,8 +32,11 @@ class NotificationsViewController: NavigationBarViewController {
     }
     
     private func configureCollectionView() {
-        title = AppStrings.Settings.notificationsTitle
         
+        if UIDevice.isPad {
+            title = AppStrings.Tab.notifications
+        }
+
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
         collectionView.backgroundColor = .systemBackground
         collectionView.bounces = true
@@ -48,7 +51,7 @@ class NotificationsViewController: NavigationBarViewController {
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
         configureAddButton(primaryAppearance: true)

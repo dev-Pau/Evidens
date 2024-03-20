@@ -1,19 +1,13 @@
 //
-//  SideMenuView.swift
+//  SideMenuHeader.swift
 //  Evidens
 //
-//  Created by Pau Fernández Solà on 10/9/22.
+//  Created by Pau Fernández Solà on 20/3/24.
 //
 
 import UIKit
 
-protocol SideMenuViewDelegate: AnyObject {
-    func didTapProfile()
-}
-
-class SideMenuView: UIView {
-    
-    weak var delegate: SideMenuViewDelegate?
+class SideMenuHeader: UICollectionReusableView {
     
     private lazy var userImage = ProfileImageView(frame: .zero)
     
@@ -46,11 +40,16 @@ class SideMenuView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = .systemBackground
-        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleHeaderTap)))
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configureLayout() {
         
-        let size: CGFloat = UIDevice.isPad ? 50 : 40
+        let size: CGFloat = frame.width / 4
         
         addSubviews(userImage, nameLabel, usernameLabel, separatorView)
         NSLayoutConstraint.activate([
@@ -80,9 +79,6 @@ class SideMenuView: UIView {
         configure()
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     func configure() {
         let size: CGFloat = UIDevice.isPad ? 55 : 45
@@ -96,9 +92,5 @@ class SideMenuView: UIView {
         if let username = UserDefaults.standard.value(forKey: "username") as? String {
             usernameLabel.text = AppStrings.Characters.atSign + username
         }
-    }
-    
-    @objc func handleHeaderTap() {
-        delegate?.didTapProfile()
     }
 }

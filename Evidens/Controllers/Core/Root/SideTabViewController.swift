@@ -12,9 +12,11 @@ private let tabBarIconCellReuseIdentifier = "TabBarIconCellReuseIdentifier"
 class SideTabViewController: UIViewController {
     
     var collectionView: UICollectionView!
+    var addButton: UIButton!
     
     weak var tabDelegate: SideTabViewControllerDelegate?
     
+    private var selectedIcon: TabIcon = .cases
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,18 +27,40 @@ class SideTabViewController: UIViewController {
 
         view.backgroundColor = .systemBackground
         
+        let buttonSize = UIWindow.visibleScreenWidth * 0.13 / 1.7
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(TabBarIconCell.self, forCellWithReuseIdentifier: tabBarIconCellReuseIdentifier)
+        collectionView.bounces = false
+        collectionView.allowsSelection = true
+        collectionView.allowsMultipleSelection = false
+        
         collectionView.delegate = self
         collectionView.dataSource = self
         
         let separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
         separator.backgroundColor = separatorColor
-
+        
+        addButton = UIButton(type: .custom)
+        addButton.addTarget(self, action: #selector(handleAdd), for: .touchUpInside)
+        addButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        var configuration = UIButton.Configuration.filled()
+        configuration.baseBackgroundColor = primaryColor
+        configuration.cornerStyle = .capsule
+        configuration.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize / 2, height: buttonSize / 2))
+        
+        addButton.configuration = configuration
+        addButton.tintAdjustmentMode = .normal
+        addButton.layer.shadowColor = UIColor.secondaryLabel.cgColor
+        addButton.layer.shadowOpacity = 0.5
+        addButton.layer.shadowOffset = CGSize(width: 0, height: 4)
+        addButton.layer.shadowRadius = 4
+        
         view.addSubview(collectionView)
         view.addSubview(separator)
+        view.addSubview(addButton)
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -48,15 +72,26 @@ class SideTabViewController: UIViewController {
             separator.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             separator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             separator.widthAnchor.constraint(equalToConstant: 0.4),
+            
+            addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            addButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+            addButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            addButton.widthAnchor.constraint(equalToConstant: buttonSize)
         ])
     }
     
     private func addLayout() -> UICollectionViewCompositionalLayout {
-        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100))
+        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(250))
         let item = NSCollectionLayoutItem(layoutSize: size)
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
+        section.contentInsets.top = -10
         return UICollectionViewCompositionalLayout(section: section)
+    }
+    
+    @objc func handleAdd() {
+        tabDelegate?.didTapAdd()
     }
 }
 
@@ -68,6 +103,60 @@ extension SideTabViewController: UICollectionViewDelegate, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: tabBarIconCellReuseIdentifier, for: indexPath) as! TabBarIconCell
+        cell.tabIcon = TabIcon.allCases[indexPath.row]
+        
+        if indexPath.row == 1 {
+            collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left)
+        }
+        
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        if indexPath.row == 0 {
+            return false
+        } else {
+            return true
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let tabSelected = TabIcon.allCases[indexPath.row]
+        
+        switch tabSelected {
+            
+        case .icon:
+            break
+        case .cases, .network, .notifications, .search, .bookmark, .drafts, .profile:
+            tabDelegate?.didTapTabIcon(tabSelected)
+        case .resources:
+            
+            let popoverContentController = ResourcesPopoverViewController()
+            popoverContentController.modalPresentationStyle = .popover
+            
+            if let popoverPresentationController = popoverContentController.popoverPresentationController, let cell = collectionView.cellForItem(at: indexPath) {
+                popoverPresentationController.permittedArrowDirections = [.down]
+                popoverPresentationController.sourceView = cell
+                popoverPresentationController.delegate = self
+                present(popoverContentController, animated: true)
+            }
+        }
+    }
 }
+
+
+extension SideTabViewController: UIPopoverPresentationControllerDelegate {
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return .none
+    }
+
+    func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
+
+    }
+
+    func popoverPresentationControllerShouldDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) -> Bool {
+        return true
+    }
+}
+

@@ -82,7 +82,7 @@ class SubmitReportViewController: UIViewController {
         view.addSubviews(collectionView, reportButton, reportContextButton)
         NSLayoutConstraint.activate([
             
-            reportButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            reportButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -10 : 0),
             reportButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             reportButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             reportButton.heightAnchor.constraint(equalToConstant: height),
@@ -144,7 +144,7 @@ class SubmitReportViewController: UIViewController {
         let controller = AddReportContextViewController(viewModel: viewModel)
         controller.delegate = self
         let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
+        nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
         present(nav, animated: true)
     }
 }

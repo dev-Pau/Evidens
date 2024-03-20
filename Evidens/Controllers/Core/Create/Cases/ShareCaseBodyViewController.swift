@@ -76,8 +76,18 @@ class ShareCaseBodyViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configure()
+        //configure()
         configureNavigationBar()
+    }
+    
+    var firstLoad = false
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !firstLoad {
+            configure()
+            firstLoad = true
+        }
     }
     
     init(user: User, viewModel: ShareCaseViewModel) {
@@ -92,123 +102,16 @@ class ShareCaseBodyViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        guard !loaded else { return }
-        NSLayoutConstraint.activate([
-            headView.topAnchor.constraint(equalTo: bodyImage.topAnchor, constant: -10),
-            headView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.head.height + 10),
-            headView.centerXAnchor.constraint(equalTo: bodyImage.centerXAnchor),
-            headView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.head.width),
-            
-            upperLeftChestView.topAnchor.constraint(equalTo: headView.bottomAnchor, constant: -lineWidth),
-            upperLeftChestView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightShoulder.height),
-            upperLeftChestView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
-            upperLeftChestView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightShoulder.width / 2),
-            
-            upperRightChestView.topAnchor.constraint(equalTo: headView.bottomAnchor, constant: -lineWidth),
-            upperRightChestView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftShoulder.height),
-            upperRightChestView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
-            upperRightChestView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftShoulder.width / 2),
-            
-            lowerLeftChestView.topAnchor.constraint(equalTo: upperLeftChestView.bottomAnchor, constant: -lineWidth),
-            lowerLeftChestView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightChest.height),
-            lowerLeftChestView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
-            lowerLeftChestView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightChest.width / 2),
-            
-            lowerRightChestView.topAnchor.constraint(equalTo: upperLeftChestView.bottomAnchor, constant: -lineWidth),
-            lowerRightChestView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftChest.height),
-            lowerRightChestView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
-            lowerRightChestView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftChest.width / 2),
-            
-            upperStomachView.topAnchor.constraint(equalTo: lowerRightChestView.bottomAnchor, constant: -lineWidth),
-            upperStomachView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.stomach.height),
-            upperStomachView.centerXAnchor.constraint(equalTo: bodyImage.centerXAnchor),
-            upperStomachView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.stomach.width - lineWidth),
-            
-            lowerStomachView.topAnchor.constraint(equalTo: upperStomachView.bottomAnchor, constant: -lineWidth),
-            lowerStomachView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.hips.height),
-            lowerStomachView.centerXAnchor.constraint(equalTo: bodyImage.centerXAnchor),
-            lowerStomachView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.hips.width - lineWidth),
-            
-            upperLeftKneeView.topAnchor.constraint(equalTo: lowerStomachView.bottomAnchor, constant: -lineWidth),
-            upperLeftKneeView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightThigh.height),
-            upperLeftKneeView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
-            upperLeftKneeView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightThigh.width / 2),
-            
-            upperRightKneeView.topAnchor.constraint(equalTo: lowerStomachView.bottomAnchor, constant: -lineWidth),
-            upperRightKneeView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftThigh.height),
-            upperRightKneeView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
-            upperRightKneeView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftThigh.width / 2),
-            
-            lowerLeftKneeView.topAnchor.constraint(equalTo: upperRightKneeView.bottomAnchor, constant: -lineWidth),
-            lowerLeftKneeView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightKnee.height),
-            lowerLeftKneeView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
-            lowerLeftKneeView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightKnee.width / 2),
-            
-            lowerRightKneeView.topAnchor.constraint(equalTo: upperRightKneeView.bottomAnchor, constant: -lineWidth),
-            lowerRightKneeView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftKnee.height),
-            lowerRightKneeView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
-            lowerRightKneeView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftKnee.width / 2),
-            
-            upperLeftFeetView.topAnchor.constraint(equalTo: lowerLeftKneeView.bottomAnchor, constant: -lineWidth),
-            upperLeftFeetView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightShin.height),
-            upperLeftFeetView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
-            upperLeftFeetView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightShin.width / 2),
-            
-            upperRightFeetView.topAnchor.constraint(equalTo: lowerLeftKneeView.bottomAnchor, constant: -lineWidth),
-            upperRightFeetView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftShin.height),
-            upperRightFeetView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
-            upperRightFeetView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftShin.width / 2),
-            
-            lowerLeftFeetView.topAnchor.constraint(equalTo: upperRightFeetView.bottomAnchor, constant: -lineWidth),
-            lowerLeftFeetView.bottomAnchor.constraint(equalTo: bodyImage.bottomAnchor, constant: 10),
-            lowerLeftFeetView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
-            lowerLeftFeetView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightFoot.width / 2),
-            
-            lowerRightFeetView.topAnchor.constraint(equalTo: upperRightFeetView.bottomAnchor, constant: -lineWidth),
-            lowerRightFeetView.bottomAnchor.constraint(equalTo: bodyImage.bottomAnchor, constant: 10),
-            lowerRightFeetView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
-            lowerRightFeetView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftFoot.width / 2),
-            
-            leftArmView.topAnchor.constraint(equalTo: upperLeftChestView.bottomAnchor, constant: -lineWidth),
-            leftArmView.leadingAnchor.constraint(equalTo: upperLeftChestView.leadingAnchor),
-            leftArmView.trailingAnchor.constraint(equalTo: lowerLeftChestView.leadingAnchor, constant: lineWidth),
-            leftArmView.bottomAnchor.constraint(equalTo: upperStomachView.bottomAnchor),
-            
-            rightArmView.topAnchor.constraint(equalTo: upperRightChestView.bottomAnchor, constant: -lineWidth),
-            rightArmView.leadingAnchor.constraint(equalTo: lowerRightChestView.trailingAnchor, constant: -lineWidth),
-            rightArmView.trailingAnchor.constraint(equalTo: upperRightChestView.trailingAnchor),
-            rightArmView.bottomAnchor.constraint(equalTo: upperStomachView.bottomAnchor),
-            
-            leftHandView.topAnchor.constraint(equalTo: leftArmView.bottomAnchor, constant: -lineWidth),
-            leftHandView.leadingAnchor.constraint(equalTo: bodyImage.leadingAnchor, constant: -20),
-            leftHandView.trailingAnchor.constraint(equalTo: lowerStomachView.leadingAnchor, constant: lineWidth),
-            leftHandView.bottomAnchor.constraint(equalTo: lowerStomachView.bottomAnchor, constant: 10),
-            
-            rightHandView.topAnchor.constraint(equalTo: rightArmView.bottomAnchor, constant: -lineWidth),
-            rightHandView.trailingAnchor.constraint(equalTo: bodyImage.trailingAnchor, constant: 20),
-            rightHandView.leadingAnchor.constraint(equalTo: lowerStomachView.trailingAnchor, constant: -lineWidth),
-            rightHandView.bottomAnchor.constraint(equalTo: lowerStomachView.bottomAnchor, constant: 10),
-        ])
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.activityIndicator.isHidden = true
-            strongSelf.activityIndicator.removeFromSuperview()
-            strongSelf.bodyImage.isHidden = false
-            strongSelf.bodyViews.forEach { $0.isHidden = false }
-            strongSelf.switchButton.isHidden = false
-            strongSelf.skipButton.isHidden = false
-            strongSelf.loaded = true
-        }
     }
-    
+
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
+            guard firstLoad else { return }
             configureBodyImage()
             bodyViews.forEach { $0.layer.borderColor = UIColor.label.cgColor }
         }
     }
-    
+
     private func configureBodyImage() {
         if view.traitCollection.userInterfaceStyle == .light {
             switch viewModel.bodyOrientation {
@@ -457,7 +360,7 @@ class ShareCaseBodyViewController: UIViewController {
 
         NSLayoutConstraint.activate([
             
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -20 : 0),
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.heightAnchor.constraint(equalToConstant: 50),
@@ -490,6 +393,123 @@ class ShareCaseBodyViewController: UIViewController {
         bodyViews = [headView, upperLeftChestView, upperRightChestView, lowerLeftChestView, lowerRightChestView, upperStomachView, lowerStomachView, upperLeftKneeView, upperRightKneeView, lowerLeftKneeView, lowerRightKneeView, upperLeftFeetView, upperRightFeetView, lowerLeftFeetView, lowerRightFeetView, leftArmView, rightArmView, leftHandView, rightHandView]
         
         titleLabel.text = AppStrings.Content.Case.Share.bodyTitle
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.configureSquares()
+            
+        }
+    }
+    
+    private func configureSquares() {
+        
+        NSLayoutConstraint.activate([
+            headView.topAnchor.constraint(equalTo: bodyImage.topAnchor, constant: -10),
+            headView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.head.height + 10),
+            headView.centerXAnchor.constraint(equalTo: bodyImage.centerXAnchor),
+            headView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.head.width),
+            
+            upperLeftChestView.topAnchor.constraint(equalTo: headView.bottomAnchor, constant: -lineWidth),
+            upperLeftChestView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightShoulder.height),
+            upperLeftChestView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
+            upperLeftChestView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightShoulder.width / 2),
+            
+            upperRightChestView.topAnchor.constraint(equalTo: headView.bottomAnchor, constant: -lineWidth),
+            upperRightChestView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftShoulder.height),
+            upperRightChestView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
+            upperRightChestView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftShoulder.width / 2),
+            
+            lowerLeftChestView.topAnchor.constraint(equalTo: upperLeftChestView.bottomAnchor, constant: -lineWidth),
+            lowerLeftChestView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightChest.height),
+            lowerLeftChestView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
+            lowerLeftChestView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightChest.width / 2),
+            
+            lowerRightChestView.topAnchor.constraint(equalTo: upperLeftChestView.bottomAnchor, constant: -lineWidth),
+            lowerRightChestView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftChest.height),
+            lowerRightChestView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
+            lowerRightChestView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftChest.width / 2),
+            
+            upperStomachView.topAnchor.constraint(equalTo: lowerRightChestView.bottomAnchor, constant: -lineWidth),
+            upperStomachView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.stomach.height),
+            upperStomachView.centerXAnchor.constraint(equalTo: bodyImage.centerXAnchor),
+            upperStomachView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.stomach.width - lineWidth),
+            
+            lowerStomachView.topAnchor.constraint(equalTo: upperStomachView.bottomAnchor, constant: -lineWidth),
+            lowerStomachView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.hips.height),
+            lowerStomachView.centerXAnchor.constraint(equalTo: bodyImage.centerXAnchor),
+            lowerStomachView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.hips.width - lineWidth),
+            
+            upperLeftKneeView.topAnchor.constraint(equalTo: lowerStomachView.bottomAnchor, constant: -lineWidth),
+            upperLeftKneeView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightThigh.height),
+            upperLeftKneeView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
+            upperLeftKneeView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightThigh.width / 2),
+            
+            upperRightKneeView.topAnchor.constraint(equalTo: lowerStomachView.bottomAnchor, constant: -lineWidth),
+            upperRightKneeView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftThigh.height),
+            upperRightKneeView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
+            upperRightKneeView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftThigh.width / 2),
+            
+            lowerLeftKneeView.topAnchor.constraint(equalTo: upperRightKneeView.bottomAnchor, constant: -lineWidth),
+            lowerLeftKneeView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightKnee.height),
+            lowerLeftKneeView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
+            lowerLeftKneeView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightKnee.width / 2),
+            
+            lowerRightKneeView.topAnchor.constraint(equalTo: upperRightKneeView.bottomAnchor, constant: -lineWidth),
+            lowerRightKneeView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftKnee.height),
+            lowerRightKneeView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
+            lowerRightKneeView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftKnee.width / 2),
+            
+            upperLeftFeetView.topAnchor.constraint(equalTo: lowerLeftKneeView.bottomAnchor, constant: -lineWidth),
+            upperLeftFeetView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.rightShin.height),
+            upperLeftFeetView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
+            upperLeftFeetView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightShin.width / 2),
+            
+            upperRightFeetView.topAnchor.constraint(equalTo: lowerLeftKneeView.bottomAnchor, constant: -lineWidth),
+            upperRightFeetView.heightAnchor.constraint(equalToConstant: bodyImage.frame.height * Body.leftShin.height),
+            upperRightFeetView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
+            upperRightFeetView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftShin.width / 2),
+            
+            lowerLeftFeetView.topAnchor.constraint(equalTo: upperRightFeetView.bottomAnchor, constant: -lineWidth),
+            lowerLeftFeetView.bottomAnchor.constraint(equalTo: bodyImage.bottomAnchor, constant: 10),
+            lowerLeftFeetView.trailingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: lineWidth / 2),
+            lowerLeftFeetView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.rightFoot.width / 2),
+            
+            lowerRightFeetView.topAnchor.constraint(equalTo: upperRightFeetView.bottomAnchor, constant: -lineWidth),
+            lowerRightFeetView.bottomAnchor.constraint(equalTo: bodyImage.bottomAnchor, constant: 10),
+            lowerRightFeetView.leadingAnchor.constraint(equalTo: bodyImage.centerXAnchor, constant: -lineWidth / 2),
+            lowerRightFeetView.widthAnchor.constraint(equalToConstant: bodyImage.frame.width * Body.leftFoot.width / 2),
+            
+            leftArmView.topAnchor.constraint(equalTo: upperLeftChestView.bottomAnchor, constant: -lineWidth),
+            leftArmView.leadingAnchor.constraint(equalTo: upperLeftChestView.leadingAnchor),
+            leftArmView.trailingAnchor.constraint(equalTo: lowerLeftChestView.leadingAnchor, constant: lineWidth),
+            leftArmView.bottomAnchor.constraint(equalTo: upperStomachView.bottomAnchor),
+            
+            rightArmView.topAnchor.constraint(equalTo: upperRightChestView.bottomAnchor, constant: -lineWidth),
+            rightArmView.leadingAnchor.constraint(equalTo: lowerRightChestView.trailingAnchor, constant: -lineWidth),
+            rightArmView.trailingAnchor.constraint(equalTo: upperRightChestView.trailingAnchor),
+            rightArmView.bottomAnchor.constraint(equalTo: upperStomachView.bottomAnchor),
+            
+            leftHandView.topAnchor.constraint(equalTo: leftArmView.bottomAnchor, constant: -lineWidth),
+            leftHandView.leadingAnchor.constraint(equalTo: bodyImage.leadingAnchor, constant: -20),
+            leftHandView.trailingAnchor.constraint(equalTo: lowerStomachView.leadingAnchor, constant: lineWidth),
+            leftHandView.bottomAnchor.constraint(equalTo: lowerStomachView.bottomAnchor, constant: 10),
+            
+            rightHandView.topAnchor.constraint(equalTo: rightArmView.bottomAnchor, constant: -lineWidth),
+            rightHandView.trailingAnchor.constraint(equalTo: bodyImage.trailingAnchor, constant: 20),
+            rightHandView.leadingAnchor.constraint(equalTo: lowerStomachView.trailingAnchor, constant: -lineWidth),
+            rightHandView.bottomAnchor.constraint(equalTo: lowerStomachView.bottomAnchor, constant: 10),
+        ])
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.activityIndicator.isHidden = true
+            strongSelf.activityIndicator.removeFromSuperview()
+            strongSelf.bodyImage.isHidden = false
+            strongSelf.bodyViews.forEach { $0.isHidden = false }
+            strongSelf.switchButton.isHidden = false
+            strongSelf.skipButton.isHidden = false
+            strongSelf.loaded = true
+        }
     }
     
     private func configureNavigationBar() {

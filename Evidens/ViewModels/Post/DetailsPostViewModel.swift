@@ -18,7 +18,7 @@ class DetailsPostViewModel {
     var commentsLoaded: Bool = false
     
     var firstLoad: Bool = false
-    
+
     var post: Post
     var user: User
     var postId: String?

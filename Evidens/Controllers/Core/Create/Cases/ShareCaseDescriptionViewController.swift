@@ -140,7 +140,7 @@ class ShareCaseDescriptionViewController: UIViewController {
         scrollView.alwaysBounceVertical = true
         scrollView.keyboardDismissMode = .onDrag
         
-        nextButtonConstraint = nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        nextButtonConstraint = nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -20 : 0)
 
         view.addSubviews(scrollView)
         
@@ -201,7 +201,7 @@ class ShareCaseDescriptionViewController: UIViewController {
                 UIView.animate(withDuration: duration) { [weak self] in
                     guard let strongSelf = self else { return }
                     
-                    strongSelf.nextButtonConstraint.constant = 0
+                    strongSelf.nextButtonConstraint.constant = UIDevice.isPad ? -20 : 0
                     strongSelf.view.layoutIfNeeded()
                 }
             } else {

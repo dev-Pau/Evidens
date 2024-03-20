@@ -17,7 +17,8 @@ class DetailsCaseViewModel {
     var caseId: String?
     
     var firstLoad: Bool = false
-
+    var secondLoad: Bool = false
+    
     var networkFailure: Bool = false
     
     var currentNotification: Bool = false
@@ -43,7 +44,6 @@ class DetailsCaseViewModel {
         self.clinicalCase = Case(caseId: "", dictionary: [:])
         self.caseLoaded = false
     }
-    
     
     func getCase(completion: @escaping(FirestoreError?) -> Void) {
         guard let caseId = caseId else {

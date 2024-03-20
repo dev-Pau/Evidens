@@ -129,8 +129,8 @@ class ReportViewController: UIViewController {
             unhappyImage.widthAnchor.constraint(equalToConstant: size),
             
             stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -topbarHeight),
-            stack.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            stack.widthAnchor.constraint(equalToConstant: view.frame.width - 40)
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
         
         reportTitle.text = AppStrings.Report.Opening.title

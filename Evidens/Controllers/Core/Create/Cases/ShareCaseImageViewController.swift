@@ -92,7 +92,7 @@ class ShareCaseImageViewController: UIViewController {
         view.addSubviews(collectionView, nextButton, skipButton)
         
         NSLayoutConstraint.activate([
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -20 : 0),
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.heightAnchor.constraint(equalToConstant: 50),
@@ -245,7 +245,7 @@ extension ShareCaseImageViewController: PHPickerViewControllerDelegate {
         if results.count == 0 { return }
         
         showProgressIndicator(in: view)
-        
+       
         let group = DispatchGroup()
         var asyncDict = [String:UIImage]()
         var order = [String]()

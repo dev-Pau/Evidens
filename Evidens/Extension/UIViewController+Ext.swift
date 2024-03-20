@@ -141,7 +141,7 @@ extension UIViewController {
     func showProgressIndicator(in view: UIView) {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
-            progressView = ProgressIndicatorView(frame: view.bounds)
+            progressView = ProgressIndicatorView(frame: window.frame)
             window.addSubview(progressView!)
             progressView!.show()
         }

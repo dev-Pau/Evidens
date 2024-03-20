@@ -43,9 +43,16 @@ class BookmarksViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         configureNavigationBar()
-        configureCollectionViews()
         configureNotificationObservers()
         fetchBookmarkedCases()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !viewModel.isFirstLayoutLoad {
+            configureCollectionViews()
+            viewModel.isFirstLayoutLoad = true
+        }
     }
     
     deinit {
@@ -153,22 +160,22 @@ class BookmarksViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: bookmarkToolbar.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.widthAnchor.constraint(equalToConstant: view.frame.width + 10),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             casesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             casesCollectionView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             casesCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            casesCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            casesCollectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor),
             
             spacingView.topAnchor.constraint(equalTo: casesCollectionView.topAnchor),
             spacingView.leadingAnchor.constraint(equalTo: casesCollectionView.trailingAnchor),
             spacingView.widthAnchor.constraint(equalToConstant: 10),
-            spacingView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            spacingView.bottomAnchor.constraint(equalTo: casesCollectionView.bottomAnchor),
             
             postsCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             postsCollectionView.leadingAnchor.constraint(equalTo: spacingView.trailingAnchor),
             postsCollectionView.widthAnchor.constraint(equalToConstant: view.frame.width),
-            postsCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            postsCollectionView.bottomAnchor.constraint(equalTo: casesCollectionView.bottomAnchor),
         ])
 
         bookmarkToolbar.toolbarDelegate = self

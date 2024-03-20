@@ -39,13 +39,13 @@ class NavigationBarViewController: UIViewController {
         userImageView.widthAnchor.constraint(equalToConstant: size).isActive = true
         userImageView.layer.cornerRadius = size / 2
         
-        let profileImageItem = UIBarButtonItem(customView: userImageView)
+        if !UIDevice.isPad {
+            let profileImageItem = UIBarButtonItem(customView: userImageView)
+            navigationItem.leftBarButtonItem = profileImageItem
+            addNavigationBarLogo(withTintColor: baseColor)
+        }
         
         userImageView.addImage(forUrl: UserDefaults.getImage(), size: size)
-
-        addNavigationBarLogo(withTintColor: baseColor)
-        
-        navigationItem.leftBarButtonItem = profileImageItem
 
         let searchImage = UIImage(systemName: AppStrings.Icons.squareOnSquare, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         let searchImageView = UIImageView(image: searchImage)
@@ -60,7 +60,7 @@ class NavigationBarViewController: UIViewController {
     }
     
     func configureAddButton(primaryAppearance: Bool) {
-        addButton = ContentButton(type: .custom)
+        addButton = UIButton(type: .custom)
         addButton.addTarget(self, action: #selector(handleAdd), for: .touchUpInside)
         addButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -79,13 +79,15 @@ class NavigationBarViewController: UIViewController {
         addButton.layer.shadowOffset = CGSize(width: 0, height: 4)
         addButton.layer.shadowRadius = 4
 
-        view.addSubview(addButton)
-        NSLayoutConstraint.activate([
-            addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            addButton.heightAnchor.constraint(equalToConstant: buttonSize * 2),
-            addButton.widthAnchor.constraint(equalToConstant: buttonSize * 2)
-        ])
+        if !UIDevice.isPad {
+            view.addSubview(addButton)
+            NSLayoutConstraint.activate([
+                addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+                addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+                addButton.heightAnchor.constraint(equalToConstant: buttonSize * 2),
+                addButton.widthAnchor.constraint(equalToConstant: buttonSize * 2)
+            ])
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {

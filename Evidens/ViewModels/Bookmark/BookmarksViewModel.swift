@@ -15,6 +15,7 @@ class BookmarksViewModel {
     var lastPostSnapshot: QueryDocumentSnapshot?
     
     var isFirstLoad: Bool = false
+    var isFirstLayoutLoad: Bool = false
     
     var caseLoaded = false
     var postLoaded = false

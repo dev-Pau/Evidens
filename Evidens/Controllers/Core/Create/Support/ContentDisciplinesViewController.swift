@@ -88,7 +88,7 @@ class ContentDisciplinesViewController: UIViewController {
         view.addSubviews(collectionView, nextButton)
         
         NSLayoutConstraint.activate([
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -20 : 0),
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.heightAnchor.constraint(equalToConstant: 50),
@@ -220,7 +220,7 @@ extension ContentDisciplinesViewController: BaseGuidelineFooterDelegate {
         let controller = BaseGuidelinesViewController(kind: kind)
         
         let navigationController = UINavigationController(rootViewController: controller)
-        navigationController.modalPresentationStyle = .fullScreen
+        navigationController.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
         
         present(navigationController, animated: true)
     }

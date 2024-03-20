@@ -72,7 +72,11 @@ class SearchViewController: NavigationBarViewController {
     
     //MARK: - Helpers
     func configureNavigationBar() {
-
+        
+        if UIDevice.isPad {
+            title = AppStrings.Tab.search
+        }
+        
         let controller = SearchResultsUpdatingViewController()
         controller.searchResultsDelegate = self
         searchController = UISearchController(searchResultsController: controller)
@@ -148,7 +152,7 @@ class SearchViewController: NavigationBarViewController {
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
         collectionView.contentInset.bottom = 85

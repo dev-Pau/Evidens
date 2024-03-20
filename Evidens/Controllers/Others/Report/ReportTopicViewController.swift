@@ -67,7 +67,7 @@ class ReportTopicViewController: UIViewController {
         
         view.addSubviews(collectionView, reportButton)
         NSLayoutConstraint.activate([
-            reportButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            reportButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -10 : 0),
             reportButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             reportButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             reportButton.heightAnchor.constraint(equalToConstant: height),

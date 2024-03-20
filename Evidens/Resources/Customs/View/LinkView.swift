@@ -12,6 +12,8 @@ import UniformTypeIdentifiers
 
 class LinkView: UIView {
     
+    let ratio = 0.65
+    
     private let linkImageView: UIImageView = {
         let iv = UIImageView()
         iv.backgroundColor = .quaternarySystemFill
@@ -77,18 +79,17 @@ class LinkView: UIView {
         layer.cornerRadius = 12
 
         let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
-        
-        let linkWidth: CGFloat = UIWindow.visibleScreenWidth - (textPadding + 10)
-        let linkSize: CGFloat = linkWidth * 0.78
+        let size = (UIWindow.visibleScreenWidth - (textPadding + 10)) * ratio
 
-        let padding: CGFloat = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .medium).lineHeight
+        //let padding: CGFloat = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .medium).lineHeight
+        
         addSubviews(titleLabel, urlLabel, separator, linkImageView)
         NSLayoutConstraint.activate([
 
             linkImageView.topAnchor.constraint(equalTo: topAnchor),
             linkImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             linkImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            linkImageView.heightAnchor.constraint(equalToConstant: linkSize - (25 + 2 * padding)),
+            linkImageView.heightAnchor.constraint(equalToConstant: size),
             
             separator.topAnchor.constraint(equalTo: linkImageView.bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -102,6 +103,7 @@ class LinkView: UIView {
             titleLabel.topAnchor.constraint(equalTo: urlLabel.bottomAnchor, constant: 5),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }
     

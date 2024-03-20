@@ -75,7 +75,7 @@ class ContainerViewController: UIViewController {
             
                 sideTabController.view.topAnchor.constraint(equalTo: view.topAnchor),
                 sideTabController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                sideTabController.view.widthAnchor.constraint(equalToConstant: UIWindow.visibleScreenWidth * 0.1),
+                sideTabController.view.widthAnchor.constraint(equalToConstant: UIWindow.visibleScreenWidth * 0.13),
                 sideTabController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
                 
                 mainController.view.topAnchor.constraint(equalTo: view.topAnchor),
@@ -83,7 +83,8 @@ class ContainerViewController: UIViewController {
                 mainController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 mainController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
             ])
-            
+
+            sideTabController.tabDelegate = mainController.mainController
         } else {
             addChild(menuController)
 
@@ -121,12 +122,6 @@ class ContainerViewController: UIViewController {
             baseLogoView = BaseLogoView(frame: view.bounds)
             baseLogoView.backgroundColor = baseColor
             view.addSubview(baseLogoView)
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            print(UIWindow.visibleScreenWidth)
-            print(self.sideTabController.view.frame.width)
-            print(self.mainController.view.frame.width)
         }
     }
     

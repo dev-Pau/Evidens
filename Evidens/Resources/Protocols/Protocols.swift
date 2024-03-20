@@ -11,6 +11,7 @@ import CoreData
 
 protocol SideTabViewControllerDelegate: AnyObject {
     func didTapTabIcon(_ tab: TabIcon)
+    func didTapAdd()
 }
 
 protocol FormViewModel {

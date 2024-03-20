@@ -8,7 +8,7 @@
 import UIKit
 
 class ProgressIndicatorView: UIView {
-    
+
     private let progressIndicator = UIActivityIndicatorView(style: .large)
     
     private let square: UIView = {
