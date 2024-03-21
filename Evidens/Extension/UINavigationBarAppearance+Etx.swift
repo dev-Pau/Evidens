@@ -20,7 +20,7 @@ extension UINavigationBarAppearance {
         barButtonItemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
         appearance.backButtonAppearance = barButtonItemAppearance
         
-        appearance.shadowColor = separatorColor
+        appearance.shadowColor = K.Colors.separatorColor
         
         let font = UIFont.addFont(size: 17, scaleStyle: .title3, weight: .heavy)
 
@@ -86,7 +86,7 @@ extension UINavigationBarAppearance {
         appearance.shadowImage = nil
         appearance.shadowColor = .clear
         
-        appearance.backgroundColor = primaryColor
+        appearance.backgroundColor = K.Colors.primaryColor
         return appearance
     }
     
@@ -107,7 +107,7 @@ extension UINavigationBarAppearance {
         appearance.titleTextAttributes = [.font: font]
         
         appearance.shadowImage = nil
-        appearance.shadowColor = separatorColor
+        appearance.shadowColor = K.Colors.separatorColor
         return appearance
     }
 }

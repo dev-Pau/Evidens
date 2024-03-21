@@ -14,7 +14,7 @@ class QuarterCircleView: UIView {
         
         if layer.sublayers == nil {
             let lay = CAShapeLayer()
-            lay.fillColor = primaryColor.cgColor
+            lay.fillColor = K.Colors.primaryColor.cgColor
             layer.addSublayer(lay)
         }
         if let lay = layer.sublayers?.first as? CAShapeLayer {

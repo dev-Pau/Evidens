@@ -39,7 +39,7 @@ class AddAuthorReferenceViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -47,13 +47,13 @@ class AddAuthorReferenceViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
     private lazy var citationTextView: UITextView = {
         let tv = UITextView()
-        tv.tintColor = primaryColor
+        tv.tintColor = K.Colors.primaryColor
         tv.textColor = UIColor.lightGray
         tv.text = AppStrings.Reference.citationExample
         tv.textContainerInset = UIEdgeInsets.zero
@@ -111,9 +111,9 @@ class AddAuthorReferenceViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
     }
     
     private func configureUI() {
@@ -151,8 +151,8 @@ class AddAuthorReferenceViewController: UIViewController {
         
         if let reference = reference {
             citationTextView.text = ""
-            citationTextView.tintColor = primaryColor
-            citationTextView.textColor = primaryColor
+            citationTextView.tintColor = K.Colors.primaryColor
+            citationTextView.textColor = K.Colors.primaryColor
             firstTimeTap.toggle()
             citationTextView.text = reference.referenceText
             cancelButton.isEnabled = true
@@ -184,7 +184,7 @@ class AddAuthorReferenceViewController: UIViewController {
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         
         var shareConfig = UIButton.Configuration.filled()
-        shareConfig.baseBackgroundColor = primaryColor
+        shareConfig.baseBackgroundColor = K.Colors.primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
         shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .semibold, scales: false)
@@ -265,8 +265,8 @@ extension AddAuthorReferenceViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         if firstTimeTap {
             textView.isUserInteractionEnabled = true
-            textView.tintColor = primaryColor
-            textView.textColor = primaryColor
+            textView.tintColor = K.Colors.primaryColor
+            textView.textColor = K.Colors.primaryColor
             firstTimeTap.toggle()
             textView.text = textView.text.replacingOccurrences(of: AppStrings.Reference.citationExample, with: "")
         }

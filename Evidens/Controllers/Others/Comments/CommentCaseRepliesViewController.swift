@@ -36,7 +36,7 @@ class CommentCaseRepliesViewController: UIViewController {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear
-        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = K.Colors.primaryColor
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
@@ -46,8 +46,8 @@ class CommentCaseRepliesViewController: UIViewController {
 
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.shadowColor = separatorColor
-        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+        appearance.shadowColor = K.Colors.separatorColor
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = K.Colors.primaryColor
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
@@ -434,7 +434,7 @@ extension CommentCaseRepliesViewController: CommentCellDelegate {
             case .report:
                 let controller = ReportViewController(source: .comment, userId: comment.uid, contentId: comment.id)
                 let navVC = UINavigationController(rootViewController: controller)
-                navVC.modalPresentationStyle = .fullScreen
+                navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
                 self.present(navVC, animated: true)
             case .delete:
                 displayAlert(withTitle: AppStrings.Alerts.Title.deleteComment, withMessage: AppStrings.Alerts.Subtitle.deleteComment, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Global.delete, style: .destructive) { [weak self] in

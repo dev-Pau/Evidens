@@ -31,10 +31,10 @@ class CommentInputAccessoryView: UIView {
         tv.isScrollEnabled = false
         tv.clipsToBounds = true
         tv.layer.cornerRadius = 16
-        tv.layer.borderColor = separatorColor.cgColor
+        tv.layer.borderColor = K.Colors.separatorColor.cgColor
         tv.layer.borderWidth = 0.4
         tv.isScrollEnabled = false
-        tv.tintColor = primaryColor
+        tv.tintColor = K.Colors.primaryColor
         tv.translatesAutoresizingMaskIntoConstraints = false
         return tv
     }()
@@ -43,7 +43,7 @@ class CommentInputAccessoryView: UIView {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.isEnabled = false
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = K.Colors.primaryColor
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.upArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.addTarget(self, action: #selector(didTapPostButton), for: .touchUpInside)
         button.configuration?.cornerStyle = .capsule
@@ -60,7 +60,7 @@ class CommentInputAccessoryView: UIView {
         configuration.contentInsets = .zero
         configuration.cornerStyle = .capsule
         configuration.baseForegroundColor = .white
-        configuration.baseBackgroundColor = primaryColor
+        configuration.baseBackgroundColor = K.Colors.primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = configuration
         return button
@@ -85,7 +85,7 @@ class CommentInputAccessoryView: UIView {
     
     private lazy var topView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -183,7 +183,7 @@ class CommentInputAccessoryView: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 commentTextView.layer.borderColor = separatorColor.cgColor
+                 commentTextView.layer.borderColor = K.Colors.separatorColor.cgColor
              }
          }
     }

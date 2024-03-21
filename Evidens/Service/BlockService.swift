@@ -41,17 +41,17 @@ extension BlockService {
             "timestamp": timestamp
         ]
         
-        let currentUserBlockRef = COLLECTION_BLOCKS.document(currentUid).collection("user-blocks").document(uid)
-        let targetBlockRef = COLLECTION_BLOCKS.document(uid).collection("user-blocks").document(currentUid)
+        let currentUserBlockRef = K.FirestoreCollections.COLLECTION_BLOCKS.document(currentUid).collection("user-blocks").document(uid)
+        let targetBlockRef = K.FirestoreCollections.COLLECTION_BLOCKS.document(uid).collection("user-blocks").document(currentUid)
         
-        let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
-        let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        let currentConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let targetConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
 
-        let currentFollowerRef = COLLECTION_FOLLOWERS.document(currentUid).collection("user-followers").document(uid)
-        let currentFollowingRef = COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid)
+        let currentFollowerRef = K.FirestoreCollections.COLLECTION_FOLLOWERS.document(currentUid).collection("user-followers").document(uid)
+        let currentFollowingRef = K.FirestoreCollections.COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid)
         
-        let targetFollowerRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid)
-        let targetFollowingRef = COLLECTION_FOLLOWING.document(uid).collection("user-following").document(currentUid)
+        let targetFollowerRef = K.FirestoreCollections.COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid)
+        let targetFollowingRef = K.FirestoreCollections.COLLECTION_FOLLOWING.document(uid).collection("user-following").document(currentUid)
         
         batch.setData(currentBlockData, forDocument: currentUserBlockRef)
         batch.setData(targetBlockData, forDocument: targetBlockRef)
@@ -88,8 +88,8 @@ extension BlockService {
         
         let batch = Firestore.firestore().batch()
 
-        let currentUserBlockRef = COLLECTION_BLOCKS.document(currentUid).collection("user-blocks").document(uid)
-        let targetBlockRef = COLLECTION_BLOCKS.document(uid).collection("user-blocks").document(currentUid)
+        let currentUserBlockRef = K.FirestoreCollections.COLLECTION_BLOCKS.document(currentUid).collection("user-blocks").document(uid)
+        let targetBlockRef = K.FirestoreCollections.COLLECTION_BLOCKS.document(uid).collection("user-blocks").document(currentUid)
         
         batch.deleteDocument(currentUserBlockRef)
         batch.deleteDocument(targetBlockRef)
@@ -110,7 +110,7 @@ extension BlockService {
             return
         }
         
-        let ref = COLLECTION_BLOCKS.document(currentUid).collection("user-blocks").document(uid)
+        let ref = K.FirestoreCollections.COLLECTION_BLOCKS.document(currentUid).collection("user-blocks").document(uid)
         ref.getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
@@ -141,7 +141,7 @@ extension BlockService {
         guard let uid = UserDefaults.getUid() else { return }
         
         if lastSnapshot == nil {
-            let ref = COLLECTION_BLOCKS.document(uid).collection("user-blocks").whereField("phase", isEqualTo: BlockPhase.block.rawValue).order(by: "timestamp", descending: true).limit(to: 15)
+            let ref = K.FirestoreCollections.COLLECTION_BLOCKS.document(uid).collection("user-blocks").whereField("phase", isEqualTo: BlockPhase.block.rawValue).order(by: "timestamp", descending: true).limit(to: 15)
             ref.getDocuments { snapshot, error in
                 
                 if let error {
@@ -164,7 +164,7 @@ extension BlockService {
                 completion(.success(snapshot))
             }
         } else {
-            let ref = COLLECTION_BLOCKS.document(uid).collection("user-blocks").whereField("phase", isEqualTo: BlockPhase.block.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15)
+            let ref = K.FirestoreCollections.COLLECTION_BLOCKS.document(uid).collection("user-blocks").whereField("phase", isEqualTo: BlockPhase.block.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15)
               
             ref.getDocuments { snapshot, error in
                 if let error {

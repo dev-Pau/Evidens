@@ -40,7 +40,7 @@ class EditPostViewController: UIViewController {
         tv.placeholderLabel.font = font
         tv.font = font
         tv.textColor = .label
-        tv.tintColor = primaryColor
+        tv.tintColor = K.Colors.primaryColor
         tv.isScrollEnabled = false
         tv.textContainerInset = UIEdgeInsets.zero
         tv.contentInset = UIEdgeInsets.zero
@@ -52,7 +52,7 @@ class EditPostViewController: UIViewController {
     private lazy var editButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = K.Colors.primaryColor
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
@@ -102,7 +102,7 @@ class EditPostViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)

@@ -31,7 +31,7 @@ class BaseGuidelineHeader: UICollectionReusableView {
     }
     
     private func configure() {
-        backgroundColor = primaryColor
+        backgroundColor = K.Colors.primaryColor
         paddingView = QuarterCircleView()
         paddingView.backgroundColor = .systemBackground
         paddingView.translatesAutoresizingMaskIntoConstraints = false

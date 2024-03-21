@@ -52,7 +52,7 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear
-        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = K.Colors.primaryColor
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
@@ -62,8 +62,8 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
         
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.shadowColor = separatorColor
-        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+        appearance.shadowColor = K.Colors.separatorColor
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = K.Colors.primaryColor
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
     }
@@ -470,7 +470,7 @@ extension DetailsCaseViewController: CommentCellDelegate {
         case .report:
             let controller = ReportViewController(source: .comment, userId: comment.uid, contentId: comment.id)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             self.present(navVC, animated: true)
         case .delete:
             if let _ = self.collectionView.indexPath(for: cell) {
@@ -603,7 +603,7 @@ extension DetailsCaseViewController: CaseCellDelegate {
         let controller = ContentImageViewController(image: img, navVC: navigationController)
         let navVC = UINavigationController(rootViewController: controller)
         navVC.setNavigationBarHidden(true, animated: false)
-        navVC.modalPresentationStyle = .overCurrentContext
+        navVC.modalPresentationStyle = .overFullScreen
         present(navVC, animated: true)
     }
 }

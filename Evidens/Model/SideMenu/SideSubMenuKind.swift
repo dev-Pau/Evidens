@@ -25,7 +25,7 @@ enum SideSubMenuKind: Int, CaseIterable {
             
         case .settings: return (UIImage(systemName: AppStrings.Icons.gear, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal))!
         case .legal: return (UIImage(systemName: AppStrings.Icons.scalemass, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal))!
-        case .app: return (UIImage(named: AppStrings.Assets.blackLogo)?.withTintColor(primaryColor))!
+        case .app: return (UIImage(named: AppStrings.Assets.blackLogo)?.withTintColor(K.Colors.primaryColor))!
         case .contact: return (UIImage(systemName: AppStrings.Icons.circleQuestion, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal))!
         }
     }

@@ -45,7 +45,7 @@ class NotificationContentCell: UICollectionViewCell {
     
     private lazy var unreadImage: UIImageView = {
         let iv = UIImageView()
-        iv.backgroundColor = primaryColor
+        iv.backgroundColor = K.Colors.primaryColor
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -57,7 +57,7 @@ class NotificationContentCell: UICollectionViewCell {
         
         let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
         
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -68,7 +68,7 @@ class NotificationContentCell: UICollectionViewCell {
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -77,7 +77,7 @@ class NotificationContentCell: UICollectionViewCell {
     lazy var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -164,12 +164,12 @@ class NotificationContentCell: UICollectionViewCell {
         
         attributedText.append(NSAttributedString(string: viewModel.message + " ", attributes: [.font: font, .foregroundColor: UIColor.label]))
        
-        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: primaryGray]))
+        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: K.Colors.primaryGray]))
         
         timeLabel.text = viewModel.time
         
         unreadImage.isHidden = viewModel.isRead
-        backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)
+        backgroundColor = viewModel.isRead ? .systemBackground : K.Colors.primaryColor.withAlphaComponent(0.1)
         
         contentTextView.attributedText = attributedText
 

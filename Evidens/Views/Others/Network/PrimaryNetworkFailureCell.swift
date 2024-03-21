@@ -29,7 +29,7 @@ class PrimaryNetworkFailureCell: UICollectionViewCell {
         let button = UIButton()
         button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.plain()
-        config.baseForegroundColor = primaryGray
+        config.baseForegroundColor = K.Colors.primaryGray
 
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)

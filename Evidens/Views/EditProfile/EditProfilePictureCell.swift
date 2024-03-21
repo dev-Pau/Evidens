@@ -20,7 +20,7 @@ class EditProfilePictureCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = primaryColor
+        iv.backgroundColor = K.Colors.primaryColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEditBannerImage)))
@@ -60,7 +60,7 @@ class EditProfilePictureCell: UICollectionViewCell {
             bannerImageView.topAnchor.constraint(equalTo: topAnchor),
             bannerImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             bannerImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            bannerImageView.heightAnchor.constraint(equalToConstant: frame.width / bannerAR),
+            bannerImageView.heightAnchor.constraint(equalToConstant: frame.width / K.Ratio.bannerAR),
 
             profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.bottomAnchor),
             profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
@@ -68,7 +68,7 @@ class EditProfilePictureCell: UICollectionViewCell {
             profileImageView.widthAnchor.constraint(equalToConstant: size),
         ])
         
-        let heightConstraint = heightAnchor.constraint(equalToConstant: frame.width / bannerAR + size / 2 + 20)
+        let heightConstraint = heightAnchor.constraint(equalToConstant: frame.width / K.Ratio.bannerAR + size / 2 + 20)
         heightConstraint.priority = .defaultHigh
         heightConstraint.isActive = true
 

@@ -23,7 +23,7 @@ class NotificationTargetCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .medium)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         label.textAlignment = .right
         return label
@@ -66,7 +66,7 @@ class NotificationTargetCell: UICollectionViewCell {
             
         ])
         
-        chevronImage.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        chevronImage.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
     }
     
     func set(onOff: Bool) {

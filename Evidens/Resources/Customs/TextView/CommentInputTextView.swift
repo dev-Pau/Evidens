@@ -18,7 +18,7 @@ class CommentInputTextView: UITextView {
     
     let placeholderLabel: UILabel = {
         let label = UILabel()
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

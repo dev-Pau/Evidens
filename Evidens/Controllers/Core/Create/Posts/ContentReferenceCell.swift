@@ -17,7 +17,7 @@ class ContentReferenceCell: UICollectionViewCell {
         iv.contentMode = .center
         iv.layer.cornerRadius = 12
         iv.backgroundColor = .systemBackground
-        iv.image = UIImage(named: AppStrings.Assets.fillQuote)!.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
+        iv.image = UIImage(named: AppStrings.Assets.fillQuote)!.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25))
         iv.clipsToBounds = true
         return iv
     }()
@@ -45,7 +45,7 @@ class ContentReferenceCell: UICollectionViewCell {
         layer.shadowPath = UIBezierPath(rect: bounds).cgPath
         
         layer.borderWidth = 0.4
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         
         addSubviews(imageView)
         

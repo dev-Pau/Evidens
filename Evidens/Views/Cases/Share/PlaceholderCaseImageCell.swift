@@ -17,7 +17,7 @@ class PlaceholderCaseImageCell: UICollectionViewCell {
         button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.plain()
         configuration.cornerStyle = .capsule
-        configuration.image = UIImage(systemName: AppStrings.Icons.circlePlusFill, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        configuration.image = UIImage(systemName: AppStrings.Icons.circlePlusFill, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
         button.configuration = configuration
         return button
     }()
@@ -35,7 +35,7 @@ class PlaceholderCaseImageCell: UICollectionViewCell {
         backgroundColor = .quaternarySystemFill
         layer.cornerRadius = 10
         layer.borderWidth = 0.4
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         
         addSubview(addButton)
         NSLayoutConstraint.activate([

@@ -43,7 +43,7 @@ class ReferenceViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -54,7 +54,7 @@ class ReferenceViewController: UIViewController {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 0.4
-        button.configuration?.background.strokeColor = separatorColor
+        button.configuration?.background.strokeColor = K.Colors.separatorColor
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
         container.foregroundColor = .label
@@ -69,7 +69,7 @@ class ReferenceViewController: UIViewController {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 0.4
-        button.configuration?.background.strokeColor = separatorColor
+        button.configuration?.background.strokeColor = K.Colors.separatorColor
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold, scales: false)
         container.foregroundColor = .label
@@ -98,7 +98,7 @@ class ReferenceViewController: UIViewController {
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
     }
     
     private func configureUI() {

@@ -36,7 +36,7 @@ class BaseGuidelinesViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        let appearance = UINavigationBarAppearance.colorAppearance(withColor: primaryColor)
+        let appearance = UINavigationBarAppearance.colorAppearance(withColor: K.Colors.primaryColor)
         navigationItem.scrollEdgeAppearance = appearance
         navigationItem.standardAppearance = appearance
         

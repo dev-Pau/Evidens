@@ -161,7 +161,7 @@ class PostImages: UIView {
             images[3].layer.maskedCorners = [.layerMaxXMaxYCorner]
         }
         
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         layer.borderWidth = 0.4
         layer.cornerRadius = 12
     }

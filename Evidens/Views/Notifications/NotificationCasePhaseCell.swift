@@ -27,7 +27,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         iv.contentMode = .center
         let imageSize: CGFloat = UIDevice.isPad ? 47 : 37
         iv.image = UIImage(systemName: AppStrings.Icons.fireworks)?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: imageSize, height: imageSize))
-        iv.backgroundColor = primaryColor
+        iv.backgroundColor = K.Colors.primaryColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.layer.cornerRadius = 8
         return iv
@@ -44,7 +44,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
     
     private lazy var unreadImage: UIImageView = {
         let iv = UIImageView()
-        iv.backgroundColor = primaryColor
+        iv.backgroundColor = K.Colors.primaryColor
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -56,7 +56,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         
         let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
         
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -67,7 +67,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -76,7 +76,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
     lazy var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -117,6 +117,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
 
             timeLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
+            timeLabel.bottomAnchor.constraint(greaterThanOrEqualTo: phaseImage.bottomAnchor),
             timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -152,12 +153,12 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         
         let attributedText = NSMutableAttributedString(string: viewModel.summary, attributes: [.font: font])
         
-        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: primaryGray]))
+        attributedText.append(NSAttributedString(string: viewModel.content.trimmingCharacters(in: .newlines), attributes: [.font: font, .foregroundColor: K.Colors.primaryGray]))
 
         timeLabel.text = viewModel.time
         
         unreadImage.isHidden = viewModel.isRead
-        backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)
+        backgroundColor = viewModel.isRead ? .systemBackground : K.Colors.primaryColor.withAlphaComponent(0.1)
         
         textLabel.attributedText = attributedText
         

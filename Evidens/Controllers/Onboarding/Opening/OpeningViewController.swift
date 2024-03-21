@@ -53,7 +53,7 @@ class OpeningViewController: UIViewController {
         button.tintAdjustmentMode = .normal
         button.configuration = .plain()
         
-        button.configuration?.baseForegroundColor = primaryColor
+        button.configuration?.baseForegroundColor = K.Colors.primaryColor
         
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15.0, scaleStyle: .largeTitle, weight: .regular)
@@ -68,7 +68,7 @@ class OpeningViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -77,7 +77,7 @@ class OpeningViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Opening.or
         label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .medium)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.textAlignment = .center
         label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -89,7 +89,7 @@ class OpeningViewController: UIViewController {
         var configuration = UIButton.Configuration.filled()
         button.tintAdjustmentMode = .normal
         configuration.baseForegroundColor = .white
-        configuration.baseBackgroundColor = primaryColor
+        configuration.baseBackgroundColor = K.Colors.primaryColor
         configuration.cornerStyle = .capsule
         
         var container = AttributeContainer()
@@ -105,7 +105,7 @@ class OpeningViewController: UIViewController {
     private let haveAccountlabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.text = AppStrings.Opening.member
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -113,7 +113,7 @@ class OpeningViewController: UIViewController {
 
     private let legalTextView: UITextView = {
         let tv = UITextView()
-        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: K.Colors.primaryColor]
         tv.isSelectable = true
         tv.isUserInteractionEnabled = true
         tv.isEditable = false
@@ -156,7 +156,7 @@ class OpeningViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
 
-        addNavigationBarLogo(withTintColor: baseColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     private func configureUI() {
@@ -216,7 +216,7 @@ class OpeningViewController: UIViewController {
         
         let privacyString = NSMutableAttributedString(string: AppStrings.Opening.legal)
         privacyString.addAttribute(NSAttributedString.Key.font, value: UIFont.addFont(size: 15.0, scaleStyle: .largeTitle, weight: .regular), range: NSRange(location: 0, length: privacyString.length))
-        privacyString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryGray, range: NSRange(location: 0, length: privacyString.length))
+        privacyString.addAttribute(NSAttributedString.Key.foregroundColor, value: K.Colors.primaryGray, range: NSRange(location: 0, length: privacyString.length))
 
         let privacyRange = (privacyString.string as NSString).range(of: AppStrings.Legal.privacy)
         privacyString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.privacy, range: privacyRange)

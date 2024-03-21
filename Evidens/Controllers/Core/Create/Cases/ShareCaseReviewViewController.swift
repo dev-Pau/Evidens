@@ -24,7 +24,7 @@ class ShareCaseReviewViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -52,7 +52,7 @@ class ShareCaseReviewViewController: UIViewController {
         self.navigationItem.leftBarButtonItem = nil
         self.navigationItem.hidesBackButton = true
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     private func configure() {

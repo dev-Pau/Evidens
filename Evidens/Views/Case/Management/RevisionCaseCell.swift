@@ -26,7 +26,7 @@ class RevisionCaseCell: UICollectionViewCell {
     var revisionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         return label
     }()
@@ -54,7 +54,7 @@ class RevisionCaseCell: UICollectionViewCell {
     var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     

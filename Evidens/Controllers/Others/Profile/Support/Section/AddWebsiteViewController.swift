@@ -33,7 +33,7 @@ class AddWebsiteViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Sections.websiteContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.textAlignment = .left
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -42,8 +42,8 @@ class AddWebsiteViewController: UIViewController {
 
     private lazy var websiteTextField: UITextField = {
         let tf = UITextField()
-        tf.tintColor = primaryColor
-        tf.textColor = primaryColor
+        tf.tintColor = K.Colors.primaryColor
+        tf.textColor = K.Colors.primaryColor
         tf.clearButtonMode = .whileEditing
         tf.autocapitalizationType = .none
         tf.placeholder = AppStrings.URL.url
@@ -82,8 +82,8 @@ class AddWebsiteViewController: UIViewController {
             switch result {
             case .success(let about):
                 strongSelf.websiteTextField.text = about
-                strongSelf.websiteTextField.tintColor = primaryColor
-                strongSelf.websiteTextField.textColor = primaryColor
+                strongSelf.websiteTextField.tintColor = K.Colors.primaryColor
+                strongSelf.websiteTextField.textColor = K.Colors.primaryColor
             case .failure(let error):
                 strongSelf.websiteTextField.text = ""
                 guard error == .empty else {
@@ -144,7 +144,7 @@ class AddWebsiteViewController: UIViewController {
         skipButton.translatesAutoresizingMaskIntoConstraints = false
         
         var shareConfig = UIButton.Configuration.filled()
-        shareConfig.baseBackgroundColor = primaryColor
+        shareConfig.baseBackgroundColor = K.Colors.primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
         shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)
@@ -246,8 +246,8 @@ class AddWebsiteViewController: UIViewController {
             let trimUrl = host.split(separator: ".")
             
             if let tld = trimUrl.last, String(tld).uppercased().isDomainExtension() {
-                websiteTextField.tintColor = primaryColor
-                websiteTextField.textColor = primaryColor
+                websiteTextField.tintColor = K.Colors.primaryColor
+                websiteTextField.textColor = K.Colors.primaryColor
                 aboutButton.isEnabled = true
             } else {
                 websiteTextField.tintColor = .label

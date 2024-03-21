@@ -19,7 +19,7 @@ extension UIFont {
     /// - Returns: A UIFont instance with the specified size, text style, and weight.
     static func addFont(size: CGFloat, scaleStyle: UIFont.TextStyle, weight: UIFont.Weight, scales: Bool = true) -> UIFont {
 
-        let fontSize = UIDevice.isPad ? size + 3.0 : size
+        let fontSize = UIDevice.isPad ? size + 4.0 : size
 
         guard scales else {
             return UIFont.systemFont(ofSize: fontSize, weight: weight)

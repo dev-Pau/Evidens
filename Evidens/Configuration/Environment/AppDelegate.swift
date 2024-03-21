@@ -29,21 +29,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             let navStandardAppearance = UINavigationBarAppearance.primaryAppearance()
             navStandardAppearance.configureWithOpaqueBackground()
-            navStandardAppearance.shadowColor = separatorColor
+            navStandardAppearance.shadowColor = K.Colors.separatorColor
 
             UINavigationBar.appearance().standardAppearance = navStandardAppearance
             UINavigationBar.appearance().scrollEdgeAppearance = navStandardAppearance
 
             let tabStandardAppearance = UITabBarAppearance()
             tabStandardAppearance.configureWithOpaqueBackground()
-            tabStandardAppearance.shadowColor = separatorColor
+            tabStandardAppearance.shadowColor = K.Colors.separatorColor
 
             UITabBar.appearance().tintColor = .label
             UITabBar.appearance().standardAppearance = tabStandardAppearance
             UITabBar.appearance().scrollEdgeAppearance = tabStandardAppearance
             
-            UITabBar.appearance().scrollEdgeAppearance?.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
-            UITabBar.appearance().standardAppearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+            UITabBar.appearance().scrollEdgeAppearance?.stackedLayoutAppearance.normal.badgeBackgroundColor = K.Colors.primaryColor
+            UITabBar.appearance().standardAppearance.stackedLayoutAppearance.normal.badgeBackgroundColor = K.Colors.primaryColor
         }
         
         if let _ = UserDefaults.getUid() {

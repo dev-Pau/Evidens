@@ -13,7 +13,7 @@ class ToolbarSearchCell: UICollectionViewCell {
         didSet {
             UIView.transition(with: label, duration: 0.4, options: .transitionCrossDissolve) { [weak self] in
                 guard let strongSelf = self else { return }
-                strongSelf.label.textColor = strongSelf.isSelected ? .label : primaryGray
+                strongSelf.label.textColor = strongSelf.isSelected ? .label : K.Colors.primaryGray
             }
         }
     }
@@ -23,7 +23,7 @@ class ToolbarSearchCell: UICollectionViewCell {
         
         label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .bold)
         label.numberOfLines = 0
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -56,6 +56,6 @@ class ToolbarSearchCell: UICollectionViewCell {
     }
     
     func setDefault() {
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
     }
 }

@@ -11,7 +11,7 @@ class EditCaseHeader: UICollectionReusableView {
 
     private var specialitiesLabel: UILabel = {
         let label = UILabel()
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -22,14 +22,14 @@ class EditCaseHeader: UICollectionReusableView {
         button.isUserInteractionEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.rightChevron)?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(primaryGray)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.rightChevron)?.scalePreservingAspectRatio(targetSize: CGSize(width: 15, height: 15)).withTintColor(K.Colors.primaryGray)
         return button
     }()
     
     private lazy var editButton: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Miscellaneous.edit
-        label.textColor = primaryColor
+        label.textColor = K.Colors.primaryColor
         label.textAlignment = .right
         label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false

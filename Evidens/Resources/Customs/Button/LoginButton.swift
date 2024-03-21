@@ -31,7 +31,7 @@ class LoginButton: UIButton {
         translatesAutoresizingMaskIntoConstraints = false
         configuration = .filled()
         configuration?.baseBackgroundColor = .white
-        configuration?.background.strokeColor = separatorColor
+        configuration?.background.strokeColor = K.Colors.separatorColor
         configuration?.background.strokeWidth = 1
 
         configuration?.image = kind.image

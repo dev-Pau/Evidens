@@ -38,7 +38,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         
         let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
         
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -48,7 +48,7 @@ class NotificationConnectionCell: UICollectionViewCell {
     
     private lazy var unreadImage: UIImageView = {
         let iv = UIImageView()
-        iv.backgroundColor = primaryColor
+        iv.backgroundColor = K.Colors.primaryColor
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -57,7 +57,7 @@ class NotificationConnectionCell: UICollectionViewCell {
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -65,7 +65,7 @@ class NotificationConnectionCell: UICollectionViewCell {
     
     private lazy var separatorLabel: UILabel = {
         let view = UILabel()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -105,6 +105,7 @@ class NotificationConnectionCell: UICollectionViewCell {
 
             timeLabel.topAnchor.constraint(equalTo: fullNameLabel.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: fullNameLabel.leadingAnchor),
+            timeLabel.bottomAnchor.constraint(greaterThanOrEqualTo: profileImageView.bottomAnchor),
             timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             separatorLabel.heightAnchor.constraint(equalToConstant: 0.4),
@@ -163,7 +164,7 @@ class NotificationConnectionCell: UICollectionViewCell {
         let font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         
         unreadImage.isHidden = viewModel.isRead
-        backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.1)
+        backgroundColor = viewModel.isRead ? .systemBackground : K.Colors.primaryColor.withAlphaComponent(0.1)
 
         let attributedText = NSMutableAttributedString(string: viewModel.name, attributes: [.font: boldFont])
         attributedText.append(NSAttributedString(string: viewModel.message + ".", attributes: [.font: font]))

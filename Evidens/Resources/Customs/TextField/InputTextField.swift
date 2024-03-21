@@ -30,15 +30,15 @@ class InputTextField: UITextField {
         autocapitalizationType = secureTextEntry ? .none : .sentences
         keyboardType = .default
         font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
-        textColor = primaryColor
-        tintColor = primaryColor
+        textColor = K.Colors.primaryColor
+        tintColor = K.Colors.primaryColor
         autocorrectionType = .no
         addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         
         let spacer = UIView()
         translatesAutoresizingMaskIntoConstraints = false
         spacer.translatesAutoresizingMaskIntoConstraints = false
-        spacer.backgroundColor = separatorColor
+        spacer.backgroundColor = K.Colors.separatorColor
         addSubview(spacer)
         
         label = UILabel()
@@ -66,7 +66,7 @@ class InputTextField: UITextField {
             eyeImageView.isUserInteractionEnabled = true
             eyeImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEyeTap)))
             eyeImageView.translatesAutoresizingMaskIntoConstraints = false
-            eyeImageView.image = UIImage(named: AppStrings.Assets.slashEye)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+            eyeImageView.image = UIImage(named: AppStrings.Assets.slashEye)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
             
             rightView = eyeImageView
             rightViewMode = .always
@@ -84,7 +84,7 @@ class InputTextField: UITextField {
     
     @objc func handleEyeTap() {
         eye.toggle()
-        eyeImageView.image = UIImage(named: eye ? AppStrings.Assets.eye : AppStrings.Assets.slashEye)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        eyeImageView.image = UIImage(named: eye ? AppStrings.Assets.eye : AppStrings.Assets.slashEye)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
         isSecureTextEntry = !eye
     }
     

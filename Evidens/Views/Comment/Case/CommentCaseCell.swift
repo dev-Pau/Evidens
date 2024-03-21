@@ -30,7 +30,7 @@ class CommentCaseCell: UICollectionViewCell {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = primaryColor
+        config.baseBackgroundColor = K.Colors.primaryColor
         config.baseForegroundColor = .white
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 12.0, scaleStyle: .title3, weight: .medium)
@@ -49,14 +49,14 @@ class CommentCaseCell: UICollectionViewCell {
     var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
     private let lineView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     

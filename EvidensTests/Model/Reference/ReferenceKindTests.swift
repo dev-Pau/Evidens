@@ -24,7 +24,7 @@ final class ReferenceKindTests: XCTestCase {
     
     func testLinkImage() {
         let referenceKind = ReferenceKind.link
-        let expectedImage = UIImage(systemName: AppStrings.Icons.note, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        let expectedImage = UIImage(systemName: AppStrings.Icons.note, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor)
         XCTAssertEqual(referenceKind.image, expectedImage)
     }
     
@@ -40,7 +40,7 @@ final class ReferenceKindTests: XCTestCase {
     
     func testCitationImage() {
         let referenceKind = ReferenceKind.citation
-        let expectedImage = UIImage(systemName: AppStrings.Icons.note, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        let expectedImage = UIImage(systemName: AppStrings.Icons.note, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor)
         XCTAssertEqual(referenceKind.image, expectedImage)
     }
     

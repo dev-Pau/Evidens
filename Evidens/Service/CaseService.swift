@@ -64,7 +64,7 @@ extension CaseService {
         for id in caseIds {
             group.enter()
             
-            COLLECTION_CASES.document(id).getDocument { snapshot, error in
+            K.FirestoreCollections.COLLECTION_CASES.document(id).getDocument { snapshot, error in
                 if let _ = error {
                     group.leave()
                 } else {
@@ -126,7 +126,7 @@ extension CaseService {
     ///   - completion: A completion handler that receives a result containing either the fetched Case or an error.
     static func getPlainCase(withCaseId caseId: String, completion: @escaping(Result<Case, FirestoreError>) -> Void) {
         
-        COLLECTION_CASES.document(caseId).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_CASES.document(caseId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -184,7 +184,7 @@ extension CaseService {
         }
         
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let query = COLLECTION_CASES.whereField("uid", isNotEqualTo: uid).whereField("disciplines", arrayContainsAny: [disciple.rawValue]).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 3)
+        let query = K.FirestoreCollections.COLLECTION_CASES.whereField("uid", isNotEqualTo: uid).whereField("disciplines", arrayContainsAny: [disciple.rawValue]).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 3)
         
         query.getDocuments { snapshot, error in
             if let _ = error {
@@ -226,20 +226,20 @@ extension CaseService {
             switch query {
             case .you:
                 guard let user = user else { return }
-                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .latest:
-                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                let casesQuery = K.FirestoreCollections.COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             }
         } else {
             switch query {
             case .you:
                 guard let user = user else { return }
-                let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("disciplines", arrayContains: user.discipline!.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
             case .latest:
-                let casesQuery = COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+                let casesQuery = K.FirestoreCollections.COLLECTION_CASES.order(by: "timestamp", descending: true).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 fetchDocuments(for: casesQuery, completion: completion)
          
             }
@@ -255,11 +255,11 @@ extension CaseService {
                 
                 switch filter {
                 case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                     
                 case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 }
 
@@ -267,10 +267,10 @@ extension CaseService {
                 
                 switch filter {
                 case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 }
 
@@ -278,10 +278,10 @@ extension CaseService {
                 
                 switch filter {
                 case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 }
             }
@@ -292,10 +292,10 @@ extension CaseService {
                 
                 switch filter {
                 case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 }
                 
@@ -303,10 +303,10 @@ extension CaseService {
                 
                 switch filter {
                 case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("body", arrayContains: body.rawValue).whereField("orientation", isEqualTo: orientation.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 }
                 
@@ -314,10 +314,10 @@ extension CaseService {
                 switch filter {
                     
                 case .latest:
-                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).order(by: "timestamp", descending: true).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 case .featured:
-                    let casesQuery = COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+                    let casesQuery = K.FirestoreCollections.COLLECTION_CASES.whereField("specialities", arrayContains: speciality.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
                     fetchDocuments(for: casesQuery, completion: completion)
                 }
             }
@@ -418,7 +418,7 @@ extension CaseService {
     ///   - completion: A completion handler to be called with the result of the fetch.
     static func fetchCasesWithHashtag(_ hashtag: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -441,7 +441,7 @@ extension CaseService {
             }
         } else {
 
-            let nextGroupToFetch = COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_CASES.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -472,7 +472,7 @@ extension CaseService {
     ///   - completion: A completion handler to be called with the result containing the number of likes.
     static func fetchLikesForCase(caseId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
         
-        let likesRef = COLLECTION_CASES.document(caseId).collection("case-likes").count
+        let likesRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId).collection("case-likes").count
         likesRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
@@ -500,7 +500,7 @@ extension CaseService {
         
         if let date {
             let timestamp = Timestamp(date: date)
-            let likesRef = COLLECTION_CASES.document(caseId).collection("case-likes").whereField("timestamp", isGreaterThan: timestamp).count
+            let likesRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId).collection("case-likes").whereField("timestamp", isGreaterThan: timestamp).count
             likesRef.getAggregation(source: .server) { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
@@ -513,7 +513,7 @@ extension CaseService {
                 }
             }
         } else {
-            let likesRef = COLLECTION_CASES.document(caseId).collection("case-likes").count
+            let likesRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId).collection("case-likes").count
             likesRef.getAggregation(source: .server) { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
@@ -534,7 +534,7 @@ extension CaseService {
     ///   - caseId: The ID of the clinical case.
     ///   - completion: A completion handler to be called with the result containing the number of visible comments.
     static func fetchCommentsForCase(caseId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        let commentsRef = COLLECTION_CASES.document(caseId).collection("comments")
+        let commentsRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId).collection("comments")
         let query = commentsRef.whereField("visible", isGreaterThanOrEqualTo: Visible.regular.rawValue).whereField("visible", isLessThanOrEqualTo: Visible.anonymous.rawValue).count
         query.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
@@ -563,7 +563,7 @@ extension CaseService {
         }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -585,7 +585,7 @@ extension CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_CASES.whereField("uid", isEqualTo: uid).whereField("privacy", isEqualTo: CasePrivacy.regular.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -628,7 +628,7 @@ extension CaseService {
         }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -650,7 +650,7 @@ extension CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_CASES.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -688,7 +688,7 @@ extension CaseService {
             return
         }
         
-        let ref = COLLECTION_CASES.document(caseId).collection("case-revisions")
+        let ref = K.FirestoreCollections.COLLECTION_CASES.document(caseId).collection("case-revisions")
         ref.getDocuments { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
@@ -726,13 +726,13 @@ extension CaseService {
             phaseData["revision"] = diagnosis.kind.rawValue
         }
         
-        let caseRef = COLLECTION_CASES.document(caseId)
+        let caseRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId)
         
         batch.updateData(phaseData, forDocument: caseRef)
         
         if let diagnosis {
             
-            let revisionRef = COLLECTION_CASES.document(caseId).collection("case-revisions").document()
+            let revisionRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId).collection("case-revisions").document()
             
             let revisionData: [String: Any] = ["content": diagnosis.content.trimmingCharacters(in: .whitespacesAndNewlines),
                                        "kind": diagnosis.kind.rawValue,
@@ -756,7 +756,7 @@ extension CaseService {
     ///   - caseId: The ID of the case to fetch.
     ///   - completion: A completion handler to be called with the fetched case or an error.
     static func fetchCase(withCaseId caseId: String, completion: @escaping(Result<Case, FirestoreError>) -> Void) {
-        COLLECTION_CASES.document(caseId).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_CASES.document(caseId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -781,7 +781,7 @@ extension CaseService {
     static func checkIfUserLikedCase(clinicalCase: Case, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
       
-        COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -802,7 +802,7 @@ extension CaseService {
     ///   - completion: A completion handler to be called with the result indicating whether the user bookmarked the case or not.
     static func checkIfUserBookmarkedCase(clinicalCase: Case, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(clinicalCase.caseId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -834,7 +834,7 @@ extension CaseService {
         }
 
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -856,7 +856,7 @@ extension CaseService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
 
@@ -921,7 +921,7 @@ extension CaseService {
     ///   - id: The ID of the post to be removed from the user's home feed.
     static func removeCaseReference(withId id: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id).delete()
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id).delete()
     }
 }
 
@@ -949,8 +949,8 @@ extension CaseService {
         
         let batch = Firestore.firestore().batch()
         
-        let caseRef = COLLECTION_CASES.document(caseId)
-        let revisionRef = COLLECTION_CASES.document(caseId).collection("case-revisions").document()
+        let caseRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId)
+        let revisionRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId).collection("case-revisions").document()
         
         batch.updateData(["revision": revision.kind.rawValue], forDocument: caseRef)
         batch.setData(data, forDocument: revisionRef)
@@ -987,7 +987,7 @@ extension CaseService {
             if participation == 0 {
                 let deletedCase = ["visible": CaseVisibility.deleted.rawValue]
 
-                COLLECTION_CASES.document(id).setData(deletedCase, merge: true) { error in
+                K.FirestoreCollections.COLLECTION_CASES.document(id).setData(deletedCase, merge: true) { error in
                     if let _ = error {
                         completion(.unknown)
                     } else {
@@ -1035,7 +1035,7 @@ extension CaseService {
         let items = viewModel.items
         let privacy = viewModel.privacy
         
-        let caseRef = COLLECTION_CASES.document()
+        let caseRef = K.FirestoreCollections.COLLECTION_CASES.document()
 
         var clinicalCase = ["title": title.trimmingCharacters(in: .whitespaces),
                             "content": description.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -1078,7 +1078,7 @@ extension CaseService {
                                 let diagnosis: [String: Any] = ["content": diagnosis.content.trimmingCharacters(in: .whitespacesAndNewlines),
                                                                 "kind": diagnosis.kind.rawValue,
                                                                 "timestamp": timestamp]
-                                COLLECTION_CASES.document(caseRef.documentID).collection("case-revisions").addDocument(data: diagnosis) { error in
+                                K.FirestoreCollections.COLLECTION_CASES.document(caseRef.documentID).collection("case-revisions").addDocument(data: diagnosis) { error in
                                     if let _ = error {
                                         completion(.unknown)
                                     } else {
@@ -1106,7 +1106,7 @@ extension CaseService {
                         let diagnosis: [String: Any] = ["content": diagnosis.content.trimmingCharacters(in: .whitespacesAndNewlines),
                                                         "kind": diagnosis.kind.rawValue,
                                                         "timestamp": timestamp]
-                        COLLECTION_CASES.document(caseRef.documentID).collection("case-revisions").addDocument(data: diagnosis) { error in
+                        K.FirestoreCollections.COLLECTION_CASES.document(caseRef.documentID).collection("case-revisions").addDocument(data: diagnosis) { error in
                             if let _ = error {
                                 completion(.unknown)
                             } else {
@@ -1158,7 +1158,7 @@ extension CaseService {
         
         if lastSnapshot == nil {
             
-            COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").limit(to: 30).getDocuments { snapshot, error in
+            K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").limit(to: 30).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -1178,7 +1178,7 @@ extension CaseService {
             }
             
         } else {
-            COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, error in
+            K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("case-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -1218,8 +1218,8 @@ extension CaseService {
         
         let likeData = ["timestamp": Timestamp(date: Date())]
         
-        let caseRef = COLLECTION_CASES.document(id).collection("case-likes").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-case-likes").document(id)
+        let caseRef = K.FirestoreCollections.COLLECTION_CASES.document(id).collection("case-likes").document(uid)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-likes").document(id)
         
         batch.setData(likeData, forDocument: caseRef)
         batch.setData(likeData, forDocument: userRef)
@@ -1251,8 +1251,8 @@ extension CaseService {
         
         let batch = Firestore.firestore().batch()
         
-        let caseRef = COLLECTION_CASES.document(id).collection("case-likes").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-case-likes").document(id)
+        let caseRef = K.FirestoreCollections.COLLECTION_CASES.document(id).collection("case-likes").document(uid)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-likes").document(id)
         
         batch.deleteDocument(caseRef)
         batch.deleteDocument(userRef)
@@ -1286,8 +1286,8 @@ extension CaseService {
         
         let bookmarkData = ["timestamp": Timestamp(date: Date())]
        
-        let caseRef = COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id)
+        let caseRef = K.FirestoreCollections.COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id)
         
         batch.setData(bookmarkData, forDocument: caseRef)
         batch.setData(bookmarkData, forDocument: userRef)
@@ -1319,8 +1319,8 @@ extension CaseService {
         
         let batch = Firestore.firestore().batch()
         
-        let caseRef = COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id)
+        let caseRef = K.FirestoreCollections.COLLECTION_CASES.document(id).collection("case-bookmarks").document(uid)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id)
         
         batch.deleteDocument(caseRef)
         batch.deleteDocument(userRef)
@@ -1345,7 +1345,7 @@ extension CaseService {
             return
         }
 
-        let ref = COLLECTION_CASES.document(id).collection("comments")
+        let ref = K.FirestoreCollections.COLLECTION_CASES.document(id).collection("comments")
         
         let queryVisible = ref.whereField("visible", isEqualTo: 0).whereField("uid", isNotEqualTo: uid).count
         

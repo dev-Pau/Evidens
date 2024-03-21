@@ -20,7 +20,7 @@ class ContentLinkCell: UICollectionViewCell {
     
     private let linkImageView: UIImageView = {
         let iv = UIImageView()
-        iv.backgroundColor = primaryGray
+        iv.backgroundColor = K.Colors.primaryGray
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 12
         iv.contentMode = .scaleAspectFill
@@ -95,7 +95,7 @@ class ContentLinkCell: UICollectionViewCell {
     
     func configure(linkMetadata: LPLinkMetadata?) {
         guard let linkMetadata else { return }
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         
         if let iconProvider = linkMetadata.imageProvider {
             iconProvider.loadDataRepresentation(forTypeIdentifier: UTType.image.identifier) { [weak self] data, error in

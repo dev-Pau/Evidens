@@ -22,7 +22,7 @@ class TabBarIconCell: UICollectionViewCell {
             case .icon, .resources:
                 break
             case .profile:
-                button.layer.borderColor = isSelected ? primaryColor.cgColor : separatorColor.cgColor
+                button.layer.borderColor = isSelected ? K.Colors.primaryColor.cgColor : K.Colors.separatorColor.cgColor
             }
         }
     }
@@ -67,7 +67,7 @@ class TabBarIconCell: UICollectionViewCell {
         guard let tabIcon else { return }
         if tabIcon == .profile {
             addImage(forUrl: UserDefaults.getImage(), size: 28)
-            button.layer.borderColor = separatorColor.cgColor
+            button.layer.borderColor = K.Colors.separatorColor.cgColor
             button.layer.borderWidth = 1
             button.layer.cornerRadius = 28 / 2
         } else {
@@ -75,7 +75,7 @@ class TabBarIconCell: UICollectionViewCell {
         }
     }
     
-    private func animateBounce(scale: CGFloat) {
+    func animateBounce(scale: CGFloat) {
         guard !isAnimating else { return }
         isAnimating = true
         
@@ -106,7 +106,7 @@ class TabBarIconCell: UICollectionViewCell {
             button.sd_setImage(with: URL(string: string))
         } else {
             if let username = UserDefaults.getUsername(), let first = username.first {
-                button.backgroundColor = primaryColor
+                button.backgroundColor = K.Colors.primaryColor
                 
                 let label = UILabel()
                 label.translatesAutoresizingMaskIntoConstraints = false
@@ -135,5 +135,4 @@ class TabBarIconCell: UICollectionViewCell {
             }
         }
     }
-
 }

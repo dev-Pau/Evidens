@@ -40,7 +40,7 @@ class CaseImageCell: UICollectionViewCell {
         ])
         
         layer.borderWidth = 0.4
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         layer.cornerRadius = 12
     }
     

@@ -38,7 +38,7 @@ class ResetPasswordViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         label.text = AppStrings.Opening.passwordContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
@@ -55,7 +55,7 @@ class ResetPasswordViewController: UIViewController {
         let button = UIButton(type: .system)
         button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = primaryColor
+        config.baseBackgroundColor = K.Colors.primaryColor
         config.baseForegroundColor = .white
         
         var container = AttributeContainer()
@@ -143,8 +143,8 @@ class ResetPasswordViewController: UIViewController {
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
-        navigationItem.leftBarButtonItem?.tintColor = primaryColor
-        addNavigationBarLogo(withTintColor: primaryColor)
+        navigationItem.leftBarButtonItem?.tintColor = K.Colors.primaryColor
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     //MARK:  - Actions

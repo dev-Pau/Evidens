@@ -87,7 +87,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
     private let separator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -151,7 +151,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         ])
         
         layer.borderWidth = 0.4
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
 
         baseBackgroundView.layer.cornerRadius = layer.cornerRadius
         profileImageView.layer.cornerRadius = 30 / 2

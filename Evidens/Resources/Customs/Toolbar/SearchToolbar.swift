@@ -31,14 +31,14 @@ class SearchToolbar: UIToolbar {
     private var highlightView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = primaryColor
+        view.backgroundColor = K.Colors.primaryColor
         return view
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -217,8 +217,8 @@ extension SearchToolbar {
             leadingConstraint.constant = offset + insets
             
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
-            firstCell?.set(from: .label, to: primaryGray, progress: progress)
-            secondCell?.set(from: primaryGray, to: .label, progress: progress)
+            firstCell?.set(from: .label, to: K.Colors.primaryGray, progress: progress)
+            secondCell?.set(from: K.Colors.primaryGray, to: .label, progress: progress)
             thirdCell?.setDefault()
             fourthCell?.setDefault()
             currentIndex = IndexPath(item: 0, section: 0)
@@ -241,8 +241,8 @@ extension SearchToolbar {
             leadingConstraint.constant = offset + insets
             
             widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
-            thirdCell?.set(from: primaryGray, to: .label, progress: normalizedProgress)
-            secondCell?.set(from: .label, to: primaryGray, progress: normalizedProgress)
+            thirdCell?.set(from: K.Colors.primaryGray, to: .label, progress: normalizedProgress)
+            secondCell?.set(from: .label, to: K.Colors.primaryGray, progress: normalizedProgress)
             firstCell?.setDefault()
             fourthCell?.setDefault()
             currentIndex = IndexPath(item: 1, section: 0)
@@ -264,8 +264,8 @@ extension SearchToolbar {
             let normalizedProgress = max(0.0, min(1.0, progress))
             
             widthConstantConstraint.constant = widthCell[2] + (widthCell[3] - widthCell[2]) * normalizedProgress
-            fourthCell?.set(from: primaryGray, to: .label, progress: normalizedProgress)
-            thirdCell?.set(from: .label, to: primaryGray, progress: normalizedProgress)
+            fourthCell?.set(from: K.Colors.primaryGray, to: .label, progress: normalizedProgress)
+            thirdCell?.set(from: .label, to: K.Colors.primaryGray, progress: normalizedProgress)
             secondCell?.setDefault()
             firstCell?.setDefault()
             currentIndex = IndexPath(item: 2, section: 0)

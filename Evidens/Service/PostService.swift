@@ -60,7 +60,7 @@ extension PostService {
     ///   - postId: The ID of the post to be fetched.
     ///   - completion: A completion handler that takes a `Result` enum containing either the fetched `Post` or a `FirestoreError` in case of failure.
     static func fetchPost(withPostId postId: String, completion: @escaping(Result<Post, FirestoreError>) -> Void) {
-        COLLECTION_POSTS.document(postId).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_POSTS.document(postId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -106,7 +106,7 @@ extension PostService {
     ///   - completion: A completion handler that receives a result containing either the fetched Post or an error.
     static func getPlainPost(withPostId postId: String, completion: @escaping(Result<Post, FirestoreError>) -> Void) {
         
-        COLLECTION_POSTS.document(postId).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_POSTS.document(postId).getDocument { snapshot, error in
 
             if let _ = error {
                 completion(.failure(.unknown))
@@ -162,7 +162,7 @@ extension PostService {
             return
         }
         
-        let likesRef = COLLECTION_POSTS.document(postId).collection("comments").whereField("visible", isNotEqualTo: Visible.deleted.rawValue).count
+        let likesRef = K.FirestoreCollections.COLLECTION_POSTS.document(postId).collection("comments").whereField("visible", isNotEqualTo: Visible.deleted.rawValue).count
 
         likesRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
@@ -195,7 +195,7 @@ extension PostService {
         }
 
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-post-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-bookmarks").order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 
                 if let error {
@@ -217,7 +217,7 @@ extension PostService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-post-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-bookmarks").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
             nextGroupToFetch.getDocuments { snapshot, error in
                 
                 if let error {
@@ -258,7 +258,7 @@ extension PostService {
             
         }
 
-        let query = COLLECTION_POSTS.whereField("uid", isNotEqualTo: user.uid!).whereField("disciplines", arrayContainsAny: [discipline.rawValue]).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 3)
+        let query = K.FirestoreCollections.COLLECTION_POSTS.whereField("uid", isNotEqualTo: user.uid!).whereField("disciplines", arrayContainsAny: [discipline.rawValue]).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 3)
         query.getDocuments { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
@@ -301,7 +301,7 @@ extension PostService {
             return
         }
         
-        let ref = COLLECTION_POSTS.document(id).collection("reference")
+        let ref = K.FirestoreCollections.COLLECTION_POSTS.document(id).collection("reference")
         ref.getDocuments { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
@@ -403,7 +403,7 @@ extension PostService {
         }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_USERS.document(uid).collection("user-post-network").order(by: "timestamp", descending: true).limit(to: 10)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-network").order(by: "timestamp", descending: true).limit(to: 10)
             firstGroupToFetch.getDocuments { snapshot, error in
                 
                 if let error {
@@ -425,7 +425,7 @@ extension PostService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_USERS.document(uid).collection("user-post-network").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-network").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -459,7 +459,7 @@ extension PostService {
     static func fetchPostsWithHashtag(_ hashtag: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
 
-            let firstGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 10)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 10)
             
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -481,7 +481,7 @@ extension PostService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_POSTS.whereField("hashtags", arrayContains: hashtag.lowercased()).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -523,7 +523,7 @@ extension PostService {
         
          if lastSnapshot == nil {
              // Fetch first group of posts
-             let firstGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 10)
+             let firstGroupToFetch = K.FirestoreCollections.COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).limit(to: 10)
              firstGroupToFetch.getDocuments { snapshot, error in
                  if let error {
                      let nsError = error as NSError
@@ -544,7 +544,7 @@ extension PostService {
                  completion(.success(snapshot))
              }
          } else {
-             let nextGroupToFetch = COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+             let nextGroupToFetch = K.FirestoreCollections.COLLECTION_POSTS.whereField("disciplines", arrayContains: discipline.rawValue).whereField("visible", isEqualTo: PostVisibility.regular.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                  
              nextGroupToFetch.getDocuments { snapshot, error in
                  if let error {
@@ -622,7 +622,7 @@ extension PostService {
         
         if lastSnapshot == nil {
             
-            COLLECTION_POSTS.document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, error in
+            K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("post-likes").limit(to: 30).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -641,7 +641,7 @@ extension PostService {
                 }
             }
         } else {
-            COLLECTION_POSTS.document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, error in
+            K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("post-likes").start(afterDocument: lastSnapshot!).limit(to: 30).getDocuments { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
@@ -672,8 +672,8 @@ extension PostService {
     ///   - id: The ID of the post to be removed from the user's home feed.
     static func removePostReference(withId id: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        COLLECTION_USERS.document(uid).collection("user-post-network").document(id).delete()
-        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id).delete()
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-network").document(id).delete()
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id).delete()
     }
 }
 
@@ -692,7 +692,7 @@ extension PostService {
             return
         }
         
-        let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").count
+        let likesRef = K.FirestoreCollections.COLLECTION_POSTS.document(postId).collection("post-likes").count
         likesRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
@@ -720,7 +720,7 @@ extension PostService {
         
         if let date {
             let timestamp = Timestamp(date: date)
-            let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").whereField("timestamp", isGreaterThan: timestamp).count
+            let likesRef = K.FirestoreCollections.COLLECTION_POSTS.document(postId).collection("post-likes").whereField("timestamp", isGreaterThan: timestamp).count
             likesRef.getAggregation(source: .server) { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
@@ -733,7 +733,7 @@ extension PostService {
                 }
             }
         } else {
-            let likesRef = COLLECTION_POSTS.document(postId).collection("post-likes").count
+            let likesRef = K.FirestoreCollections.COLLECTION_POSTS.document(postId).collection("post-likes").count
             likesRef.getAggregation(source: .server) { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
@@ -778,7 +778,7 @@ extension PostService {
     static func checkIfUserLikedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        COLLECTION_USERS.document(uid).collection("user-post-likes").document(post.postId).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-likes").document(post.postId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -803,7 +803,7 @@ extension PostService {
             return
         }
         
-        COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(post.postId).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -857,7 +857,7 @@ extension PostService {
             post["reference"] = reference.option.rawValue
         }
         
-        let ref = COLLECTION_POSTS.document()
+        let ref = K.FirestoreCollections.COLLECTION_POSTS.document()
         
         switch viewModel.kind {
             
@@ -999,7 +999,7 @@ extension PostService {
              postData["linkUrl"] = link
          }
 
-        COLLECTION_POSTS.document(viewModel.postId).updateData(postData) { error in
+        K.FirestoreCollections.COLLECTION_POSTS.document(viewModel.postId).updateData(postData) { error in
             if let error {
                 let nsError = error as NSError
                 let errCode = FirestoreErrorCode(_nsError: nsError)
@@ -1032,7 +1032,7 @@ extension PostService {
         
         let deletedPost = ["visible": PostVisibility.deleted.rawValue]
         
-        COLLECTION_POSTS.document(id).setData(deletedPost, merge: true) { error in
+        K.FirestoreCollections.COLLECTION_POSTS.document(id).setData(deletedPost, merge: true) { error in
             if let _ = error {
                 completion(.unknown)
             } else {
@@ -1072,8 +1072,8 @@ extension PostService {
         
         let batch = Firestore.firestore().batch()
         
-        let postRef = COLLECTION_POSTS.document(id).collection("post-likes").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-post-likes").document(id)
+        let postRef = K.FirestoreCollections.COLLECTION_POSTS.document(id).collection("post-likes").document(uid)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-likes").document(id)
         
         batch.setData(likeData, forDocument: postRef)
         batch.setData(likeData, forDocument: userRef)
@@ -1105,8 +1105,8 @@ extension PostService {
 
         let batch = Firestore.firestore().batch()
         
-        let postRef = COLLECTION_POSTS.document(id).collection("post-likes").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-post-likes").document(id)
+        let postRef = K.FirestoreCollections.COLLECTION_POSTS.document(id).collection("post-likes").document(uid)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-likes").document(id)
 
         batch.deleteDocument(postRef)
         batch.deleteDocument(userRef)
@@ -1140,8 +1140,8 @@ extension PostService {
         
         let bookmarkData = ["timestamp": Timestamp(date: Date())]
         
-        let postRef = COLLECTION_POSTS.document(id).collection("post-bookmarks").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id)
+        let postRef = K.FirestoreCollections.COLLECTION_POSTS.document(id).collection("post-bookmarks").document(uid)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id)
         
         batch.setData(bookmarkData, forDocument: postRef)
         batch.setData(bookmarkData, forDocument: userRef)
@@ -1174,8 +1174,8 @@ extension PostService {
         let batch = Firestore.firestore().batch()
         
         
-        let postRef = COLLECTION_POSTS.document(id).collection("post-bookmarks").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id)
+        let postRef = K.FirestoreCollections.COLLECTION_POSTS.document(id).collection("post-bookmarks").document(uid)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id)
 
         batch.deleteDocument(postRef)
         batch.deleteDocument(userRef)

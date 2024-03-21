@@ -43,8 +43,8 @@ extension ConnectionService {
         
         let batch = Firestore.firestore().batch()
         
-        let currentConnectionsRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
-        let targetConnectionsRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        let currentConnectionsRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let targetConnectionsRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
         
         batch.setData(currentConnection, forDocument: currentConnectionsRef)
         batch.setData(targetConnection, forDocument: targetConnectionsRef)
@@ -99,8 +99,8 @@ extension ConnectionService {
         
         let batch = Firestore.firestore().batch()
         
-        let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
-        let rejectedConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        let currentConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let rejectedConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
         
         batch.setData(currentConnection, forDocument: currentConnectionRef)
         batch.setData(rejectedConnection, forDocument: rejectedConnectionRef)
@@ -154,8 +154,8 @@ extension ConnectionService {
         
         let batch = Firestore.firestore().batch()
         
-        let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
-        let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        let currentConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let targetConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
         
         batch.setData(connection, forDocument: currentConnectionRef)
         batch.setData(connection, forDocument: targetConnectionRef)
@@ -246,8 +246,8 @@ extension ConnectionService {
         
         let batch = Firestore.firestore().batch()
         
-        let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
-        let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        let currentConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let targetConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
         
         batch.setData(currentConnection, forDocument: currentConnectionRef)
         batch.setData(targetConnection, forDocument: targetConnectionRef)
@@ -308,8 +308,8 @@ extension ConnectionService {
         
         let batch = Firestore.firestore().batch()
         
-        let currentConnectionRef = COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
-        let targetConnectionRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
+        let currentConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid)
+        let targetConnectionRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(uid).collection("user-connections").document(currentUid)
         
         batch.setData(currentConnection, forDocument: currentConnectionRef)
         batch.setData(targetConnection, forDocument: targetConnectionRef)
@@ -348,7 +348,7 @@ extension ConnectionService {
     ///   - completion: A completion block that is called with the UserConnection object containing the connection phase information.
     static func getConnectionPhase(uid: String, completion: @escaping(UserConnection) -> Void) {
         guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid).getDocument { snapshot, error in
             if let _ = error {
                 completion(UserConnection(uid: uid))
             } else {
@@ -376,7 +376,7 @@ extension ConnectionService {
     ///   - completion: A completion block that is called with the result of the query.
     static func getConnections(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
-            let connections = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).limit(to: 15)
+            let connections = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).limit(to: 15)
 
             connections.getDocuments { snapshot, error in
                 if let error {
@@ -398,7 +398,7 @@ extension ConnectionService {
                 completion(.success(snapshot))
             }
         } else {
-            let connections = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
+            let connections = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).start(afterDocument: lastSnapshot!).limit(to: 10)
                             
             connections.getDocuments { snapshot, error in
                 if let error {

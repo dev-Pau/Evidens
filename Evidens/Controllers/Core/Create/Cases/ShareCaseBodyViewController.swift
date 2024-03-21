@@ -310,7 +310,7 @@ class ShareCaseBodyViewController: UIViewController {
         rightHandView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(bodyTap(_:))))
         
         var configuration = UIButton.Configuration.plain()
-        configuration.image = UIImage(systemName: AppStrings.Icons.switchArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        configuration.image = UIImage(systemName: AppStrings.Icons.switchArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor)
         switchButton = UIButton(configuration: configuration)
         switchButton.addTarget(self, action: #selector(switchTap), for: .touchUpInside)
         switchButton.translatesAutoresizingMaskIntoConstraints = false
@@ -318,7 +318,7 @@ class ShareCaseBodyViewController: UIViewController {
         switchButton.tintAdjustmentMode = .normal
         
         var skipConfiguration = UIButton.Configuration.plain()
-        skipConfiguration.baseForegroundColor = primaryColor
+        skipConfiguration.baseForegroundColor = K.Colors.primaryColor
        
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 14, scaleStyle: .title1, weight: .regular, scales: false)
@@ -517,7 +517,7 @@ class ShareCaseBodyViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = .label

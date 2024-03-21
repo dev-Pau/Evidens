@@ -26,7 +26,7 @@ class ManageSectionsCell: UICollectionViewCell {
         label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular)
         label.numberOfLines = 0
         label.text = AppStrings.Sections.content
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -39,7 +39,7 @@ class ManageSectionsCell: UICollectionViewCell {
         
         let size: CGFloat = UIDevice.isPad ? 35 : 30
         
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.rightArrowCircleFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.rightArrowCircleFill, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         return button
@@ -47,7 +47,7 @@ class ManageSectionsCell: UICollectionViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

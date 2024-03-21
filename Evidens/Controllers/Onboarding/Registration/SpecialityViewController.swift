@@ -73,9 +73,9 @@ class SpecialityViewController: UIViewController {
         navigationItem.hidesSearchBarWhenScrolling = false
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: viewModel.isEditingProfileSpeciality ? AppStrings.Miscellaneous.change : AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleNext))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     private func configureSearchBar() {
@@ -84,7 +84,7 @@ class SpecialityViewController: UIViewController {
         searchController.searchBar.delegate = self
         searchController.searchBar.placeholder = AppStrings.Opening.speciality
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.tintColor = primaryColor
+        searchController.searchBar.tintColor = K.Colors.primaryColor
         
         if #available(iOS 16.0, *) {
             navigationItem.preferredSearchBarPlacement = .stacked

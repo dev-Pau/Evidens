@@ -100,7 +100,7 @@ class PrimaryCaseImageCell: UICollectionViewCell {
     private let separator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
 
@@ -172,13 +172,13 @@ class PrimaryCaseImageCell: UICollectionViewCell {
         ])
         
         layer.borderWidth = 0.4
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
 
         caseImageView.layer.cornerRadius = layer.cornerRadius
         baseBackgroundView.layer.cornerRadius = layer.cornerRadius
         profileImageView.layer.cornerRadius = profileSize / 2
         
-        caseImageView.layer.borderColor = separatorColor.cgColor
+        caseImageView.layer.borderColor = K.Colors.separatorColor.cgColor
         caseImageView.layer.borderWidth = 0.4
     }
     

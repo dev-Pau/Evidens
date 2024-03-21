@@ -32,14 +32,14 @@ class SideMenuView: UIView {
         let label = UILabel()
         label.font = UIFont.addFont(size: 14.0, scaleStyle: .title3, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.textAlignment = .left
         return label
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

@@ -50,7 +50,7 @@ class VerificationViewController: UIViewController {
         let font = UIFont.addFont(size: 15.0, scaleStyle: .title2, weight: .regular)
         label.font = font
         label.numberOfLines = 0
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         return label
     }()
     
@@ -68,7 +68,7 @@ class VerificationViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -78,7 +78,7 @@ class VerificationViewController: UIViewController {
         label.text = AppStrings.Opening.or
         let font = UIFont.addFont(size: 12.0, scaleStyle: .title1, weight: .regular)
         label.font = font
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.backgroundColor = .systemBackground
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -92,7 +92,7 @@ class VerificationViewController: UIViewController {
         label.font = font
         label.numberOfLines = 0
         label.text = AppStrings.Opening.registerIdentitySkip
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         return label
     }()
     
@@ -155,7 +155,7 @@ class VerificationViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        addNavigationBarLogo(withTintColor: baseColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         
         if let _ = comesFromMainScreen {
             navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))

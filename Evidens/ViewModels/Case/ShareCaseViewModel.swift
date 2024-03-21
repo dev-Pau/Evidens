@@ -83,7 +83,7 @@ struct ShareCaseViewModel: ShareViewModel {
     }
     
     var buttonBackgroundColor: UIColor {
-        return caseIsValid ? primaryColor : primaryColor.withAlphaComponent(0.5)
+        return caseIsValid ? K.Colors.primaryColor : K.Colors.primaryColor.withAlphaComponent(0.5)
     }
     
     var attributedPrivacyString: NSAttributedString {
@@ -92,13 +92,13 @@ struct ShareCaseViewModel: ShareViewModel {
         
         let aString = NSMutableAttributedString(string: "\(privacy.title). \(privacy.content).")
             aString.addAttribute(NSAttributedString.Key.font, value: font, range: (aString.string as NSString).range(of: privacy.title))
-            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryColor, range: (aString.string as NSString).range(of: privacy.title))
+            aString.addAttribute(NSAttributedString.Key.foregroundColor, value: K.Colors.primaryColor, range: (aString.string as NSString).range(of: privacy.title))
             return aString
         
     }
     
     var privacyImage: UIImage {
-        return privacy.image.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
+        return privacy.image.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
     }
     
     var canSelectMoreBodyParts: Bool {

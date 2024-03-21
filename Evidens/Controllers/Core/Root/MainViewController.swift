@@ -43,12 +43,7 @@ class MainViewController: UIViewController {
             mainController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
-    /*
-    func setPadDelegateFor(_ vc: SideTabViewController) {
-        var delegate = vc.tabDelegate
-        delegate = self
-    }
-    */
+
     func pushUserProfileViewController() {
         mainController.pushUserProfileViewController()
     }

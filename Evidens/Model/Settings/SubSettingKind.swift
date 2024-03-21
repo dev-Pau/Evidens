@@ -32,10 +32,10 @@ enum SubSettingKind: Int, CaseIterable {
     
     var image: UIImage {
         switch self {
-        case .account: return (UIImage(systemName: AppStrings.Icons.person, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray))!
-        case .password: return (UIImage(systemName: AppStrings.Icons.key, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray))!
-        case .deactivate: return UIImage(named: AppStrings.Assets.brokenHeart)!.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
-        case .block: return (UIImage(systemName: AppStrings.Icons.slashSpeaker, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray))!
+        case .account: return (UIImage(systemName: AppStrings.Icons.person, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray))!
+        case .password: return (UIImage(systemName: AppStrings.Icons.key, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray))!
+        case .deactivate: return UIImage(named: AppStrings.Assets.brokenHeart)!.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray)
+        case .block: return (UIImage(systemName: AppStrings.Icons.slashSpeaker, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray))!
         }
     }
 }

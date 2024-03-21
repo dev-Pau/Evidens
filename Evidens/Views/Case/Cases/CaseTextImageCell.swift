@@ -31,7 +31,7 @@ class CaseTextImageCell: UICollectionViewCell {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self, let _ = strongSelf.viewModel else { return nil }
 
-            let padding: CGFloat = UIDevice.isPad ? 65 : 55
+            let padding: CGFloat = K.Paddings.Content.horizontalPadding + K.Paddings.Content.userImageSize + 10
             
             let width = strongSelf.frame.width - padding - 40
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(width)))
@@ -51,14 +51,14 @@ class CaseTextImageCell: UICollectionViewCell {
     private func createTagLayout() -> UICollectionViewCompositionalLayout {
         let size = NSCollectionLayoutSize(widthDimension: .estimated(250), heightDimension: .estimated(40))
         
-        let padding: CGFloat = UIDevice.isPad ? 65 : 55
+        let padding: CGFloat = K.Paddings.Content.horizontalPadding + K.Paddings.Content.userImageSize + 10
         
         let item = NSCollectionLayoutItem(layoutSize: size)
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 10
         section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: padding, bottom: 0, trailing: 10)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: padding, bottom: 0, trailing: K.Paddings.Content.horizontalPadding)
         return UICollectionViewCompositionalLayout(section: section)
     }
     
@@ -91,12 +91,11 @@ class CaseTextImageCell: UICollectionViewCell {
         
         separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.backgroundColor = separatorColor
+        separator.backgroundColor = K.Colors.separatorColor
         
         let insets = UIFont.addFont(size: 11.5, scaleStyle: .largeTitle, weight: .semibold).lineHeight
 
-        let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
-        let collectionSize: CGFloat = UIDevice.isPad ? 85 : 75
+        let textPadding: CGFloat = K.Paddings.Content.horizontalPadding + K.Paddings.Content.userImageSize + 10
         
         let collectionViewHeightConstraint = tagCollectionView.heightAnchor.constraint(equalToConstant: insets * 2 + 5)
         collectionViewHeightConstraint.priority = .defaultLow
@@ -107,20 +106,19 @@ class CaseTextImageCell: UICollectionViewCell {
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            //userPostView.heightAnchor.constraint(equalToConstant: 50),
-            
+
             titleTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: textPadding),
-            titleTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            titleTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
 
             caseCollectionView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 10),
             caseCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             caseCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseCollectionView.heightAnchor.constraint(equalToConstant: frame.width - collectionSize - 20),
+            caseCollectionView.heightAnchor.constraint(equalToConstant: frame.width - textPadding - 40),
 
-            contentTextView.topAnchor.constraint(equalTo: caseCollectionView.bottomAnchor, constant: -10),
+            contentTextView.topAnchor.constraint(equalTo: caseCollectionView.bottomAnchor, constant: -1),
             contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
-            contentTextView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor, constant: -10 - 20),
+            contentTextView.trailingAnchor.constraint(equalTo: caseCollectionView.trailingAnchor, constant: -40),
             
             tagCollectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
             tagCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -128,9 +126,8 @@ class CaseTextImageCell: UICollectionViewCell {
             collectionViewHeightConstraint,
             
             actionButtonsView.topAnchor.constraint(equalTo: tagCollectionView.bottomAnchor),
-            actionButtonsView.leadingAnchor.constraint(equalTo: contentTextView.leadingAnchor),
+            actionButtonsView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
             actionButtonsView.trailingAnchor.constraint(equalTo: contentTextView.trailingAnchor),
-            //actionButtonsView.heightAnchor.constraint(equalToConstant: 40),
             actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -142,8 +139,8 @@ class CaseTextImageCell: UICollectionViewCell {
         contentTextView.delegate = self
         contentTextView.layer.cornerRadius = 12
         contentTextView.layer.borderWidth = 0.4
-        contentTextView.textContainerInset = UIEdgeInsets(top: 15, left: 5, bottom: 8, right: 5)
-        contentTextView.layer.borderColor = separatorColor.cgColor
+        contentTextView.textContainerInset = UIEdgeInsets(top: 10, left: 8, bottom: 8, right: 8)
+        contentTextView.layer.borderColor = K.Colors.separatorColor.cgColor
         contentTextView.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
     }
 

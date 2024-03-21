@@ -624,20 +624,19 @@ extension BookmarksViewController: PostCellDelegate {
         case .edit:
             let controller = EditPostViewController(post: post)
             let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
+            nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(nav, animated: true)
             
         case .report:
             let controller = ReportViewController(source: .post, userId: post.uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             self.present(navVC, animated: true)
             
         case .reference:
             guard let referenceKind = post.reference, let tab = tabBarController as? MainTabController else { return }
             let controller = ReferenceMenuViewController(postId: post.postId, kind: referenceKind)
             controller.delegate = self
-            controller.modalPresentationStyle = .overCurrentContext
             tab.showMenu(controller)
         }
     }
@@ -652,7 +651,7 @@ extension BookmarksViewController: PostCellDelegate {
         let controller = ContentImageViewController(image: img, navVC: navigationController)
         let navVC = UINavigationController(rootViewController: controller)
         navVC.setNavigationBarHidden(true, animated: false)
-        navVC.modalPresentationStyle = .overCurrentContext
+        navVC.modalPresentationStyle = .overFullScreen
         present(navVC, animated: true)
     }
     
@@ -710,13 +709,13 @@ extension BookmarksViewController: CaseCellDelegate {
         case .solve:
             let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
             let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
+            nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(nav, animated: true)
             
         case .report:
             let controller = ReportViewController(source: .clinicalCase, userId: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             self.present(navVC, animated: true)
         }
     }
@@ -738,7 +737,7 @@ extension BookmarksViewController: CaseCellDelegate {
         let controller = ContentImageViewController(image: img, navVC: navigationController)
         let navVC = UINavigationController(rootViewController: controller)
         navVC.setNavigationBarHidden(true, animated: false)
-        navVC.modalPresentationStyle = .overCurrentContext
+        navVC.modalPresentationStyle = .overFullScreen
         present(navVC, animated: true)
     }
     

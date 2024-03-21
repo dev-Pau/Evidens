@@ -30,7 +30,7 @@ class ShareCaseStageViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Content.Case.Share.phaseContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -42,7 +42,7 @@ class ShareCaseStageViewController: UIViewController {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 0.4
-        button.configuration?.background.strokeColor = separatorColor
+        button.configuration?.background.strokeColor = K.Colors.separatorColor
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 18, scaleStyle: .title3, weight: .bold, scales: false)
         container.foregroundColor = .label
@@ -57,7 +57,7 @@ class ShareCaseStageViewController: UIViewController {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 0.4
-        button.configuration?.background.strokeColor = separatorColor
+        button.configuration?.background.strokeColor = K.Colors.separatorColor
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 18, scaleStyle: .title3, weight: .bold, scales: false)
         container.foregroundColor = .label
@@ -87,7 +87,7 @@ class ShareCaseStageViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = .label

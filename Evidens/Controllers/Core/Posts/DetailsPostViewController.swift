@@ -74,7 +74,7 @@ class DetailsPostViewController: UIViewController {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear
-        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = K.Colors.primaryColor
 
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
@@ -85,8 +85,8 @@ class DetailsPostViewController: UIViewController {
         
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.shadowColor = separatorColor
-        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = primaryColor
+        appearance.shadowColor = K.Colors.separatorColor
+        appearance.stackedLayoutAppearance.normal.badgeBackgroundColor = K.Colors.primaryColor
         
         tabBarController?.tabBar.standardAppearance = appearance
         tabBarController?.tabBar.scrollEdgeAppearance = appearance
@@ -458,20 +458,19 @@ extension DetailsPostViewController: PostCellDelegate {
         case .edit:
             let controller = EditPostViewController(post: post)
             let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
+            nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             
             present(nav, animated: true)
         case .report:
             let controller = ReportViewController(source: .post, userId: viewModel.user.uid!, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             self.present(navVC, animated: true)
             
         case .reference:
             guard let referenceKind = post.reference, let tab = tabBarController as? MainTabController else { return }
             let controller = ReferenceMenuViewController(postId: post.postId, kind: referenceKind)
             controller.delegate = self
-            controller.modalPresentationStyle = .fullScreen
             tab.showMenu(controller)
         }
     }
@@ -500,7 +499,7 @@ extension DetailsPostViewController: PostCellDelegate {
         let controller = ContentImageViewController(image: img, navVC: navigationController)
         let navVC = UINavigationController(rootViewController: controller)
         navVC.setNavigationBarHidden(true, animated: false)
-        navVC.modalPresentationStyle = .overCurrentContext
+        navVC.modalPresentationStyle = .overFullScreen
         present(navVC, animated: true)
     }
     
@@ -539,7 +538,7 @@ extension DetailsPostViewController: CommentCellDelegate {
         case .report:
             let controller = ReportViewController(source: .comment, userId: comment.uid, contentId: comment.id)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             self.present(navVC, animated: true)
             
         case .delete:

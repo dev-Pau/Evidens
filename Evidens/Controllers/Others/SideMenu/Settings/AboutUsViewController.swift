@@ -23,7 +23,6 @@ class AboutUsViewController: UIViewController {
     }()
     
     private let aboutUsProgressView = AboutUsProgressView()
-    private var aboutUsContentViews = [AboutUsContentView]()
     private let numberOfSegments = 3
     private var loaded: Bool = false
     
@@ -31,7 +30,7 @@ class AboutUsViewController: UIViewController {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.configuration?.baseBackgroundColor = .white
-        button.configuration?.baseForegroundColor = primaryColor
+        button.configuration?.baseForegroundColor = K.Colors.primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.configuration?.cornerStyle = .capsule
         
@@ -58,14 +57,7 @@ class AboutUsViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         guard !loaded else { return }
-        for index in 0 ..< numberOfSegments {
-            let aboutUsContentView = AboutUsContentView()
-            aboutUsContentView.frame = CGRect(x: CGFloat(index) * (view.frame.width), y: 35, width: view.frame.width, height: view.safeAreaLayoutGuide.layoutFrame.height - 50 - 20 - 35)
-            aboutUsContentView.configure(with: AboutKind.allCases[index])
-            scrollView.addSubview(aboutUsContentView)
-            aboutUsContentViews.append(aboutUsContentView)
-        }
-        
+        configure()
         loaded.toggle()
     }
     
@@ -83,17 +75,42 @@ class AboutUsViewController: UIViewController {
         navigationItem.backBarButtonItem = nil
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.backArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold)), style: .done, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .white
-        
-
     }
     
     private func configure() {
         view.addSubview(scrollView)
-        scrollView.frame = view.bounds
-        view.backgroundColor = primaryColor
-        scrollView.addSubviews(aboutUsProgressView, continueButton)
+        view.backgroundColor = K.Colors.primaryColor
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        
         aboutUsProgressView.progressDelegate = self
+        
+        let aboutUsContentView1 = AboutUsContentView()
+        let aboutUsContentView2 = AboutUsContentView()
+        let aboutUsContentView3 = AboutUsContentView()
+        
+        scrollView.addSubviews(aboutUsProgressView, continueButton, aboutUsContentView1, aboutUsContentView2, aboutUsContentView3)
         NSLayoutConstraint.activate([
+            
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            aboutUsContentView1.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            aboutUsContentView1.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            aboutUsContentView1.widthAnchor.constraint(equalToConstant: view.frame.width),
+            aboutUsContentView1.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            aboutUsContentView2.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            aboutUsContentView2.leadingAnchor.constraint(equalTo: aboutUsContentView1.trailingAnchor),
+            aboutUsContentView2.widthAnchor.constraint(equalToConstant: view.frame.width),
+            aboutUsContentView2.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            aboutUsContentView3.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            aboutUsContentView3.leadingAnchor.constraint(equalTo: aboutUsContentView2.trailingAnchor),
+            aboutUsContentView3.widthAnchor.constraint(equalToConstant: view.frame.width),
+            aboutUsContentView3.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
             aboutUsProgressView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
             aboutUsProgressView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             aboutUsProgressView.widthAnchor.constraint(equalToConstant: view.frame.width - 40),
@@ -107,6 +124,10 @@ class AboutUsViewController: UIViewController {
 
         scrollView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
         scrollView.contentSize.width = 4 * view.frame.width
+        
+        aboutUsContentView1.configure(with: .cooperate)
+        aboutUsContentView2.configure(with: .education)
+        aboutUsContentView3.configure(with: .network)
     }
     
     @objc func handleDismiss() {
@@ -133,14 +154,14 @@ extension AboutUsViewController: AboutUsProgressViewDelegate {
         let currentContentOffset = scrollView.contentOffset
         if upwards {
             if index + 1 == numberOfSegments {
-                navigationController?.popViewController(animated: true)
+                handleDismiss()
             } else {
                 let newContentOffset = CGPoint(x: view.frame.width * CGFloat(index + 1), y: currentContentOffset.y)
                 scrollView.setContentOffset(newContentOffset, animated: true)
             }
         } else {
             if index == 0 {
-                navigationController?.popViewController(animated: true)
+                handleDismiss()
             } else {
                 let newContentOffset = CGPoint(x: view.frame.width * CGFloat(index - 1), y: currentContentOffset.y)
                 scrollView.setContentOffset(newContentOffset, animated: true)

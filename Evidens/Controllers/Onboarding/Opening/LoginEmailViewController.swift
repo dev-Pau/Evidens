@@ -42,7 +42,7 @@ class LoginEmailViewController: UIViewController {
         let button = UIButton(type: .system)
         button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = primaryColor
+        config.baseBackgroundColor = K.Colors.primaryColor
         config.baseForegroundColor = .white
         
         var container = AttributeContainer()
@@ -98,7 +98,7 @@ class LoginEmailViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     func configure() {

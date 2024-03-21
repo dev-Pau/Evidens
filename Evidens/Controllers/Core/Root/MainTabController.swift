@@ -350,9 +350,13 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
                 return
             }
             
-            currentNavController.delegate = self
-            let controller = UserProfileViewController(user: user)
-            currentNavController.pushViewController(controller, animated: true)
+            if UIDevice.isPad {
+                selectProfileIndex()
+            } else {
+                currentNavController.delegate = self
+                let controller = UserProfileViewController(user: user)
+                currentNavController.pushViewController(controller, animated: true)
+            }
         }
     }
     
@@ -401,7 +405,7 @@ class MainTabController: UITabBarController, UINavigationControllerDelegate {
     }
     
     func showMenu(_ viewController: UIViewController) {
-        viewController.modalPresentationStyle = .overCurrentContext
+        viewController.modalPresentationStyle = .overFullScreen
         present(viewController, animated: false)
     }
 
@@ -535,15 +539,8 @@ extension MainTabController: NavigationBarViewControllerDelegate {
             controller.delegate = self
             
             if UIDevice.isPad {
-                
-                if let sheet = controller.sheetPresentationController {
-                    sheet.detents = [.medium()]
-                }
-                
+                controller.modalPresentationStyle = .overFullScreen
                 present(controller, animated: true)
-                
-                //controller.modalPresentationStyle = .formSheet
-                //present(controller, animated: true)
             } else {
                 controller.modalPresentationStyle = .overCurrentContext
                 present(controller, animated: false) { [weak self] in
@@ -618,17 +615,21 @@ extension MainTabController: SideTabViewControllerDelegate {
             selectedIndex = 5
 #warning("això si, em d'afegir a draft i a cases un mecanisme per mirar si hi ha de nous com tenim a notificationVC quan estem a IPAD")
         case .profile:
-            guard let index = TabIcon.allCases.firstIndex(of: tab), let user else { return }
-            let controller = UserProfileViewController(user: user)
-            let navVC = UINavigationController(rootViewController: controller)
-            let profileIndex = index - 1
-            viewControllers?[profileIndex] = navVC
-            selectedIndex = profileIndex
+            selectProfileIndex()
             #warning("aquí en comptes de cada vegada obrirlo seria interessant que sempr estigués obert o no eh potser el podríem deixar així i que cada vegada que s'apreti es carregui, ho mirem")
         }
     }
     
     func didTapAdd() {
         didTapAddButton()
+    }
+    
+    private func selectProfileIndex() {
+        guard let user, selectedIndex != 6 else { return }
+        let controller = UserProfileViewController(user: user)
+        let navVC = UINavigationController(rootViewController: controller)
+        let profileIndex = 6
+        viewControllers?[6] = navVC
+        selectedIndex = 6
     }
 }

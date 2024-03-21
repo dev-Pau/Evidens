@@ -44,7 +44,7 @@ class PasswordRegistrationViewController: UIViewController {
         let button = UIButton(type: .system)
         button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = primaryColor
+        config.baseBackgroundColor = K.Colors.primaryColor
         config.baseForegroundColor = .white
         config.cornerStyle = .capsule
 
@@ -81,7 +81,7 @@ class PasswordRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     private func setUpTarget() {

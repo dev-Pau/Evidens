@@ -59,7 +59,7 @@ class AddPostViewController: UIViewController {
     private lazy var shareButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = K.Colors.primaryColor
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
@@ -119,7 +119,7 @@ class AddPostViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = scrollAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = standardAppearance
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
         navigationItem.rightBarButtonItem?.isEnabled = false
@@ -542,7 +542,7 @@ extension AddPostViewController: PostToolbarDelegate {
             let controller = ReferenceViewController(controller: self)
             
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             
             present(navVC, animated: true)
         }
@@ -593,13 +593,13 @@ extension AddPostViewController {
             let controller = AddWebLinkReferenceViewController(controller: self, reference: reference)
             controller.delegate = self
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(navVC, animated: true)
         case .citation:
             let controller = AddAuthorReferenceViewController(controller: self, reference: reference)
             controller.delegate = self
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(navVC, animated: true)
         }
     }

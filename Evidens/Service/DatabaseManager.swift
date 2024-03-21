@@ -160,7 +160,7 @@ extension DatabaseManager {
         case .post:
             switch comment.kind {
             case .comment:
-                let ref = COLLECTION_POSTS.document(comment.contentId).collection("comments").document(comment.id)
+                let ref = K.FirestoreCollections.COLLECTION_POSTS.document(comment.contentId).collection("comments").document(comment.id)
                 
                 ref.getDocument { snapshot, error in
 
@@ -179,7 +179,7 @@ extension DatabaseManager {
                 }
             case .reply:
 
-                var ref = COLLECTION_POSTS.document(comment.contentId).collection("comments")
+                var ref = K.FirestoreCollections.COLLECTION_POSTS.document(comment.contentId).collection("comments")
                 
                 for id in comment.path {
                     ref = ref.document(id).collection("comments")
@@ -207,7 +207,7 @@ extension DatabaseManager {
             switch comment.kind {
             case .comment:
 
-                let ref = COLLECTION_CASES.document(comment.contentId).collection("comments").document(comment.id)
+                let ref = K.FirestoreCollections.COLLECTION_CASES.document(comment.contentId).collection("comments").document(comment.id)
                 
                 ref.getDocument { snapshot, error in
                     if let _ = error {
@@ -225,7 +225,7 @@ extension DatabaseManager {
                 }
             case .reply:
 
-                var ref = COLLECTION_CASES.document(comment.contentId).collection("comments")
+                var ref = K.FirestoreCollections.COLLECTION_CASES.document(comment.contentId).collection("comments")
                 
                 for id in comment.path {
                     ref = ref.document(id).collection("comments")

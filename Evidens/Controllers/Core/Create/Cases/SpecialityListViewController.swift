@@ -52,8 +52,8 @@ class SpecialityListViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.navigationBar.standardAppearance.shadowColor = separatorColor
-        navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = separatorColor
+        navigationController?.navigationBar.standardAppearance.shadowColor = K.Colors.separatorColor
+        navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = K.Colors.separatorColor
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -103,10 +103,10 @@ class SpecialityListViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        navigationController?.navigationBar.standardAppearance.shadowColor = separatorColor
-        navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = separatorColor
+        navigationController?.navigationBar.standardAppearance.shadowColor = K.Colors.separatorColor
+        navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = K.Colors.separatorColor
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = .label
     }
@@ -115,8 +115,8 @@ class SpecialityListViewController: UIViewController {
         searchController = UISearchController()
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
-        searchController.searchBar.searchTextField.tintColor = primaryColor
-        searchController.searchBar.tintColor = primaryColor
+        searchController.searchBar.searchTextField.tintColor = K.Colors.primaryColor
+        searchController.searchBar.tintColor = K.Colors.primaryColor
         searchController.searchBar.placeholder = AppStrings.Opening.speciality
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController

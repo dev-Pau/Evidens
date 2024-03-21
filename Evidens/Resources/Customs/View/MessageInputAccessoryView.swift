@@ -22,7 +22,7 @@ class MessageInputAccessoryView: UIView {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.isEnabled = true
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = K.Colors.primaryColor
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.upArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .bold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
         button.addTarget(self, action: #selector(handleSendMessage), for: .touchUpInside)
         button.configuration?.cornerStyle = .capsule
@@ -34,7 +34,7 @@ class MessageInputAccessoryView: UIView {
     
     private let topView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -44,7 +44,7 @@ class MessageInputAccessoryView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .largeTitle, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.text = AppStrings.Error.message
         return label
     }()
@@ -53,7 +53,7 @@ class MessageInputAccessoryView: UIView {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.clipsToBounds = true
-        iv.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
+        iv.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray)
         iv.contentMode = .scaleAspectFill
         return iv
     }()

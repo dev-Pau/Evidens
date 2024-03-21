@@ -31,7 +31,7 @@ class CaseTagExpandedCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = caseColor
+        backgroundColor = K.Colors.caseColor
         
         addSubview(tagLabel)
         

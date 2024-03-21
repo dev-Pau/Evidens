@@ -43,7 +43,7 @@ class LoginPasswordViewController: UIViewController {
         let button = UIButton(type: .system)
         button.configuration = .filled()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = K.Colors.primaryColor
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         button.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
@@ -82,7 +82,7 @@ class LoginPasswordViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     private func configure() {

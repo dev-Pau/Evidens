@@ -54,9 +54,9 @@ struct PostViewModel {
         
         let imageName = post.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
         if post.didLike {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor)
         } else {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray)
         }
     }
     
@@ -64,7 +64,7 @@ struct PostViewModel {
         let size: CGFloat = UIDevice.isPad ? 25 : 20
         
         let imageName = post.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
-        let imageColor = post.didBookmark ? primaryColor : primaryGray
+        let imageColor = post.didBookmark ? K.Colors.primaryColor : K.Colors.primaryGray
         return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(imageColor)
     }
     

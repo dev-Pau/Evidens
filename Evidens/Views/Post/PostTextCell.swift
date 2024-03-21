@@ -37,9 +37,9 @@ class PostTextCell: UICollectionViewCell {
         
         separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.backgroundColor = separatorColor
+        separator.backgroundColor = K.Colors.separatorColor
         
-        let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
+        let textPadding: CGFloat = K.Paddings.Content.horizontalPadding + K.Paddings.Content.userImageSize + 10
         
         backgroundColor = .systemBackground
         addSubviews(userPostView, postTextView, actionButtonsView, separator)
@@ -51,7 +51,7 @@ class PostTextCell: UICollectionViewCell {
 
             postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
             postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: textPadding),
-            postTextView.widthAnchor.constraint(equalToConstant: frame.width - (textPadding + 10)),
+            postTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             
             actionButtonsView.topAnchor.constraint(equalTo: postTextView.bottomAnchor),
             actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),

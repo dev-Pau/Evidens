@@ -31,7 +31,7 @@ class CategoryViewController: UIViewController {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.rightArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 20)).withTintColor(.white)
-        button.configuration?.baseBackgroundColor = primaryColor.withAlphaComponent(0.5)
+        button.configuration?.baseBackgroundColor = K.Colors.primaryColor.withAlphaComponent(0.5)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         button.addTarget(self, action: #selector(handleNext), for: .touchUpInside)
@@ -42,7 +42,7 @@ class CategoryViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Profile.verify
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.textAlignment = .left
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -102,7 +102,7 @@ class CategoryViewController: UIViewController {
         
         helpButton.menu = addMenuItems()
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: helpButton)
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     
@@ -221,7 +221,7 @@ class CategoryViewController: UIViewController {
 extension CategoryViewController: CategoryViewDelegate {
     func didTapCategory(_ view: CategoryView) {
         nextButton.isUserInteractionEnabled = true
-        nextButton.configuration?.baseBackgroundColor = primaryColor
+        nextButton.configuration?.baseBackgroundColor = K.Colors.primaryColor
         
         switch view {
         case professionalKind:

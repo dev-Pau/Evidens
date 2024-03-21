@@ -35,7 +35,7 @@ class SubmitReportViewController: UIViewController {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 0.4
-        button.configuration?.background.strokeColor = separatorColor
+        button.configuration?.background.strokeColor = K.Colors.separatorColor
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold)
         container.foregroundColor = .label
@@ -62,7 +62,7 @@ class SubmitReportViewController: UIViewController {
     private func configureNavigationBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = .label
-        addNavigationBarLogo(withImage: AppStrings.Assets.blackLogo, withTintColor: primaryColor)
+        addNavigationBarLogo(withImage: AppStrings.Assets.blackLogo, withTintColor: K.Colors.primaryColor)
     }
     
     private func configureUI() {

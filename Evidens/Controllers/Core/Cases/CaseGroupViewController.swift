@@ -129,7 +129,7 @@ class CaseGroupViewController: UIViewController {
         let controller = CaseFiltersViewController(filter: viewModel.filter)
         controller.delegate = self
         let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .fullScreen
+        nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
         present(nav, animated: true)
     }
 }
@@ -219,7 +219,7 @@ extension CaseGroupViewController: CaseCellDelegate {
         case .report:
             let controller = ReportViewController(source: .clinicalCase, userId: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             self.present(navVC, animated: true)
         }
     }

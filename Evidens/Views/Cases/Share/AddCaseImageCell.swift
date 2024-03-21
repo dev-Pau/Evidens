@@ -21,7 +21,7 @@ class AddCaseImageCell: UICollectionViewCell {
         button.tintAdjustmentMode = .normal
         var configuration = UIButton.Configuration.filled()
         configuration.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
-        configuration.baseBackgroundColor = primaryColor
+        configuration.baseBackgroundColor = K.Colors.primaryColor
         configuration.buttonSize = .mini
         configuration.cornerStyle = .capsule
         button.configuration = configuration

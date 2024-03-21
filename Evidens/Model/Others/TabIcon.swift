@@ -24,7 +24,7 @@ enum TabIcon: CaseIterable {
     
     var regularImage: UIImage {
         switch self {
-        case .icon: return (UIImage(named: AppStrings.Assets.blackLogo)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
+        case .icon: return (UIImage(named: AppStrings.Assets.blackLogo)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor))!
         case .cases: return (UIImage(systemName: AppStrings.Icons.clipboard)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
         case .network: return (UIImage(systemName: AppStrings.Icons.network)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
         case .notifications: return (UIImage(systemName: AppStrings.Icons.fillBell)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
@@ -35,7 +35,7 @@ enum TabIcon: CaseIterable {
     
     var padImage: UIImage {
         switch self {
-        case .icon: return (UIImage(named: AppStrings.Assets.blackLogo)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
+        case .icon: return (UIImage(named: AppStrings.Assets.blackLogo)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor))!
         case .cases: return (UIImage(systemName: AppStrings.Icons.listClipboard, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
         case .network: return (UIImage(systemName: AppStrings.Icons.padNetwork, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
         case .notifications: return (UIImage(systemName: AppStrings.Icons.bell, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
@@ -50,7 +50,7 @@ enum TabIcon: CaseIterable {
     var selectedImage: UIImage {
         
         switch self {
-        case .icon: return (UIImage(named: AppStrings.Assets.blackLogo)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
+        case .icon: return (UIImage(named: AppStrings.Assets.blackLogo)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor))!
         case .cases: return (UIImage(systemName: AppStrings.Icons.clipboard)?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
         case .network: return (UIImage(systemName: AppStrings.Icons.network)?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
         case .notifications: return (UIImage(systemName: AppStrings.Icons.fillBell)?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!

@@ -32,14 +32,14 @@ class NetworkToolbar: UIToolbar {
     private var highlightView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = primaryColor
+        view.backgroundColor = K.Colors.primaryColor
         return view
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -207,8 +207,8 @@ extension NetworkToolbar {
             
             let progress = offset / availableWidth
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
-            firstCell.set(from: .label, to: primaryGray, progress: progress)
-            secondCell.set(from: primaryGray, to: .label, progress: progress)
+            firstCell.set(from: .label, to: K.Colors.primaryGray, progress: progress)
+            secondCell.set(from: K.Colors.primaryGray, to: .label, progress: progress)
             thirdCell.setDefault()
             currentIndex = IndexPath(item: 0, section: 0)
         case (frame.width + 10) ..< 2 * (frame.width + 10):
@@ -228,8 +228,8 @@ extension NetworkToolbar {
             
             leadingConstraint.constant = offset + insets
             widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
-            thirdCell.set(from: primaryGray, to: .label, progress: normalizedProgress)
-            secondCell.set(from: .label, to: primaryGray, progress: normalizedProgress)
+            thirdCell.set(from: K.Colors.primaryGray, to: .label, progress: normalizedProgress)
+            secondCell.set(from: .label, to: K.Colors.primaryGray, progress: normalizedProgress)
             firstCell.setDefault()
             currentIndex = IndexPath(item: 1, section: 0)
         default:

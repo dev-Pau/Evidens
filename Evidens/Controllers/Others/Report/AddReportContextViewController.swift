@@ -40,7 +40,7 @@ class AddReportContextViewController: UIViewController {
     
     private lazy var contextTextView: UITextView = {
         let tv = UITextView()
-        tv.tintColor = primaryColor
+        tv.tintColor = K.Colors.primaryColor
         tv.textColor = UIColor.lightGray
         tv.text = AppStrings.Report.Submit.details
         tv.textContainerInset = UIEdgeInsets.zero
@@ -59,7 +59,7 @@ class AddReportContextViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -117,7 +117,7 @@ class AddReportContextViewController: UIViewController {
         contextTextView.delegate = self
         contextTextView.inputAccessoryView = addReportToolbar()
         cancelButton.isHidden = true
-        addNavigationBarLogo(withImage: AppStrings.Assets.blackLogo, withTintColor: primaryColor)
+        addNavigationBarLogo(withImage: AppStrings.Assets.blackLogo, withTintColor: K.Colors.primaryColor)
     }
     
     private func configureUI() {
@@ -148,8 +148,8 @@ class AddReportContextViewController: UIViewController {
         
         if let content = viewModel.content {
             contextTextView.text = ""
-            contextTextView.tintColor = primaryColor
-            contextTextView.textColor = primaryColor
+            contextTextView.tintColor = K.Colors.primaryColor
+            contextTextView.textColor = K.Colors.primaryColor
             firstTimeTap.toggle()
             contextTextView.text = content
             cancelButton.isEnabled = true
@@ -182,7 +182,7 @@ class AddReportContextViewController: UIViewController {
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         
         var shareConfig = UIButton.Configuration.filled()
-        shareConfig.baseBackgroundColor = primaryColor
+        shareConfig.baseBackgroundColor = K.Colors.primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
         shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)
@@ -271,8 +271,8 @@ extension AddReportContextViewController: UITextViewDelegate {
             if let char = textView.text.first {
                 textView.text = String(char)
                 textView.isUserInteractionEnabled = true
-                textView.tintColor = primaryColor
-                textView.textColor = primaryColor
+                textView.tintColor = K.Colors.primaryColor
+                textView.textColor = K.Colors.primaryColor
                 firstTimeTap.toggle()
             }
         }

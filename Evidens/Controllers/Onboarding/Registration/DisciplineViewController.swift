@@ -53,10 +53,10 @@ class DisciplineViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Miscellaneous.next, style: .done, target: self, action: #selector(handleNext))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
@@ -72,7 +72,7 @@ class DisciplineViewController: UIViewController {
         }
 
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.tintColor = primaryColor
+        searchController.searchBar.tintColor = K.Colors.primaryColor
         navigationItem.searchController = searchController
         
         if #available(iOS 16.0, *) {

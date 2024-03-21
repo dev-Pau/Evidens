@@ -27,7 +27,7 @@ class ReviewViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         return label
     }()
     
@@ -75,7 +75,7 @@ class ReviewViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
    
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     private func configure() {

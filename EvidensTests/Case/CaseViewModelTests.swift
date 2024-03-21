@@ -82,7 +82,7 @@ final class CaseViewModelTests: XCTestCase {
     }
     
     func testBaseColor() {
-        XCTAssertEqual(sut.baseColor, primaryColor)
+        XCTAssertEqual(sut.baseColor, K.Colors.primaryColor)
     }
     
     func testNumberOfImages() {
@@ -114,11 +114,11 @@ final class CaseViewModelTests: XCTestCase {
     }
     
     func testLikeColor() {
-        XCTAssertEqual(sut.likeColor, primaryGray)
+        XCTAssertEqual(sut.likeColor, K.Colors.primaryGray)
         
         sut.clinicalCase.didLike = true
         
-        XCTAssertEqual(sut.likeColor, primaryRed)
+        XCTAssertEqual(sut.likeColor, K.Colors.primaryColor)
     }
     
     func testHasRevisions() {

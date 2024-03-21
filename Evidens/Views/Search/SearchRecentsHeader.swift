@@ -27,7 +27,7 @@ class SearchRecentsHeader: UICollectionReusableView {
     private lazy var clearLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryColor
+        label.textColor = K.Colors.primaryColor
         label.text = AppStrings.Miscellaneous.clear
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleClearSearches)))
@@ -38,7 +38,7 @@ class SearchRecentsHeader: UICollectionReusableView {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     

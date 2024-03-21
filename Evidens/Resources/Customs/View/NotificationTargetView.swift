@@ -30,7 +30,7 @@ class NotificationTargetView: UIView {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -73,7 +73,7 @@ class NotificationTargetView: UIView {
     }
     
     private func configureImage() {
-        targetImageView.image = UIImage(systemName: isOn ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor((isOn ? primaryColor : separatorColor))
+        targetImageView.image = UIImage(systemName: isOn ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor((isOn ? K.Colors.primaryColor : K.Colors.separatorColor))
     }
     
     func set(isOn: Bool) {

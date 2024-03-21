@@ -63,7 +63,7 @@ final class SideMenuTests: XCTestCase {
     
     func testCreateColor() {
         let sideMenu = SideMenu.create
-        XCTAssertEqual(sideMenu.color, primaryColor)
+        XCTAssertEqual(sideMenu.color, K.Colors.primaryColor)
     }
     
     func testDraftTitle() {

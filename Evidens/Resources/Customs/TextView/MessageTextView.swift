@@ -14,7 +14,7 @@ class MessageTextView: UITextView {
     var placeholder: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         return label
     }()
     
@@ -42,9 +42,9 @@ class MessageTextView: UITextView {
         isScrollEnabled = false
         clipsToBounds = true
         layer.cornerRadius = 16
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         layer.borderWidth = 0.4
-        tintColor = primaryColor
+        tintColor = K.Colors.primaryColor
         
         
         

@@ -30,7 +30,7 @@ class RecentSearchCell: UICollectionViewCell {
     private lazy var goToTextButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: AppStrings.Icons.leftUpArrow, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: 14, height: 14)), for: .normal)
-        button.tintColor = primaryColor
+        button.tintColor = K.Colors.primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         return button

@@ -32,7 +32,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
     private lazy var diagnosisButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = K.Colors.primaryColor
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
@@ -49,7 +49,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 0.4
-        button.configuration?.background.strokeColor = separatorColor
+        button.configuration?.background.strokeColor = K.Colors.separatorColor
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 18, scaleStyle: .title3, weight: .bold, scales: false)
         container.foregroundColor = .label
@@ -62,7 +62,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -84,7 +84,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = .label

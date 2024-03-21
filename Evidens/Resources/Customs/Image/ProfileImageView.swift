@@ -40,7 +40,7 @@ class ProfileImageView: UIImageView {
                 self.sd_setImage(with: URL(string: userImage))
             } else {
                 if let username = user.username, let first = username.first {
-                    backgroundColor = primaryColor
+                    backgroundColor = K.Colors.primaryColor
                     
                     let label = UILabel()
                     label.translatesAutoresizingMaskIntoConstraints = false
@@ -83,7 +83,7 @@ class ProfileImageView: UIImageView {
             self.sd_setImage(with: URL(string: string))
         } else {
             if let username = UserDefaults.getUsername(), let first = username.first {
-                backgroundColor = primaryColor
+                backgroundColor = K.Colors.primaryColor
                 
                 let label = UILabel()
                 label.translatesAutoresizingMaskIntoConstraints = false
@@ -122,7 +122,7 @@ class ProfileImageView: UIImageView {
             self.sd_setImage(with: URL(string: string))
         } else {
             if let username, let first = username.first {
-                backgroundColor = primaryColor
+                backgroundColor = K.Colors.primaryColor
                 
                 let label = UILabel()
                 label.translatesAutoresizingMaskIntoConstraints = false

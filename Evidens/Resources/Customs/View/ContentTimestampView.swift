@@ -27,7 +27,7 @@ class ContentTimestampView: UIView {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -63,7 +63,7 @@ class ContentTimestampView: UIView {
         let font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
       
         let aString = NSMutableAttributedString(string: timestamp)
-        aString.addAttributes([.font: font, .foregroundColor: primaryGray], range: (aString.string as NSString).range(of: timestamp))
+        aString.addAttributes([.font: font, .foregroundColor: K.Colors.primaryGray], range: (aString.string as NSString).range(of: timestamp))
         
         timeTextView.attributedText = aString
     }

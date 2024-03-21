@@ -15,7 +15,7 @@ class AboutProfileViewController: UIViewController {
 
     private lazy var aboutTextView: UITextView = {
         let tv = UITextView()
-        tv.tintColor = primaryColor
+        tv.tintColor = K.Colors.primaryColor
         tv.textColor = .label
         tv.isSelectable = false
         tv.textContainerInset = UIEdgeInsets.zero

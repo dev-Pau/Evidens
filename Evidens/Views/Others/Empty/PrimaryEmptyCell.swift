@@ -30,7 +30,7 @@ class PrimaryEmptyCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.numberOfLines = 0
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         return label
     }()
     

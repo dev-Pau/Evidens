@@ -39,7 +39,7 @@ class LinkView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.lineBreakMode = .byTruncatingTail
         label.numberOfLines = 1
         return label
@@ -48,7 +48,7 @@ class LinkView: UIView {
     private let separator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -57,7 +57,7 @@ class LinkView: UIView {
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 12
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: AppStrings.Icons.globe, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor).scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35))
+        iv.image = UIImage(systemName: AppStrings.Icons.globe, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor).scalePreservingAspectRatio(targetSize: CGSize(width: 35, height: 35))
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -75,14 +75,12 @@ class LinkView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .systemBackground
         layer.borderWidth = 0.4
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         layer.cornerRadius = 12
 
         let textPadding: CGFloat = UIDevice.isPad ? 65 : 55
         let size = (UIWindow.visibleScreenWidth - (textPadding + 10)) * ratio
 
-        //let padding: CGFloat = UIFont.addFont(size: 16, scaleStyle: .largeTitle, weight: .medium).lineHeight
-        
         addSubviews(titleLabel, urlLabel, separator, linkImageView)
         NSLayoutConstraint.activate([
 

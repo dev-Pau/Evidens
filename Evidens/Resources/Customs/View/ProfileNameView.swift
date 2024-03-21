@@ -27,8 +27,8 @@ class ProfileNameView: UIView {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFit
-        iv.backgroundColor = primaryColor
-        iv.layer.borderColor = separatorColor.cgColor
+        iv.backgroundColor = K.Colors.primaryColor
+        iv.layer.borderColor = K.Colors.separatorColor.cgColor
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleBannerTap)))
         iv.translatesAutoresizingMaskIntoConstraints = false
@@ -41,7 +41,7 @@ class ProfileNameView: UIView {
         iv.contentMode = .scaleAspectFit
         iv.backgroundColor = .quaternarySystemFill
         iv.layer.borderWidth = 1
-        iv.layer.borderColor = separatorColor.cgColor
+        iv.layer.borderColor = K.Colors.separatorColor.cgColor
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleProfileTap)))
@@ -66,7 +66,7 @@ class ProfileNameView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.isUserInteractionEnabled = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         return label
     }()
     
@@ -77,13 +77,13 @@ class ProfileNameView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 2
         label.isUserInteractionEnabled = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         return label
     }()
     
     private lazy var connections: UILabel = {
         let label = UILabel()
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
         label.font = UIFont.addFont(size: smallFont, scaleStyle: .largeTitle, weight: .regular, scales: false)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -111,7 +111,7 @@ class ProfileNameView: UIView {
         var configuration = UIButton.Configuration.plain()
         configuration.baseForegroundColor = .label
         configuration.buttonSize = .mini
-        configuration.image = UIImage(named: AppStrings.Assets.link)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 25))
+        configuration.image = UIImage(named: AppStrings.Assets.link)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 25))
         configuration.imagePlacement = .leading
         configuration.imagePadding = 5
         
@@ -124,7 +124,7 @@ class ProfileNameView: UIView {
     private let aboutLabel: UILabel = {
             let label = UILabel()
             label.translatesAutoresizingMaskIntoConstraints = false
-            label.textColor = primaryGray
+            label.textColor = K.Colors.primaryGray
             label.numberOfLines = 2
             label.isUserInteractionEnabled = true
             let smallFont: CGFloat = UIDevice.isPad ? 16 : 13
@@ -138,7 +138,7 @@ class ProfileNameView: UIView {
         iv.contentMode = .center
         iv.clipsToBounds = true
         iv.isUserInteractionEnabled = true
-        iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
         return iv
     }()
     
@@ -159,8 +159,8 @@ class ProfileNameView: UIView {
         backgroundColor = .systemBackground
         translatesAutoresizingMaskIntoConstraints = false
         
-        let bannerHeight = (UIWindow.visibleScreenWidth - 20.0) / bannerAR
-        let imageHeight = UIDevice.isPad ? 120.0 : 75.0
+        let bannerHeight = (UIWindow.visibleScreenWidth - 20.0) / K.Ratio.bannerAR
+        let imageHeight = UIDevice.isPad ? 140.0 : 75.0
         _ = UIDevice.isPad ? 50.0 : 40.0
         
         let disciplineStackView = UIStackView(arrangedSubviews: [discipline, connections])
@@ -193,7 +193,7 @@ class ProfileNameView: UIView {
             profileImage.widthAnchor.constraint(equalToConstant: imageHeight),
             profileImage.heightAnchor.constraint(equalToConstant: imageHeight),
             
-            nameStackView.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: 2 * padding),
+            nameStackView.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: UIDevice.isPad ? 3 * padding : 2 * padding),
             nameStackView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: UIDevice.isPad ? 20 : 10),
             nameStackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
             
@@ -230,7 +230,7 @@ class ProfileNameView: UIView {
         discipline.text = viewModel.user.details()
         username.text = viewModel.user.getUsername()
         
-        let imageHeight = UIDevice.isPad ? 120.0 : 75.0
+        let imageHeight = UIDevice.isPad ? 140.0 : 75.0
         
         if viewModel.user.isCurrentUser {
             profileImage.addImage(forUrl: viewModel.user.profileUrl, size: imageHeight)

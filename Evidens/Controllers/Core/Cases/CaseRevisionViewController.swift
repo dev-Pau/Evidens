@@ -40,7 +40,7 @@ class CaseRevisionViewController: UIViewController {
         title = AppStrings.Title.revision
         guard viewModel.clinicalCase.revision != .diagnosis else { return }
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium)), style: .done, target: self, action: #selector(handleAddUpdate))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
     }
     
     private func configureNotificationObservers() {

@@ -42,7 +42,7 @@ class AboutUsProgressView: UIView {
            for index in 0 ..< numberOfSegments {
                let progressView = UIProgressView(progressViewStyle: .default)
                progressView.tintColor = .white
-               progressView.trackTintColor = separatorColor
+               progressView.trackTintColor = K.Colors.separatorColor
                progressView.frame = CGRect(x: CGFloat(index) * (segmentWidth + padding), y: 0, width: segmentWidth, height: 10)
                addSubview(progressView)
                progressViews.append(progressView)

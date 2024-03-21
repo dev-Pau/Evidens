@@ -34,14 +34,23 @@ class SettingsViewController: UIViewController {
 
     private func configure() {
         view.backgroundColor = .systemBackground
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
-        view.addSubviews(collectionView)
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.backgroundColor = .systemBackground
         collectionView.register(SettingsCell.self, forCellWithReuseIdentifier: settingsCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
+        
+        view.addSubviews(collectionView)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor)
+        ])
     }
 }
 

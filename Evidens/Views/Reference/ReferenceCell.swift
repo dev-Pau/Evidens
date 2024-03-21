@@ -11,7 +11,7 @@ class ReferenceCell: UICollectionViewCell {
     
     private let referenceLabel: UILabel = {
         let label = UILabel()
-        label.textColor = primaryColor
+        label.textColor = K.Colors.primaryColor
         label.numberOfLines = 10
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -26,8 +26,8 @@ class ReferenceCell: UICollectionViewCell {
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Actions.copy, attributes: container)
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
-        button.configuration?.baseForegroundColor = primaryGray
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
+        button.configuration?.baseForegroundColor = K.Colors.primaryGray
         button.configuration?.imagePadding = 5
         button.addTarget(self, action: #selector(handleCopyReference), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -78,6 +78,6 @@ class ReferenceCell: UICollectionViewCell {
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         copyButton.configuration?.attributedTitle = AttributedString(AppStrings.Actions.copy, attributes: container)
-        copyButton.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
+        copyButton.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
     }
 }

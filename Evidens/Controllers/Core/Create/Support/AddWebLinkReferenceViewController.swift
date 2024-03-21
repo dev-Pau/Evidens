@@ -46,7 +46,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -54,14 +54,14 @@ class AddWebLinkReferenceViewController: UIViewController {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
     private lazy var webLinkTextField: UITextField = {
         let tf = UITextField()
-        tf.tintColor = primaryColor
-        tf.textColor = primaryColor
+        tf.tintColor = K.Colors.primaryColor
+        tf.textColor = K.Colors.primaryColor
         tf.clearButtonMode = .whileEditing
         tf.autocapitalizationType = .none
         tf.placeholder = AppStrings.URL.pubmed
@@ -81,7 +81,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 13, scaleStyle: .largeTitle, weight: .regular)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Reference.verify, attributes: container)
-        button.configuration?.baseForegroundColor = primaryColor
+        button.configuration?.baseForegroundColor = K.Colors.primaryColor
         button.addTarget(self, action: #selector(handleLinkVerification), for: .touchUpInside)
         button.isEnabled = false
         return button
@@ -119,9 +119,9 @@ class AddWebLinkReferenceViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
     }
     
     private func configureUI() {
@@ -203,7 +203,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         
         var shareConfig = UIButton.Configuration.filled()
-        shareConfig.baseBackgroundColor = primaryColor
+        shareConfig.baseBackgroundColor = K.Colors.primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
         shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .semibold, scales: false)
@@ -251,8 +251,8 @@ class AddWebLinkReferenceViewController: UIViewController {
         link = text.processWebLink()
         
         if let url = URL(string: link), UIApplication.shared.canOpenURL(url) {
-            webLinkTextField.tintColor = primaryColor
-            webLinkTextField.textColor = primaryColor
+            webLinkTextField.tintColor = K.Colors.primaryColor
+            webLinkTextField.textColor = K.Colors.primaryColor
             referenceButton.isEnabled = true
             verifyLinkButton.isEnabled = true
         } else {

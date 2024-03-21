@@ -17,6 +17,8 @@ protocol ContentMenuViewControllerDelegate: AnyObject {
 
 class ContentMenuViewController: UIViewController {
     
+    var kind: ContentKind?
+    
     weak var delegate: ContentMenuViewControllerDelegate?
     private var collectionView: UICollectionView!
     private var backgroundView: UIView!
@@ -29,11 +31,10 @@ class ContentMenuViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        print(collectionView.frame.height)
     }
     
     private func configure() {
-        view.backgroundColor = UIDevice.isPad ? .systemBackground : .clear
+        view.backgroundColor = .clear
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -45,56 +46,41 @@ class ContentMenuViewController: UIViewController {
         collectionView.layer.cornerRadius = 30
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         
-        if UIDevice.isPad {
-            view.addSubview(collectionView)
-            
-            NSLayoutConstraint.activate([
-                collectionView.topAnchor.constraint(equalTo: view.topAnchor),
-                collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-            ])
-            
-            print(collectionView.frame.height)
-        } else {
-            backgroundView = UIView()
-            backgroundView.backgroundColor = .clear
-            backgroundView.translatesAutoresizingMaskIntoConstraints = false
-            
-            backgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))
-            
-            let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-            collectionView.addGestureRecognizer(pan)
-            
-            topCollectionViewAnchorConstrant = collectionView.topAnchor.constraint(equalTo: view.bottomAnchor)
-            view.addSubviews(backgroundView, collectionView)
-            
-            NSLayoutConstraint.activate([
-                backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
-                backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-                
-                topCollectionViewAnchorConstrant,
-                collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                collectionView.heightAnchor.constraint(equalToConstant: view.frame.height)
-            ])
-            
-            view.layoutIfNeeded()
-        }
+        backgroundView = UIView()
+        backgroundView.backgroundColor = .clear
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false
         
+        backgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))
+        
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
+        collectionView.addGestureRecognizer(pan)
+        
+        topCollectionViewAnchorConstrant = collectionView.topAnchor.constraint(equalTo: view.bottomAnchor)
+        view.addSubviews(backgroundView, collectionView)
+        
+        NSLayoutConstraint.activate([
+            backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            topCollectionViewAnchorConstrant,
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.heightAnchor.constraint(equalToConstant: view.frame.height)
+        ])
+        
+        view.layoutIfNeeded()
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        if !UIDevice.isPad {
-            topCollectionViewAnchorConstrant.constant = 0
-            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-                strongSelf.topCollectionViewAnchorConstrant.constant = -(strongSelf.collectionView.contentSize.height + 60)
-                strongSelf.view.layoutIfNeeded()
-            }
+        
+        topCollectionViewAnchorConstrant.constant = 0
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+            strongSelf.topCollectionViewAnchorConstrant.constant = -(strongSelf.collectionView.contentSize.height + 60)
+            strongSelf.view.layoutIfNeeded()
         }
     }
     
@@ -139,11 +125,15 @@ class ContentMenuViewController: UIViewController {
             strongSelf.view.layoutIfNeeded()
         } completion: { [weak self] _ in
             guard let strongSelf = self else { return }
-            strongSelf.delegate?.didDismiss()
-            strongSelf.dismiss(animated: false)
-            
+
+            strongSelf.dismiss(animated: false) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.delegate?.didDismiss()
+                if let kind = strongSelf.kind {
+                    strongSelf.delegate?.didTapContentKind(kind)
+                }
+            }
         }
-        
     }
 }
 
@@ -167,14 +157,7 @@ extension ContentMenuViewController: UICollectionViewDelegateFlowLayout, UIColle
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let kind = ContentKind.allCases[indexPath.row]
-        if UIDevice.isPad {
-            dismiss(animated: true) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.delegate?.didTapContentKind(kind)
-            }
-        } else {
-            delegate?.didTapContentKind(kind)
-            handleDismiss()
-        }
+        self.kind = kind
+        handleDismiss()
     }
 }

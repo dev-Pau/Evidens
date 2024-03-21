@@ -38,7 +38,6 @@ class EditProfileViewController: UIViewController {
         super.viewDidLoad()
         configureNavigationBar()
         configureCollectionView()
-        configureUI()
     }
     
     init(user: User) {
@@ -58,7 +57,7 @@ class EditProfileViewController: UIViewController {
         
         let rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.save, style: .done, target: self, action: #selector(handleDone))
         navigationItem.rightBarButtonItem = rightBarButtonItem
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
         
         navigationItem.title = AppStrings.Profile.editProfile
@@ -66,7 +65,8 @@ class EditProfileViewController: UIViewController {
     
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.bounces = true
         collectionView.alwaysBounceVertical = true
         collectionView.showsVerticalScrollIndicator = false
@@ -79,10 +79,15 @@ class EditProfileViewController: UIViewController {
         collectionView.register(ManageSectionsCell.self, forCellWithReuseIdentifier: customSectionCellReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-    }
-    
-    private func configureUI() {
+        
         view.addSubview(collectionView)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
     }
     
     private func addLayout() -> UICollectionViewCompositionalLayout {
@@ -114,7 +119,7 @@ class EditProfileViewController: UIViewController {
             vc.rotateButtonsHidden = true
             vc.resetButtonHidden = true
             vc.aspectRatioPreset = .presetCustom
-            vc.customAspectRatio = CGSize(width: bannerAR, height: 1)
+            vc.customAspectRatio = CGSize(width: K.Ratio.bannerAR, height: 1)
             vc.toolbarPosition = .bottom
             vc.doneButtonTitle = AppStrings.Global.done
             vc.cancelButtonTitle = AppStrings.Global.cancel
@@ -233,7 +238,7 @@ extension EditProfileViewController: EditProfilePictureCellDelegate {
     private func showMediaMenu(kind: ImageKind) {
         let controller = MediaMenuViewController(user: viewModel.user, imageKind: kind)
         controller.delegate = self
-        controller.modalPresentationStyle = .overCurrentContext
+        controller.modalPresentationStyle = .overFullScreen
         present(controller, animated: false)
     }
 }

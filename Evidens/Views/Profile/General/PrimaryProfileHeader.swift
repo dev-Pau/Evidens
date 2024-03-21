@@ -13,7 +13,7 @@ class PrimaryProfileHeader: UICollectionReusableView {
     var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.isHidden = false
         return view
     }()
@@ -29,7 +29,7 @@ class PrimaryProfileHeader: UICollectionReusableView {
     private lazy var seeAllButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.baseForegroundColor = primaryColor
+        button.configuration?.baseForegroundColor = K.Colors.primaryColor
         button.configuration?.contentInsets = .zero
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleSeeAllTap), for: .touchUpInside)

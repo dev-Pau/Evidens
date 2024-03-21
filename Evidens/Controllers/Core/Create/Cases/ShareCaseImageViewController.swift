@@ -41,7 +41,7 @@ class ShareCaseImageViewController: UIViewController {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.background.strokeWidth = 0.4
-        button.configuration?.background.strokeColor = separatorColor
+        button.configuration?.background.strokeColor = K.Colors.separatorColor
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .bold)
         container.foregroundColor = .label
@@ -71,7 +71,7 @@ class ShareCaseImageViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = .label
     }

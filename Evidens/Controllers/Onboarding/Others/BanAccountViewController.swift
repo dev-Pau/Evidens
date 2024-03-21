@@ -25,7 +25,7 @@ class BanAccountViewController: UIViewController {
     
     private let contentTextView: UITextView = {
         let tv = UITextView()
-        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: K.Colors.primaryColor]
         tv.isSelectable = true
         tv.isUserInteractionEnabled = true
         tv.isEditable = false
@@ -83,7 +83,7 @@ class BanAccountViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = .label
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         
     }
     

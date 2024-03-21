@@ -26,7 +26,7 @@ class DeletedCommentCell: UICollectionViewCell {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 7
         view.layer.borderWidth = 0.4
-        view.layer.borderColor = separatorColor.cgColor
+        view.layer.borderColor = K.Colors.separatorColor.cgColor
         view.backgroundColor = .quaternarySystemFill.withAlphaComponent(0.1)
         return view
     }()
@@ -34,7 +34,7 @@ class DeletedCommentCell: UICollectionViewCell {
     private let title: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .regular)
         label.numberOfLines = 1
         return label
@@ -44,7 +44,7 @@ class DeletedCommentCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .regular)
-        label.textColor = primaryColor
+        label.textColor = K.Colors.primaryColor
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSeeMore)))
         return label
@@ -53,7 +53,7 @@ class DeletedCommentCell: UICollectionViewCell {
     private let replies: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.font = UIFont.addFont(size: 15.0, scaleStyle: .title3, weight: .medium)
         label.numberOfLines = 1
         return label
@@ -61,7 +61,7 @@ class DeletedCommentCell: UICollectionViewCell {
     
     private let line: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

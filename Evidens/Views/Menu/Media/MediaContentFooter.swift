@@ -14,7 +14,7 @@ class MediaContentFooter: UICollectionReusableView {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.font = UIFont.addFont(size: 12, scaleStyle: .title2, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -22,7 +22,7 @@ class MediaContentFooter: UICollectionReusableView {
 
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

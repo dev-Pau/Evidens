@@ -23,7 +23,7 @@ class ShareCaseImageCell: UICollectionViewCell {
         iv.layer.cornerRadius = 10
         iv.backgroundColor = .quaternarySystemFill
         iv.layer.borderWidth = 0.4
-        iv.layer.borderColor = separatorColor.cgColor
+        iv.layer.borderColor = K.Colors.separatorColor.cgColor
         return iv
     }()
     
@@ -65,7 +65,7 @@ class ShareCaseImageCell: UICollectionViewCell {
     private func configure() {
         layer.cornerRadius = 10
         layer.borderWidth = 0.4
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
 
         addSubviews(cellImage)
 

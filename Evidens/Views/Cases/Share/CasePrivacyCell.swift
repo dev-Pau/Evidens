@@ -25,7 +25,7 @@ class CasePrivacyCell: UICollectionViewCell {
     
     private lazy var privacyLabel: UILabel = {
         let label = UILabel()
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.isUserInteractionEnabled = true
         label.numberOfLines = 2
         label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)
@@ -36,7 +36,7 @@ class CasePrivacyCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     

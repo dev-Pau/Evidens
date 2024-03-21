@@ -44,7 +44,7 @@ class PrimaryUserView: UIView {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -56,7 +56,7 @@ class PrimaryUserView: UIView {
         
         let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
         
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -71,7 +71,7 @@ class PrimaryUserView: UIView {
         button.isUserInteractionEnabled = false
         button.isHidden = true
         let buttonSize: CGFloat = UIDevice.isPad ? 23 : 18
-        button.configuration?.image = UIImage(named: AppStrings.Assets.fillPencil)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillPencil)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
         return button
     }()
     
@@ -82,14 +82,14 @@ class PrimaryUserView: UIView {
         button.isUserInteractionEnabled = false
         button.isHidden = true
         let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
-        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
         return button
     }()
     
     var userInfoCategoryLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 1
         label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.addFont(size: 14, scaleStyle: .title1, weight: .regular)
@@ -124,13 +124,13 @@ class PrimaryUserView: UIView {
         referenceButtonWidthConstraint = referenceButton.widthAnchor.constraint(equalToConstant: 0)
         
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: paddingTop),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: paddingLeft),
-            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
-            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            profileImageView.heightAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
+            profileImageView.widthAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
  
             nameTextView.bottomAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-            nameTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: paddingLeft),
+            nameTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             nameTextView.trailingAnchor.constraint(equalTo: timestampLabel.leadingAnchor, constant: 3),
             
             timestampLabel.centerYAnchor.constraint(equalTo: nameTextView.centerYAnchor),
@@ -147,7 +147,7 @@ class PrimaryUserView: UIView {
             referenceButton.leadingAnchor.constraint(equalTo: editButton.trailingAnchor),
             
             dotButton.centerYAnchor.constraint(equalTo: nameTextView.centerYAnchor),
-            dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingLeft),
+            dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             dotButton.heightAnchor.constraint(equalToConstant: buttonSize),
             dotButton.widthAnchor.constraint(equalToConstant: buttonSize),
 
@@ -157,7 +157,7 @@ class PrimaryUserView: UIView {
             userInfoCategoryLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
-        profileImageView.layer.cornerRadius = imageSize / 2
+        profileImageView.layer.cornerRadius = K.Paddings.Content.userImageSize / 2
     }
     
     func set(user: User) {
@@ -217,7 +217,7 @@ class PrimaryUserView: UIView {
             name.addAttributes([.font: UIFont.addFont(size: 15, scaleStyle: .title1, weight: .semibold), .foregroundColor: UIColor.label], range: NSRange(location: 0, length: name.length))
 
             let username = NSMutableAttributedString(string: usernameString + AppStrings.Characters.space)
-            username.addAttributes([.font: UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular), .foregroundColor: primaryGray], range: NSRange(location: 0, length: username.length))
+            username.addAttributes([.font: UIFont.addFont(size: 15, scaleStyle: .title1, weight: .regular), .foregroundColor: K.Colors.primaryGray], range: NSRange(location: 0, length: username.length))
             
             name.append(username)
             
@@ -227,7 +227,7 @@ class PrimaryUserView: UIView {
             name.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .medium), .foregroundColor: UIColor.label], range: NSRange(location: 0, length: name.length))
             
             let username = NSMutableAttributedString(string: AppStrings.Characters.atSign + AppStrings.Content.Case.Privacy.anonymousTitle + AppStrings.Characters.space)
-            username.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular), .foregroundColor: primaryGray], range: NSRange(location: 0, length: username.length))
+            username.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular), .foregroundColor: K.Colors.primaryGray], range: NSRange(location: 0, length: username.length))
             
             name.append(username)
 

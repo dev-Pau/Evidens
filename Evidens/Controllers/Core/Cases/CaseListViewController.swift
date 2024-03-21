@@ -244,13 +244,13 @@ extension CaseListViewController: CaseCellDelegate {
         case .solve:
             let controller = CaseDiagnosisViewController(clinicalCase: clinicalCase)
             let nav = UINavigationController(rootViewController: controller)
-            nav.modalPresentationStyle = .fullScreen
+            nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(nav, animated: true)
             
         case .report:
             let controller = ReportViewController(source: .clinicalCase, userId: clinicalCase.uid, contentId: clinicalCase.caseId)
             let navVC = UINavigationController(rootViewController: controller)
-            navVC.modalPresentationStyle = .fullScreen
+            navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             self.present(navVC, animated: true)
         }
     }
@@ -270,7 +270,7 @@ extension CaseListViewController: CaseCellDelegate {
         let controller = ContentImageViewController(image: img, navVC: navigationController)
         let navVC = UINavigationController(rootViewController: controller)
         navVC.setNavigationBarHidden(true, animated: false)
-        navVC.modalPresentationStyle = .overCurrentContext
+        navVC.modalPresentationStyle = .overFullScreen
         present(navVC, animated: true)
     }
     

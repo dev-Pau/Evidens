@@ -22,7 +22,7 @@ class EditCategoryCell: UICollectionViewCell {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .medium)
         label.numberOfLines = 1
-        label.textColor = primaryColor
+        label.textColor = K.Colors.primaryColor
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -36,7 +36,7 @@ class EditCategoryCell: UICollectionViewCell {
         
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

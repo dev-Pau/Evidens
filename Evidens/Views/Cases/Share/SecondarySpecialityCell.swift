@@ -47,14 +47,14 @@ class SecondarySpecialityCell: UICollectionViewCell {
     }
     
     func configureWithSpeciality(_ speciality: Speciality) {
-        backgroundColor = primaryColor
+        backgroundColor = K.Colors.primaryColor
         titleLabel.text = "  " + speciality.name
         titleLabel.textColor = .white
         layer.cornerRadius = 15
     }
     
     func configureWithItem(_ item: CaseItem) {
-        backgroundColor = primaryColor
+        backgroundColor = K.Colors.primaryColor
         titleLabel.text = "  " + item.title
         titleLabel.textColor = .white
         layer.cornerRadius = 15

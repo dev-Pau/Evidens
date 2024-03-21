@@ -39,7 +39,7 @@ class EmailRegistrationViewController: UIViewController {
         let button = UIButton(type: .system)
         button.tintAdjustmentMode = .normal
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = primaryColor
+        config.baseBackgroundColor = K.Colors.primaryColor
         config.baseForegroundColor = .white
         
         var container = AttributeContainer()
@@ -55,7 +55,7 @@ class EmailRegistrationViewController: UIViewController {
     
     private let legalTextView: UITextView = {
         let tv = UITextView()
-        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: K.Colors.primaryColor]
         tv.isSelectable = true
         tv.isUserInteractionEnabled = true
         tv.isEditable = false
@@ -80,7 +80,7 @@ class EmailRegistrationViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
 
     
@@ -114,7 +114,7 @@ class EmailRegistrationViewController: UIViewController {
         
         let privacyAttributedString = NSMutableAttributedString(string: AppStrings.Opening.legal)
         privacyAttributedString.addAttribute(NSAttributedString.Key.font, value: font, range: NSRange(location: 0, length: privacyAttributedString.length))
-        privacyAttributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: primaryGray, range: NSRange(location: 0, length: privacyAttributedString.length))
+        privacyAttributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: K.Colors.primaryGray, range: NSRange(location: 0, length: privacyAttributedString.length))
 
         let privacyRange = (privacyAttributedString.string as NSString).range(of: AppStrings.Legal.privacy)
         privacyAttributedString.addAttribute(NSAttributedString.Key.link, value: AppStrings.URL.privacy, range: privacyRange)

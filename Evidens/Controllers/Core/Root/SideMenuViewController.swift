@@ -183,7 +183,7 @@ extension SideMenuViewController: UICollectionViewDelegateFlowLayout, UICollecti
             let footerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: sideMenuFooterReuseIdentifier, for: indexPath)
             
             let separatorLine = UIView()
-            separatorLine.backgroundColor = separatorColor
+            separatorLine.backgroundColor = K.Colors.separatorColor
             separatorLine.translatesAutoresizingMaskIntoConstraints = false
             footerView.addSubview(separatorLine)
 

@@ -46,8 +46,8 @@ class MediaMenuCell: UICollectionViewCell {
     private func configure() {
         checkCameraPermissions()
         
-        containerView.backgroundColor = darkColor
-        previewLayer.backgroundColor = darkColor.cgColor
+        containerView.backgroundColor = K.Colors.darkColor
+        previewLayer.backgroundColor = K.Colors.darkColor.cgColor
         
         addSubviews(containerView, cameraImage)
         
@@ -68,7 +68,7 @@ class MediaMenuCell: UICollectionViewCell {
         containerView.layer.addSublayer(previewLayer)
         containerView.layer.cornerRadius = 80 * 0.2
         containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = separatorColor.cgColor
+        containerView.layer.borderColor = K.Colors.separatorColor.cgColor
         
         previewLayer.cornerRadius = 80 * 0.2
     }

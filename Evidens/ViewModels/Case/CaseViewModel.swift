@@ -113,7 +113,7 @@ struct CaseViewModel {
     }
     
     var baseColor: UIColor {
-        return primaryColor
+        return K.Colors.primaryColor
     }
     
     var phaseColor: UIColor {
@@ -186,23 +186,23 @@ struct CaseViewModel {
     }
 
     var likeColor: UIColor {
-        return clinicalCase.didLike ? primaryRed : primaryGray
+        return clinicalCase.didLike ? K.Colors.primaryColor : K.Colors.primaryGray
     }
 
     var likeImage: UIImage? {
         let size: CGFloat = UIDevice.isPad ? 29 : 24
         let imageName = clinicalCase.didLike ? AppStrings.Icons.fillHeart : AppStrings.Icons.heart
         if clinicalCase.didLike {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryColor)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor)
         } else {
-            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
+            return UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size - 2)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray)
         }
     }
     
     var bookMarkImage: UIImage? {
         let size: CGFloat = UIDevice.isPad ? 25 : 20
         let imageName = clinicalCase.didBookmark ? AppStrings.Assets.fillBookmark : AppStrings.Assets.bookmark
-        let imageColor = clinicalCase.didBookmark ? primaryColor : primaryGray
+        let imageColor = clinicalCase.didBookmark ? K.Colors.primaryColor : K.Colors.primaryGray
         return UIImage(named: imageName)?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withTintColor(imageColor)
     }
     
@@ -226,7 +226,7 @@ struct CaseViewModel {
             name.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .medium), .foregroundColor: UIColor.label], range: NSRange(location: 0, length: name.length))
             
             let username = NSMutableAttributedString(string: usernameString)
-            username.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular), .foregroundColor: primaryGray], range: NSRange(location: 0, length: username.length))
+            username.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular), .foregroundColor: K.Colors.primaryGray], range: NSRange(location: 0, length: username.length))
             
             name.append(username)
             
@@ -236,7 +236,7 @@ struct CaseViewModel {
             name.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .medium), .foregroundColor: UIColor.label], range: NSRange(location: 0, length: name.length))
             
             let username = NSMutableAttributedString(string: AppStrings.Characters.atSign + AppStrings.Content.Case.Privacy.anonymousTitle)
-            username.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular), .foregroundColor: primaryGray], range: NSRange(location: 0, length: username.length))
+            username.addAttributes([.font: UIFont.addFont(size: 14, scaleStyle: .largeTitle, weight: .regular), .foregroundColor: K.Colors.primaryGray], range: NSRange(location: 0, length: username.length))
             
             name.append(username)
             

@@ -30,7 +30,7 @@ final class SettingKindTests: XCTestCase {
     
     func testAccountImage() {
         let settingKind = SettingKind.account
-        let expectedImage = UIImage(systemName: AppStrings.Icons.person, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
+        let expectedImage = UIImage(systemName: AppStrings.Icons.person, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray)
         XCTAssertEqual(settingKind.image, expectedImage)
     }
     
@@ -46,7 +46,7 @@ final class SettingKindTests: XCTestCase {
     
     func testNotificationsImage() {
         let settingKind = SettingKind.notifications
-        let expectedImage = UIImage(systemName: AppStrings.Icons.bell, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
+        let expectedImage = UIImage(systemName: AppStrings.Icons.bell, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray)
         XCTAssertEqual(settingKind.image, expectedImage)
     }
     

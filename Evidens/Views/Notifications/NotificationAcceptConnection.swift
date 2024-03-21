@@ -32,7 +32,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
     
     private lazy var unreadImage: UIImageView = {
         let iv = UIImageView()
-        iv.backgroundColor = primaryColor
+        iv.backgroundColor = K.Colors.primaryColor
         iv.clipsToBounds = true
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -44,7 +44,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
         
         let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
         
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(separatorColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.separatorColor)
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.configuration?.buttonSize = .mini
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +55,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .medium)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -64,7 +64,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
     lazy var separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -102,8 +102,9 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
 
             timeLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            timeLabel.bottomAnchor.constraint(greaterThanOrEqualTo: profileImageView.bottomAnchor),
             timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            
+
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -142,7 +143,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
         timeLabel.text = viewModel.time
         
         unreadImage.isHidden = viewModel.isRead
-        backgroundColor = viewModel.isRead ? .systemBackground : primaryColor.withAlphaComponent(0.05)
+        backgroundColor = viewModel.isRead ? .systemBackground : K.Colors.primaryColor.withAlphaComponent(0.05)
         
         contentLabel.attributedText = attributedText
 

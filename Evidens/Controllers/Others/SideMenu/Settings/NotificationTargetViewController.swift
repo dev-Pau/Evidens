@@ -41,7 +41,7 @@ class NotificationTargetViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 13.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -55,7 +55,7 @@ class NotificationTargetViewController: UIViewController {
     private let separator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -63,7 +63,7 @@ class NotificationTargetViewController: UIViewController {
         let label = UILabel()
         label.font = UIFont.addFont(size: 13.0, scaleStyle: .title1, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()

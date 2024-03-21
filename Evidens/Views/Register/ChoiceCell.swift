@@ -12,7 +12,7 @@ class ChoiceCell: UICollectionViewCell {
     override var isSelected: Bool {
         didSet {
             guard isSelectable else { return }
-            backgroundColor = isSelected ? primaryColor : .clear
+            backgroundColor = isSelected ? K.Colors.primaryColor : .clear
             choiceLabel.textColor = isSelected ? .white : .label
             layer.borderWidth = isSelected ? 0 : 1
         }
@@ -47,7 +47,7 @@ class ChoiceCell: UICollectionViewCell {
     private func configure() {
         backgroundColor = .clear
         layer.borderWidth = 1
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         
         addSubviews(choiceLabel)
         
@@ -78,7 +78,7 @@ class ChoiceCell: UICollectionViewCell {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if #available(iOS 13.0, *) {
              if (traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)) {
-                 layer.borderColor = separatorColor.cgColor
+                 layer.borderColor = K.Colors.separatorColor.cgColor
              }
          }
     }

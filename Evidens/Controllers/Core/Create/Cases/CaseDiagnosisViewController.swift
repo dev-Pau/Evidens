@@ -47,7 +47,7 @@ class CaseDiagnosisViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         label.text = AppStrings.Content.Case.Share.diagnosisContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
@@ -135,7 +135,7 @@ class CaseDiagnosisViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
         
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem?.tintColor = .label
         
@@ -167,7 +167,7 @@ class CaseDiagnosisViewController: UIViewController {
         cancelButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         
         var shareConfig = UIButton.Configuration.filled()
-        shareConfig.baseBackgroundColor = primaryColor
+        shareConfig.baseBackgroundColor = K.Colors.primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
         shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)

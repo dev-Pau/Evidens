@@ -41,11 +41,11 @@ class DraftCaseTextCell: UICollectionViewCell {
         configuration.imagePlacement = .leading
         configuration.contentInsets = .zero
         configuration.imagePadding = 5
-        configuration.baseForegroundColor = primaryGray
+        configuration.baseForegroundColor = K.Colors.primaryGray
         
         let size: CGFloat = UIDevice.isPad ? 20 : 15
         
-        configuration.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size))
+        configuration.image = UIImage(systemName: AppStrings.Icons.circleInfoFill)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size))
         button.configuration = configuration
         
         return button
@@ -54,7 +54,7 @@ class DraftCaseTextCell: UICollectionViewCell {
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.font = UIFont.addFont(size: 14.0, scaleStyle: .title1, weight: .regular)
         label.numberOfLines = 0
         return label
@@ -63,7 +63,7 @@ class DraftCaseTextCell: UICollectionViewCell {
     private let separator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -82,9 +82,9 @@ class DraftCaseTextCell: UICollectionViewCell {
         addSubviews(titleLabel, contentLabel, dateLabel, phaseButton, separator)
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             
             contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
             contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
@@ -98,7 +98,7 @@ class DraftCaseTextCell: UICollectionViewCell {
             phaseButton.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             phaseButton.trailingAnchor.constraint(lessThanOrEqualTo: contentLabel.trailingAnchor),
 
-            separator.topAnchor.constraint(equalTo: phaseButton.bottomAnchor, constant: 10),
+            separator.topAnchor.constraint(equalTo: phaseButton.bottomAnchor, constant: K.Paddings.Content.verticalPadding),
             separator.leadingAnchor.constraint(equalTo: leadingAnchor),
             separator.trailingAnchor.constraint(equalTo: trailingAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4),

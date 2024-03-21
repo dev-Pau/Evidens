@@ -69,14 +69,14 @@ final class ConnectViewModelTests: XCTestCase {
         
         XCTAssertEqual(sut.color, .systemBackground)
         XCTAssertEqual(sut.foregroundColor, .label)
-        XCTAssertEqual(sut.strokeColor, separatorColor)
+        XCTAssertEqual(sut.strokeColor, K.Colors.separatorColor)
         XCTAssertEqual(sut.strokeWidth, 1)
         
         sut.set(phase: .pending)
         
         XCTAssertEqual(sut.color, .systemBackground)
         XCTAssertEqual(sut.foregroundColor, .label)
-        XCTAssertEqual(sut.strokeColor, separatorColor)
+        XCTAssertEqual(sut.strokeColor, K.Colors.separatorColor)
         XCTAssertEqual(sut.strokeWidth, 1)
         
         sut.set(phase: .rejected)

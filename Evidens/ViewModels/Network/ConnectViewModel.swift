@@ -67,7 +67,7 @@ struct ConnectViewModel {
         
         switch connection.phase {
             
-        case .connected, .pending, .received: return separatorColor
+        case .connected, .pending, .received: return K.Colors.separatorColor
         case .rejected, .withdraw, .unconnect, .none: return .clear
         }
     }

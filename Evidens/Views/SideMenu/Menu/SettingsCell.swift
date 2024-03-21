@@ -31,7 +31,7 @@ class SettingsCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
 
         label.font = UIFont.addFont(size: 13, scaleStyle: .title1, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -42,7 +42,7 @@ class SettingsCell: UICollectionViewCell {
         iv.contentMode = .center
         iv.clipsToBounds = true
         iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        iv.tintColor = separatorColor
+        iv.tintColor = K.Colors.separatorColor
         return iv
     }()
     

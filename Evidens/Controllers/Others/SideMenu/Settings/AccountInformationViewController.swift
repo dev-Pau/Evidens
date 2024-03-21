@@ -21,7 +21,7 @@ class AccountInformationViewController: UIViewController {
     private let kindSeparator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -29,7 +29,7 @@ class AccountInformationViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -50,7 +50,7 @@ class AccountInformationViewController: UIViewController {
         iv.contentMode = .center
         iv.clipsToBounds = true
         iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        iv.tintColor = separatorColor
+        iv.tintColor = K.Colors.separatorColor
         return iv
     }()
     
@@ -72,7 +72,7 @@ class AccountInformationViewController: UIViewController {
         label.textAlignment = .right
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleUsernameTouch)))
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 1
         return label
     }()
@@ -85,7 +85,7 @@ class AccountInformationViewController: UIViewController {
         label.textAlignment = .right
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleEmailTouch)))
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 1
         return label
     }()
@@ -106,7 +106,7 @@ class AccountInformationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         label.textAlignment = .right
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 1
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleAccountPhase)))
@@ -118,7 +118,7 @@ class AccountInformationViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
         label.textAlignment = .right
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -163,7 +163,7 @@ class AccountInformationViewController: UIViewController {
         iv.contentMode = .center
         iv.clipsToBounds = true
         iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        iv.tintColor = separatorColor
+        iv.tintColor = K.Colors.separatorColor
         return iv
     }()
 
@@ -173,7 +173,7 @@ class AccountInformationViewController: UIViewController {
         iv.contentMode = .center
         iv.clipsToBounds = true
         iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        iv.tintColor = separatorColor
+        iv.tintColor = K.Colors.separatorColor
         return iv
     }()
 
@@ -183,7 +183,7 @@ class AccountInformationViewController: UIViewController {
         iv.contentMode = .center
         iv.clipsToBounds = true
         iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        iv.tintColor = separatorColor
+        iv.tintColor = K.Colors.separatorColor
         return iv
     }()
     
@@ -242,7 +242,7 @@ class AccountInformationViewController: UIViewController {
         providerLabel.setContentHuggingPriority(.required, for: .horizontal)
         providerLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
-        let size: CGFloat = UIDevice.isPad ? 14 : 20
+        let size: CGFloat = UIDevice.isPad ? 25 : 20
         
         NSLayoutConstraint.activate([
             kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
@@ -329,7 +329,7 @@ class AccountInformationViewController: UIViewController {
             } else if providerID.contains(Provider.apple.id) {
                 providerImage.image = UIImage(systemName: AppStrings.Icons.circleA, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
             } else if providerID.contains(Provider.password.id) {
-                providerImage.image = UIImage(systemName: AppStrings.Icons.envelope, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
+                providerImage.image = UIImage(systemName: AppStrings.Icons.envelope, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray)
             }
         }
         

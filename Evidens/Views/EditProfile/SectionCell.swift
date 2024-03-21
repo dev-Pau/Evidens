@@ -30,7 +30,7 @@ class SectionCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 14.0, scaleStyle: .title3, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -41,14 +41,14 @@ class SectionCell: UICollectionViewCell {
         iv.contentMode = .center
         iv.clipsToBounds = true
         iv.image = UIImage(systemName: AppStrings.Icons.rightChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        iv.tintColor = separatorColor
+        iv.tintColor = K.Colors.separatorColor
         return iv
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -100,7 +100,7 @@ class SectionCell: UICollectionViewCell {
     
     func set(section: Section) {
         titleLabel.text = section.title
-        image.image = UIImage(systemName: section.image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
+        image.image = UIImage(systemName: section.image, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray)
         contentLabel.text = section.content
     }
 }

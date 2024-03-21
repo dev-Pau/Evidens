@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol SideMenuHeaderDelegate: AnyObject {
+    func didTapHeader()
+}
+
 class SideMenuHeader: UICollectionReusableView {
+
+    weak var delegate: SideMenuHeaderDelegate?
     
     private lazy var userImage = ProfileImageView(frame: .zero)
     
@@ -26,14 +32,14 @@ class SideMenuHeader: UICollectionReusableView {
         let label = UILabel()
         label.font = UIFont.addFont(size: 14.0, scaleStyle: .title3, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.textAlignment = .left
         return label
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -77,6 +83,8 @@ class SideMenuHeader: UICollectionReusableView {
         userImage.layer.cornerRadius = size / 2
         
         configure()
+        
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleHeaderTap)))
     }
     
     
@@ -92,5 +100,9 @@ class SideMenuHeader: UICollectionReusableView {
         if let username = UserDefaults.standard.value(forKey: "username") as? String {
             usernameLabel.text = AppStrings.Characters.atSign + username
         }
+    }
+    
+    @objc func handleHeaderTap() {
+        delegate?.didTapHeader()
     }
 }

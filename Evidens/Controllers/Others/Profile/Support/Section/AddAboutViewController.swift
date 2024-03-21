@@ -38,7 +38,7 @@ class AddAboutViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Sections.aboutContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.textAlignment = .left
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -47,7 +47,7 @@ class AddAboutViewController: UIViewController {
     
     private lazy var aboutTextView: UITextView = {
         let tv = UITextView()
-        tv.tintColor = primaryColor
+        tv.tintColor = K.Colors.primaryColor
         tv.textColor = .label
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
@@ -155,7 +155,7 @@ class AddAboutViewController: UIViewController {
         skipButton.translatesAutoresizingMaskIntoConstraints = false
         
         var shareConfig = UIButton.Configuration.filled()
-        shareConfig.baseBackgroundColor = primaryColor
+        shareConfig.baseBackgroundColor = K.Colors.primaryColor
         shareConfig.baseForegroundColor = .white
         var shareContainer = AttributeContainer()
         shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)

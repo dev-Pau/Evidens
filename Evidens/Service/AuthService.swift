@@ -86,8 +86,8 @@ struct AuthService {
                 
                 let batch = Firestore.firestore().batch()
                 
-                let userRef = COLLECTION_USERS.document(uid)
-                let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+                let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
+                let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
                 
                 batch.setData(authUser, forDocument: userRef)
                 batch.setData(phaseData, forDocument: historyRef)
@@ -138,8 +138,8 @@ struct AuthService {
         
         let batch = Firestore.firestore().batch()
         
-        let userRef = COLLECTION_USERS.document(uid)
-        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
+        let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
         
         batch.setData(googleUser, forDocument: userRef)
         batch.setData(phaseData, forDocument: historyRef)
@@ -184,8 +184,8 @@ struct AuthService {
                                         "value": credentials.phase.rawValue]
         
         let batch = Firestore.firestore().batch()
-        let userRef = COLLECTION_USERS.document(uid)
-        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
+        let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
         
         UserDefaults.standard.set(uid, forKey: "uid")
         
@@ -229,8 +229,8 @@ struct AuthService {
         
         let batch = Firestore.firestore().batch()
         
-        let userRef = COLLECTION_USERS.document(uid)
-        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
+        let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
         
         batch.updateData(user, forDocument: userRef)
         batch.setData(phaseData, forDocument: historyRef)
@@ -283,8 +283,8 @@ struct AuthService {
         
         let batch = Firestore.firestore().batch()
         
-        let userRef = COLLECTION_USERS.document(uid)
-        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
+        let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
         
         batch.updateData(user, forDocument: userRef)
         batch.setData(phaseData, forDocument: historyRef)
@@ -325,9 +325,9 @@ struct AuthService {
         
         let batch = Firestore.firestore().batch()
         
-        let userRef = COLLECTION_USERS.document(uid)
-        let usernameRef = COLLECTION_USERNAMES.document(uid)
-        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
+        let usernameRef = K.FirestoreCollections.COLLECTION_USERNAMES.document(uid)
+        let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
         
         let userData: [String: Any] = ["username": username,
                                        "phase": phase.rawValue]
@@ -366,8 +366,8 @@ struct AuthService {
         let phaseData: [String: Any] = ["timestamp": Timestamp(),
                                         "value": UserPhase.pending.rawValue]
         
-        let userRef = COLLECTION_USERS.document(uid)
-        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
+        let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
         
         let batch = Firestore.firestore().batch()
         
@@ -407,8 +407,8 @@ struct AuthService {
         let phaseData: [String: Any] = ["timestamp": Timestamp(),
                                         "value": UserPhase.review.rawValue]
         
-        let userRef = COLLECTION_USERS.document(uid)
-        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
+        let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
         
         let batch = Firestore.firestore().batch()
         
@@ -598,8 +598,8 @@ struct AuthService {
                                    "timestamp": timestamp]
         
         
-        let userRef = COLLECTION_USERS.document(uid)
-        let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
+        let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
         
         let batch = Firestore.firestore().batch()
         
@@ -630,7 +630,7 @@ struct AuthService {
             return
         }
         
-        let query = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).order(by: "timestamp", descending: true).whereField("value", isEqualTo: UserPhase.deactivate.rawValue).limit(to: 1)
+        let query = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).order(by: "timestamp", descending: true).whereField("value", isEqualTo: UserPhase.deactivate.rawValue).limit(to: 1)
         
         query.getDocuments { snapshot, error in
             if let error {
@@ -672,7 +672,7 @@ struct AuthService {
             return
         }
         
-        let query = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).order(by: "timestamp", descending: true).whereField("timestamp", isLessThan: dDate).limit(to: 1)
+        let query = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).order(by: "timestamp", descending: true).whereField("timestamp", isLessThan: dDate).limit(to: 1)
         
         query.getDocuments { snapshot, error in
             if let error {
@@ -694,8 +694,8 @@ struct AuthService {
                     let phaseData: [String: Any] = ["dDate": FieldValue.delete(),
                                                     "phase": previousPhase]
                     
-                    let historyRef = COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
-                    let userRef = COLLECTION_USERS.document(uid)
+                    let historyRef = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(UserHistory.phase.path).document()
+                    let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid)
                     
                     let batch = Firestore.firestore().batch()
                     
@@ -723,7 +723,7 @@ struct AuthService {
     ///   - completion: A closure to be called when the operation completes. It will pass a `Bool` indicating if the username exists.
     static func usernameExist(_ username: String, completion: @escaping(Bool) -> Void) {
         
-        let query = COLLECTION_USERNAMES.whereField("username", isEqualTo: username.lowercased()).limit(to: 1)
+        let query = K.FirestoreCollections.COLLECTION_USERNAMES.whereField("username", isEqualTo: username.lowercased()).limit(to: 1)
         query.getDocuments { snapshot, error in
             if let _ = error {
                 completion(false)
@@ -817,7 +817,7 @@ struct AuthService {
     ///   - value: The value associated with the user history.
     static func setUserHistory(for type: UserHistory, with value: Any) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let path = COLLECTION_HISTORY.document(uid).collection(type.path).document()
+        let path = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(type.path).document()
         
         switch type {
         case .logIn:

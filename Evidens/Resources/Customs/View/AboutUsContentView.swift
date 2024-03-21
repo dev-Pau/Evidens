@@ -58,6 +58,7 @@ class AboutUsContentView: UIView {
     }
     
     func configure() {
+        translatesAutoresizingMaskIntoConstraints = false
         addSubviews(titleLabel)
     }
     

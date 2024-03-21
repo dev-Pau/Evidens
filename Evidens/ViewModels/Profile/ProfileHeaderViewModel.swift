@@ -66,7 +66,7 @@ struct ProfileHeaderViewModel {
         if let phase = blockPhase, phase == .block {
             return .systemRed.withAlphaComponent(0.5)
         } else {
-            return user.isCurrentUser ? separatorColor : .clear
+            return user.isCurrentUser ? K.Colors.separatorColor : .clear
         }
     }
     

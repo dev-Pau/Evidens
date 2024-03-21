@@ -27,7 +27,7 @@ class BaseGuidelineImageCell: UICollectionViewCell {
     }
     
     private func configure() {
-        backgroundColor = dimPrimaryColor
+        backgroundColor = K.Colors.dimPrimaryColor
         addSubviews(image)
         
         NSLayoutConstraint.activate([

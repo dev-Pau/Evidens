@@ -58,7 +58,7 @@ extension NotificationService {
             return
         }
         
-        let preferenceRef = COLLECTION_NOTIFICATIONS.document(uid)
+        let preferenceRef = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid)
         preferenceRef.setData([key: value], merge: true) { error in
             if let _ = error {
                 completion?(.unknown)
@@ -73,7 +73,7 @@ extension NotificationService {
     /// - Parameter code: The notification code to be set.
     static func set(code: String) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
-        let preferenceRef = COLLECTION_NOTIFICATIONS.document(uid)
+        let preferenceRef = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid)
         preferenceRef.setData(["code": code], merge: true)
     }
     
@@ -99,7 +99,7 @@ extension NotificationService {
             return
         }
         
-        let preferenceRef = COLLECTION_NOTIFICATIONS.document(uid)
+        let preferenceRef = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid)
         
         let preferenceToUpdate: [String: Any] = [
             parentKey: [
@@ -141,7 +141,7 @@ extension NotificationService {
             return
         }
         
-        let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document(notificationId)
+        let query = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").document(notificationId)
         query.delete() { error in
             if let error {
                 let nsError = error as NSError
@@ -186,7 +186,7 @@ extension NotificationService {
         if let date {
             let timestamp = Timestamp(date: date)
             let newTimestamp = Timestamp(seconds: timestamp.seconds + 1, nanoseconds: timestamp.nanoseconds)
-            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).whereField("timestamp", isGreaterThan: newTimestamp).count
+            let query = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).whereField("timestamp", isGreaterThan: newTimestamp).count
             query.getAggregation(source: .server) { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
@@ -201,7 +201,7 @@ extension NotificationService {
             }
         } else {
             // Used to be order: false; if there's error switch it
-            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 20).count
+            let query = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 20).count
             query.getAggregation(source: .server) { snapshot, error in
                 if let _ = error {
                     completion(.failure(.unknown))
@@ -240,7 +240,7 @@ extension NotificationService {
         }
 
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 15)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 15)
             firstGroupToFetch.getDocuments { snapshot, error in
                 
                 if let error {
@@ -262,7 +262,7 @@ extension NotificationService {
                 completion(.success(snapshot))
             }
         } else {
-            let nextGroupToFetch = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).start(afterDocument: lastSnapshot!).limit(to: 15)
             nextGroupToFetch.getDocuments { snapshot, error in
                 
                 if let error {
@@ -307,7 +307,7 @@ extension NotificationService {
         if let date {
             let timestamp = Timestamp(date: date)
             let newTimestamp = Timestamp(seconds: timestamp.seconds + 1, nanoseconds: timestamp.nanoseconds)
-            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).whereField("timestamp", isGreaterThan: newTimestamp).limit(to: 20)
+            let query = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).whereField("timestamp", isGreaterThan: newTimestamp).limit(to: 20)
             
             query.getDocuments { snapshot, error in
                 
@@ -326,7 +326,7 @@ extension NotificationService {
                 completion(.success(notifications))
             }
         } else {
-            let query = COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 20)
+            let query = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").order(by: "timestamp", descending: true).limit(to: 20)
             query.getDocuments { snapshot, error in
                 
                 if let error {
@@ -362,7 +362,7 @@ extension NotificationService {
             return
         }
         
-        let preferenceRef = COLLECTION_NOTIFICATIONS.document(uid)
+        let preferenceRef = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid)
         preferenceRef.getDocument { snapshot, error in
             if let error = error {
                 let nsError = error as NSError

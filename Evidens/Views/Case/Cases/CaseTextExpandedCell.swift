@@ -52,7 +52,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
         
         separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.backgroundColor = separatorColor
+        separator.backgroundColor = K.Colors.separatorColor
         
         addSubviews(userPostView, titleTextView, collectionView, contentTextView, revisionView, actionButtonsView, contentTimestamp, separator)
 
@@ -69,8 +69,8 @@ class CaseTextExpandedCell: UICollectionViewCell {
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
             titleTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
-            titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: 10),
-            titleTextView.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -10),
+            titleTextView.leadingAnchor.constraint(equalTo: userPostView.leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            titleTextView.trailingAnchor.constraint(equalTo: userPostView.trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
           
             contentTextView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 5),
             contentTextView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
@@ -82,16 +82,16 @@ class CaseTextExpandedCell: UICollectionViewCell {
             collectionViewHeightConstraint,
 
             contentTimestamp.topAnchor.constraint(equalTo: collectionView.bottomAnchor),
-            contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            contentTimestamp.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
+            contentTimestamp.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
 
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor),
             revisionView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor),
 
             buttonTopConstraint,
-            actionButtonsView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            actionButtonsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            actionButtonsView.leadingAnchor.constraint(equalTo: titleTextView.leadingAnchor, constant: 20),
+            actionButtonsView.trailingAnchor.constraint(equalTo: titleTextView.trailingAnchor, constant: -20),
             actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
@@ -109,7 +109,7 @@ class CaseTextExpandedCell: UICollectionViewCell {
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 10
         section.orthogonalScrollingBehavior = .continuous
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: K.Paddings.Content.horizontalPadding, bottom: 0, trailing: K.Paddings.Content.horizontalPadding)
         return UICollectionViewCompositionalLayout(section: section)
     }
     

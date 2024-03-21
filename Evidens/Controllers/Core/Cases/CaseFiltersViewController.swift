@@ -41,7 +41,7 @@ class CaseFiltersViewController: UIViewController {
         title = AppStrings.Title.sort
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.apply, style: .done, target: self, action: #selector(handleApply))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
         
         navigationItem.leftBarButtonItem?.tintColor = .label

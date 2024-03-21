@@ -11,10 +11,10 @@ class PrimarySpecialityCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            backgroundColor = isSelected ? primaryColor : .systemBackground
+            backgroundColor = isSelected ? K.Colors.primaryColor : .systemBackground
             specialityLabel.textColor = isSelected  ? .white : .label
             layer.borderWidth = isSelected ? 0 : 0.4
-            layer.borderColor = separatorColor.cgColor
+            layer.borderColor = K.Colors.separatorColor.cgColor
             checkmarkImage.tintColor = isSelected ? .white : .clear
         }
     }
@@ -51,7 +51,7 @@ class PrimarySpecialityCell: UICollectionViewCell {
     func configure() {
         layer.cornerRadius = 10
         layer.borderWidth = 0.4
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         backgroundColor = .systemBackground
         
         addSubviews(specialityLabel, checkmarkImage)

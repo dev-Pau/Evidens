@@ -34,7 +34,7 @@ class PrimaryTextField: UITextField {
         layer.cornerRadius = 5
         layer.borderColor = UIColor.systemBackground.cgColor
         layer.borderWidth = 1.0
-        attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: primaryGray])
+        attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: K.Colors.primaryGray])
         clearButtonMode = .whileEditing
     }
     

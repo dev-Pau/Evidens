@@ -21,7 +21,7 @@ class UserListener {
             return
         }
 
-        listener = COLLECTION_USERS.document(uid).addSnapshotListener { snapshot, error in
+        listener = K.FirestoreCollections.COLLECTION_USERS.document(uid).addSnapshotListener { snapshot, error in
             guard let document = snapshot else { return }
             
             guard let data = document.data() else { return }

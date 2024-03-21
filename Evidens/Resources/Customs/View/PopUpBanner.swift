@@ -40,14 +40,14 @@ class PopUpBanner: UIView {
         layer.borderColor = UIColor.link.cgColor
         
         layer.masksToBounds = false
-        layer.shadowColor = primaryGray.cgColor
+        layer.shadowColor = K.Colors.primaryGray.cgColor
         layer.shadowOpacity = 0.3
         layer.shadowRadius = 6
         layer.shadowOffset = CGSize(width: 0, height: 3)
         layer.cornerRadius = 12
 
         clipsToBounds = false
-        backgroundColor = popupColor
+        backgroundColor = K.Colors.popupColor
     }
     
     func showTopPopup(inView view: UIView) {

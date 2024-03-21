@@ -19,7 +19,7 @@ class CaseTitleCell: UICollectionViewCell {
     private var titleLabel: UILabel = {
         let label = UILabel()
         label.text = AppStrings.Content.Case.Share.title
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.isHidden = true
         label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -29,7 +29,7 @@ class CaseTitleCell: UICollectionViewCell {
     private lazy var titleTextField: PrimaryTextField = {
         let tf = PrimaryTextField(placeholder: AppStrings.Content.Case.Share.title)
         tf.delegate = self
-        tf.tintColor = primaryColor
+        tf.tintColor = K.Colors.primaryColor
         tf.keyboardType = .default
         tf.font = UIFont.addFont(size: 17, scaleStyle: .title2, weight: .regular)
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -40,7 +40,7 @@ class CaseTitleCell: UICollectionViewCell {
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     

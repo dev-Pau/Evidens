@@ -17,7 +17,7 @@ class ShareCasePrivacyViewController: UIViewController {
     private lazy var shareButton: UIButton = {
         let button = UIButton()
         button.configuration = .filled()
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = K.Colors.primaryColor
         button.configuration?.baseForegroundColor = .white
         button.configuration?.cornerStyle = .capsule
         var container = AttributeContainer()
@@ -36,7 +36,7 @@ class ShareCasePrivacyViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Content.Case.Share.privacyContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -44,7 +44,7 @@ class ShareCasePrivacyViewController: UIViewController {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -53,7 +53,7 @@ class ShareCasePrivacyViewController: UIViewController {
         let label = UILabel()
         label.text = AppStrings.Opening.or
         label.font = UIFont.addFont(size: 12, scaleStyle: .largeTitle, weight: .medium)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.textAlignment = .center
         label.backgroundColor = .systemBackground
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -83,7 +83,7 @@ class ShareCasePrivacyViewController: UIViewController {
         let appearance = UINavigationBarAppearance.secondaryAppearance()
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
     }
     

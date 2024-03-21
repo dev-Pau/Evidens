@@ -11,7 +11,7 @@ class RegisterCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            selectionImageView.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? primaryColor : primaryGray)
+            selectionImageView.image = UIImage(systemName: isSelected ? AppStrings.Icons.checkmarkCircleFill : AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(isSelected ? K.Colors.primaryColor : K.Colors.primaryGray)
         }
     }
     
@@ -28,7 +28,7 @@ class RegisterCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryGray)
+        iv.image = UIImage(systemName: AppStrings.Icons.circle)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()

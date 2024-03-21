@@ -23,7 +23,7 @@ class AddCaseRevisionViewController: UIViewController {
     private let contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         label.text = AppStrings.Content.Case.Revision.progressContent
         label.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular)
@@ -68,7 +68,7 @@ class AddCaseRevisionViewController: UIViewController {
     private let bottomSeparatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -103,13 +103,13 @@ class AddCaseRevisionViewController: UIViewController {
          navigationController?.navigationBar.standardAppearance = appearance
          navigationController?.navigationBar.scrollEdgeAppearance = appearance
          
-         addNavigationBarLogo(withTintColor: primaryColor)
+         addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
          
          navigationItem.leftBarButtonItem = UIBarButtonItem(title: AppStrings.Global.cancel, style: .plain, target: self, action: #selector(handleDismiss))
         navigationItem.leftBarButtonItem?.tintColor = .label
         
          navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.add, style: .done, target: self, action: #selector(handleAddRevision))
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     

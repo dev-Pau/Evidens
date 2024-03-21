@@ -28,7 +28,7 @@ extension CommentService {
             return
         }
         
-        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -69,7 +69,7 @@ extension CommentService {
             return
         }
         
-        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -120,7 +120,7 @@ extension CommentService {
         
         guard let uid = UserDefaults.getUid(), let discipline = user.discipline else { return }
         
-        let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document()
+        let commentRef = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document()
         
         let anonymous = uid == clinicalCase.uid && clinicalCase.privacy == .anonymous
         
@@ -182,7 +182,7 @@ extension CommentService {
         
         guard let uid = UserDefaults.getUid(), let discipline = user.discipline else { return }
         
-        let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document()
+        let commentRef = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments").document()
         
         let date = Date(timeIntervalSinceNow: -2)
         
@@ -230,7 +230,7 @@ extension CommentService {
             return
         }
         
-        let commentRef = COLLECTION_POSTS.document(post.postId).collection("comments").document(id)
+        let commentRef = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments").document(id)
         
         let data: [String: Any] = ["edited": true,
                                    "comment": comment.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -269,7 +269,7 @@ extension CommentService {
             return
         }
         
-        let commentRef = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(id)
+        let commentRef = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments").document(id)
         
         let data: [String: Any] = ["edited": true,
                                    "comment": comment.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -315,14 +315,14 @@ extension CommentService {
         
         let likeData = ["timestamp": Timestamp(date: Date())]
         
-        var ref = COLLECTION_CASES.document(caseId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_CASES.document(caseId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
         }
         
         let likeRef = ref.document(commentId).collection("likes").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId)
         
         batch.setData(likeData, forDocument: likeRef)
         batch.setData(likeData, forDocument: userRef)
@@ -356,14 +356,14 @@ extension CommentService {
         
         let batch = Firestore.firestore().batch()
         
-        var ref = COLLECTION_CASES.document(caseId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_CASES.document(caseId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
         }
         
         let likeRef = ref.document(commentId).collection("likes").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-comment-likes").document(caseId).collection("comment-likes").document(commentId)
         
         batch.deleteDocument(likeRef)
         batch.deleteDocument(userRef)
@@ -401,14 +401,14 @@ extension CommentService {
         
         let likeData = ["timestamp": Timestamp(date: Date())]
         
-        var ref = COLLECTION_POSTS.document(postId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_POSTS.document(postId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
         }
         
         let likeRef = ref.document(commentId).collection("likes").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId)
         
         batch.setData(likeData, forDocument: likeRef)
         batch.setData(likeData, forDocument: userRef)
@@ -443,14 +443,14 @@ extension CommentService {
         
         let batch = Firestore.firestore().batch()
         
-        var ref = COLLECTION_POSTS.document(postId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_POSTS.document(postId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
         }
         
         let likeRef = ref.document(commentId).collection("likes").document(uid)
-        let userRef = COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId)
+        let userRef = K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-comment-likes").document(postId).collection("comment-likes").document(commentId)
         
         batch.deleteDocument(likeRef)
         batch.deleteDocument(userRef)
@@ -484,7 +484,7 @@ extension CommentService {
         
         guard let uid = UserDefaults.getUid(), let discipline = user.discipline else { return }
         
-        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -551,7 +551,7 @@ extension CommentService {
             return
         }
         
-        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -600,7 +600,7 @@ extension CommentService {
         
         guard let uid = UserDefaults.getUid(), let discipline = user.discipline else { return }
         
-        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -655,7 +655,7 @@ extension CommentService {
             return
         }
         
-        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -706,7 +706,7 @@ extension CommentService {
         
         if lastSnapshot == nil {
             
-            var query = COLLECTION_POSTS.document(post.postId).collection("comments")
+            var query = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
@@ -730,7 +730,7 @@ extension CommentService {
             }
             
         } else {
-            var query = COLLECTION_POSTS.document(post.postId).collection("comments")
+            var query = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
@@ -772,7 +772,7 @@ extension CommentService {
 
         if lastSnapshot == nil {
             
-            var query = COLLECTION_POSTS.document(post.postId).collection("comments")
+            var query = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
@@ -801,7 +801,7 @@ extension CommentService {
             
         } else {
             
-            var query = COLLECTION_POSTS.document(post.postId).collection("comments")
+            var query = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
@@ -837,7 +837,7 @@ extension CommentService {
     ///   - completion: A completion block that is called with the result of the query.
     static func fetchReply(forPost post: Post, forPath path: [String], completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
-        var query = COLLECTION_POSTS.document(post.postId)
+        var query = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId)
         
         for id in path {
             query = query.collection("comments").document(id)
@@ -880,7 +880,7 @@ extension CommentService {
         
         if lastSnapshot == nil {
               
-            var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+            var query = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
@@ -910,7 +910,7 @@ extension CommentService {
             }
         } else {
             
-            var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+            var query = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
@@ -943,7 +943,7 @@ extension CommentService {
     ///   - completion: A completion block that is called with the result of the query.
     static func fetchReply(forCase clinicalCase: Case, forPath path: [String], completion: @escaping(Result<Comment, FirestoreError>) -> Void) {
         
-        var query = COLLECTION_CASES.document(clinicalCase.caseId)
+        var query = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId)
         
         for id in path {
             query = query.collection("comments").document(id)
@@ -990,7 +990,7 @@ extension CommentService {
         
         if lastSnapshot == nil {
             
-            var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+            var query = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
@@ -1017,7 +1017,7 @@ extension CommentService {
             }
         } else {
             
-            var query = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+            var query = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
             
             for id in path {
                 query = query.document(id).collection("comments")
@@ -1067,7 +1067,7 @@ extension CommentService {
                 continue
             }
             
-            var query = COLLECTION_POSTS.document(contentId)
+            var query = K.FirestoreCollections.COLLECTION_POSTS.document(contentId)
             
             for id in path {
                 query = query.collection("comments").document(id)
@@ -1137,7 +1137,7 @@ extension CommentService {
                 continue
             }
             
-            var query = COLLECTION_CASES.document(contentId)
+            var query = K.FirestoreCollections.COLLECTION_CASES.document(contentId)
             
             for id in path {
                 query = query.collection("comments").document(id)
@@ -1284,7 +1284,7 @@ extension CommentService {
     ///   - completion: A completion block that is called with the result of the query.
     static func fetchCommentLikes(forPost post: Post, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
 
-        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -1316,7 +1316,7 @@ extension CommentService {
     static func fetchNumberOfComments(forPost post: Post, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
          
         
-        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -1349,7 +1349,7 @@ extension CommentService {
     ///                 or a `FirestoreError` on failure.
     static func checkIfAuthorDidReplyComment(forPost post: Post, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         
-        var ref = COLLECTION_POSTS.document(post.postId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_POSTS.document(post.postId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -1382,7 +1382,7 @@ extension CommentService {
      static func checkIfUserLikedComment(forPost post: Post, forCommentId id: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
          guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
          
-         COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).getDocument { snapshot, error in
+         K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).getDocument { snapshot, error in
              if let _ = error {
                  completion(.failure(.unknown))
              } else {
@@ -1496,7 +1496,7 @@ extension CommentService {
     ///   - completion: A completion block that is called with the result of the query.
     static func fetchCommentLikes(forCase clinicalCase: Case, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
 
-        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -1528,7 +1528,7 @@ extension CommentService {
     static func checkIfUserLikedCaseComment(forCase clinicalCase: Case, forCommentId id: String, completion: @escaping(Result<Bool,FirestoreError>) -> Void) {
         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
         
-        COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(id).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(id).getDocument { snapshot, error in
             
             if let _ = error {
                 completion(.failure(.unknown))
@@ -1558,7 +1558,7 @@ extension CommentService {
         
         if let date {
             let timestamp = Timestamp(date: date)
-            var likesRef = COLLECTION_POSTS.document(postId)
+            var likesRef = K.FirestoreCollections.COLLECTION_POSTS.document(postId)
             
             for id in path {
                 likesRef = likesRef.collection("comments").document(id)
@@ -1578,7 +1578,7 @@ extension CommentService {
                 }
             }
         } else {
-            var likesRef = COLLECTION_POSTS.document(postId)
+            var likesRef = K.FirestoreCollections.COLLECTION_POSTS.document(postId)
             
             for id in path {
                 likesRef = likesRef.collection("comments").document(id)
@@ -1614,7 +1614,7 @@ extension CommentService {
         
         if let date {
             let timestamp = Timestamp(date: date)
-            var likesRef = COLLECTION_CASES.document(caseId)
+            var likesRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId)
             
             for id in path {
                 likesRef = likesRef.collection("comments").document(id)
@@ -1634,7 +1634,7 @@ extension CommentService {
                 }
             }
         } else {
-            var likesRef = COLLECTION_CASES.document(caseId)
+            var likesRef = K.FirestoreCollections.COLLECTION_CASES.document(caseId)
             
             for id in path {
                 likesRef = likesRef.collection("comments").document(id)
@@ -1666,7 +1666,7 @@ extension CommentService {
     ///                 The `Result` will contain an `Int` indicating the number of visible comments for the specified comment.
     static func fetchNumberOfComments(forCase clinicalCase: Case, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
          
-        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")
@@ -1699,7 +1699,7 @@ extension CommentService {
     ///                 The `Result` will contain a `Bool` indicating whether the author has replied to the comment or not.
     static func checkIfAuthorDidReplyComment(forCase clinicalCase: Case, forPath path: [String], forCommentId id: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
         
-        var ref = COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
+        var ref = K.FirestoreCollections.COLLECTION_CASES.document(clinicalCase.caseId).collection("comments")
         
         for id in path {
             ref = ref.document(id).collection("comments")

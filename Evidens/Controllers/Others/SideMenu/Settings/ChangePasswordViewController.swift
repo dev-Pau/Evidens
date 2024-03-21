@@ -21,7 +21,7 @@ class ChangePasswordViewController: UIViewController {
     private let kindSeparator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -29,7 +29,7 @@ class ChangePasswordViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.addFont(size: 13.0, scaleStyle: .title1, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         return label
     }()
@@ -51,8 +51,8 @@ class ChangePasswordViewController: UIViewController {
         tf.clearButtonMode = .never
         tf.isSecureTextEntry = true
         tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
-        tf.tintColor = primaryColor
-        tf.textColor = primaryColor
+        tf.tintColor = K.Colors.primaryColor
+        tf.textColor = K.Colors.primaryColor
         return tf
     }()
     
@@ -73,8 +73,8 @@ class ChangePasswordViewController: UIViewController {
         tf.clearButtonMode = .never
         tf.isSecureTextEntry = true
         tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
-        tf.tintColor = primaryColor
-        tf.textColor = primaryColor
+        tf.tintColor = K.Colors.primaryColor
+        tf.textColor = K.Colors.primaryColor
         tf.placeholder = AppStrings.User.Changes.passwordRules
         return tf
     }()
@@ -96,15 +96,15 @@ class ChangePasswordViewController: UIViewController {
         tf.clearButtonMode = .never
         tf.isSecureTextEntry = true
         tf.addTarget(self, action: #selector(textDidChange(_:)), for: .editingChanged)
-        tf.tintColor = primaryColor
-        tf.textColor = primaryColor
+        tf.tintColor = K.Colors.primaryColor
+        tf.textColor = K.Colors.primaryColor
         tf.placeholder = AppStrings.User.Changes.passwordRules
         return tf
     }()
     
     private var passwordConditionTextView: UITextView = {
         let tv = UITextView()
-        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: primaryColor]
+        tv.linkTextAttributes = [NSAttributedString.Key.foregroundColor: K.Colors.primaryColor]
         tv.isSelectable = true
         tv.isUserInteractionEnabled = true
         tv.isEditable = false
@@ -185,14 +185,14 @@ class ChangePasswordViewController: UIViewController {
         
         let font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)
         kindLabel.text = AppStrings.Settings.accountPasswordContent
-        let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules, attributes: [.font: font, .foregroundColor: primaryGray])
+        let passwordString = NSMutableAttributedString(string: AppStrings.User.Changes.changesRules, attributes: [.font: font, .foregroundColor: K.Colors.primaryGray])
       
         passwordConditionTextView.attributedText = passwordString
     }
     
     private func updateForm() {
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.formIsValid
-        navigationItem.rightBarButtonItem?.tintColor = primaryColor
+        navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
     }
     
     @objc func textDidChange(_ textField: UITextField) {

@@ -28,7 +28,7 @@ extension UserService {
             return
         }
         
-        COLLECTION_USERS.document(uid).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).getDocument { snapshot, error in
             if let error {
                 let nsError = error as NSError
                 let errCode = FirestoreErrorCode(_nsError: nsError)
@@ -61,7 +61,7 @@ extension UserService {
         var users: [User] = []
         uids.forEach { uid in
 
-            COLLECTION_USERS.document(uid).getDocument { snapshot, error in
+            K.FirestoreCollections.COLLECTION_USERS.document(uid).getDocument { snapshot, error in
                 guard let dictionary = snapshot?.data() else {
                     return
                 }
@@ -88,7 +88,7 @@ extension UserService {
                 return
             }
         
-            let firstGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").limit(to: 30)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_FOLLOWERS.document(uid).collection("user-followers").limit(to: 30)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
@@ -110,7 +110,7 @@ extension UserService {
             }
         } else {
 
-            let nextGroupToFetch = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").start(afterDocument: lastSnapshot!).limit(to: 30)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_FOLLOWERS.document(uid).collection("user-followers").start(afterDocument: lastSnapshot!).limit(to: 30)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -143,7 +143,7 @@ extension UserService {
     static func fetchFollowing(forUid uid: String, lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         if lastSnapshot == nil {
             // Fetch first group of posts
-            let firstGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").limit(to: 50)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_FOLLOWING.document(uid).collection("user-following").limit(to: 50)
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
                     let nsError = error as NSError
@@ -165,7 +165,7 @@ extension UserService {
             }
         } else {
 
-            let nextGroupToFetch = COLLECTION_FOLLOWING.document(uid).collection("user-following").start(afterDocument: lastSnapshot!).limit(to: 50)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_FOLLOWING.document(uid).collection("user-following").start(afterDocument: lastSnapshot!).limit(to: 50)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -202,7 +202,7 @@ extension UserService {
         }
         
         if lastSnapshot == nil {
-            let firstGroupToFetch = COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("phase", isEqualTo: UserPhase.verified.rawValue).limit(to: 25)
+            let firstGroupToFetch = K.FirestoreCollections.COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("phase", isEqualTo: UserPhase.verified.rawValue).limit(to: 25)
 
             firstGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -225,7 +225,7 @@ extension UserService {
             }
         } else {
 
-            let nextGroupToFetch = COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("phase", isEqualTo: UserPhase.verified.rawValue).start(afterDocument: lastSnapshot!).limit(to: 25)
+            let nextGroupToFetch = K.FirestoreCollections.COLLECTION_USERS.whereField("uid", isNotEqualTo: uid).whereField("phase", isEqualTo: UserPhase.verified.rawValue).start(afterDocument: lastSnapshot!).limit(to: 25)
                 
             nextGroupToFetch.getDocuments { snapshot, error in
                 if let error {
@@ -259,7 +259,7 @@ extension UserService {
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
     static func fetchOnboardingUsers(completion: @escaping(Result<[User], FirestoreError>) -> Void) {
 
-        COLLECTION_USERS.whereField("phase", isEqualTo: UserPhase.verified.rawValue).limit(to: 10).getDocuments { snapshot, error in
+        K.FirestoreCollections.COLLECTION_USERS.whereField("phase", isEqualTo: UserPhase.verified.rawValue).limit(to: 10).getDocuments { snapshot, error in
             if let error {
                 let nsError = error as NSError
                 let _ = FirestoreErrorCode(_nsError: nsError)
@@ -293,7 +293,7 @@ extension UserService {
         let group = DispatchGroup()
         
         group.enter()
-        let connectionsRef = COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).count
+        let connectionsRef = K.FirestoreCollections.COLLECTION_CONNECTIONS.document(uid).collection("user-connections").whereField("phase", isEqualTo: ConnectPhase.connected.rawValue).count
         
         connectionsRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
@@ -310,7 +310,7 @@ extension UserService {
         }
         
         group.enter()
-        let followersRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
+        let followersRef = K.FirestoreCollections.COLLECTION_FOLLOWERS.document(uid).collection("user-followers").count
         followersRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
                 encounteredError = true
@@ -326,7 +326,7 @@ extension UserService {
         }
         
         group.enter()
-        let followingRef = COLLECTION_FOLLOWING.document(uid).collection("user-following").count
+        let followingRef = K.FirestoreCollections.COLLECTION_FOLLOWING.document(uid).collection("user-following").count
         followingRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
                 encounteredError = true
@@ -342,7 +342,7 @@ extension UserService {
         }
         
         group.enter()
-        let postsRef = COLLECTION_POSTS.whereField("uid", isEqualTo: uid).count
+        let postsRef = K.FirestoreCollections.COLLECTION_POSTS.whereField("uid", isEqualTo: uid).count
         postsRef.getAggregation(source: .server) { snapshot, error in
             if let _ = error {
                 encounteredError = true
@@ -383,7 +383,7 @@ extension UserService {
     /// - Parameters:
     ///   - email: The new email to update.
     static func updateEmail(forUserId userId: String, email: String) {
-        COLLECTION_USERS.document(userId).updateData(["email" : email.lowercased()])
+        K.FirestoreCollections.COLLECTION_USERS.document(userId).updateData(["email" : email.lowercased()])
     }
     
     static func removeImage(kind: ImageKind, completion: @escaping(FirestoreError?) -> Void) {
@@ -403,7 +403,7 @@ extension UserService {
             path = "bannerUrl"
         }
         
-        COLLECTION_USERS.document(uid).updateData([path: FieldValue.delete()]) { error in
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).updateData([path: FieldValue.delete()]) { error in
             
             if let _ = error {
                 completion(.unknown)
@@ -440,7 +440,7 @@ extension UserService {
         }
         
         
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).getDocument { snapshot, error in
+        K.FirestoreCollections.COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid).getDocument { snapshot, error in
             if let _ = error {
                 completion(.failure(.unknown))
             } else {
@@ -474,11 +474,11 @@ extension UserService {
         if let bannerUrl = bannerUrl { data["bannerUrl"] = bannerUrl }
         if let profileUrl = profileUrl { data["imageUrl"] = profileUrl }
 
-        COLLECTION_USERS.document(uid).updateData(data) { error in
+        K.FirestoreCollections.COLLECTION_USERS.document(uid).updateData(data) { error in
             if let _ = error {
                 completion(nil)
             } else {
-                COLLECTION_USERS.document(uid).getDocument { snapshot, error in
+                K.FirestoreCollections.COLLECTION_USERS.document(uid).getDocument { snapshot, error in
                     if let _ = error {
                         completion(nil)
                     } else {
@@ -533,11 +533,11 @@ extension UserService {
         if data.isEmpty {
             completion(.success(user))
         } else {
-            COLLECTION_USERS.document(user.uid!).updateData(data) { error in
+            K.FirestoreCollections.COLLECTION_USERS.document(user.uid!).updateData(data) { error in
                 if let _ = error {
                     completion(.failure(.unknown))
                 } else {
-                    COLLECTION_USERS.document(user.uid!).getDocument { snapshot, error in
+                    K.FirestoreCollections.COLLECTION_USERS.document(user.uid!).getDocument { snapshot, error in
                         if let _ = error {
                             completion(.failure(.unknown))
                         } else {
@@ -579,8 +579,8 @@ extension UserService {
         
         let batch = Firestore.firestore().batch()
         
-        let followerRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid)
-        let followingRef = COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid)
+        let followerRef = K.FirestoreCollections.COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid)
+        let followingRef = K.FirestoreCollections.COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid)
         
         batch.setData(followData, forDocument: followerRef)
         batch.setData(followData, forDocument: followingRef)
@@ -613,8 +613,8 @@ extension UserService {
             return
         }
         
-        let followerRef = COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid)
-        let followingRef = COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid)
+        let followerRef = K.FirestoreCollections.COLLECTION_FOLLOWERS.document(uid).collection("user-followers").document(currentUid)
+        let followingRef = K.FirestoreCollections.COLLECTION_FOLLOWING.document(currentUid).collection("user-following").document(uid)
         
         let batch = Firestore.firestore().batch()
         

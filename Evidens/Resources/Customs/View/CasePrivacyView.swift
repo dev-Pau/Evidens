@@ -33,7 +33,7 @@ class CasePrivacyView: UIView {
         let label = UILabel()
         label.text = AppStrings.Content.Case.Share.phaseContent
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -42,7 +42,7 @@ class CasePrivacyView: UIView {
     private let checkmarkButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(separatorColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(K.Colors.separatorColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         return button
@@ -53,7 +53,7 @@ class CasePrivacyView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         var configuration = UIButton.Configuration.filled()
         configuration.baseForegroundColor = .white
-        configuration.baseBackgroundColor = primaryColor
+        configuration.baseBackgroundColor = K.Colors.primaryColor
         configuration.cornerStyle = .capsule
         
         var container = AttributeContainer()
@@ -81,7 +81,7 @@ class CasePrivacyView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .systemBackground
         layer.cornerRadius = 10
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         layer.borderWidth = 1
 
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(privacyTap)))
@@ -129,17 +129,17 @@ class CasePrivacyView: UIView {
     }
     
     func reset() {
-        checkmarkButton.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(separatorColor)
-        layer.borderColor = separatorColor.cgColor
+        checkmarkButton.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(K.Colors.separatorColor)
+        layer.borderColor = K.Colors.separatorColor.cgColor
         layer.borderWidth = 1
         recommendButton.isHidden = true
     }
     
     @objc func privacyTap() {
         delegate?.didTapPrivacy(self)
-        checkmarkButton.configuration?.image = UIImage(systemName: AppStrings.Icons.checkmarkCircleFill)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
+        checkmarkButton.configuration?.image = UIImage(systemName: AppStrings.Icons.checkmarkCircleFill)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(K.Colors.primaryColor)
         recommendButton.isHidden = casePrivacy == .anonymous
-        layer.borderColor = primaryColor.cgColor
+        layer.borderColor = K.Colors.primaryColor.cgColor
         layer.borderWidth = 2
     }
 }

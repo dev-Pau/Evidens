@@ -7,10 +7,6 @@
 
 import UIKit
 
-protocol ContentImageViewControllerDelegate: AnyObject {
-    
-}
-
 class ContentImageViewController: UIViewController {
     
     private var viewModel: ContentImageViewModel
@@ -20,7 +16,7 @@ class ContentImageViewController: UIViewController {
     
     var singleTap: UITapGestureRecognizer!
     
-    private let padding: CGFloat = 10
+    private let padding: CGFloat = UIDevice.isPad ? 30 : 10
 
     private lazy var dismissButon: UIButton = {
         let button = UIButton(type: .system)
@@ -28,7 +24,7 @@ class ContentImageViewController: UIViewController {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         
-        let size: CGFloat = UIDevice.isPad ? 23 : 18
+        let size: CGFloat = UIDevice.isPad ? 25 : 18
         
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.xmark, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.baseForegroundColor = .white
@@ -44,7 +40,7 @@ class ContentImageViewController: UIViewController {
         button.configuration = .filled()
         button.configuration?.cornerStyle = .capsule
         
-        let size: CGFloat = UIDevice.isPad ? 25 : 20
+        let size: CGFloat = UIDevice.isPad ? 27 : 20
         
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.ellipsis)?.scalePreservingAspectRatio(targetSize: CGSize(width: size, height: size)).withRenderingMode(.alwaysOriginal).withTintColor(.white)
         button.configuration?.baseForegroundColor = .white
@@ -79,10 +75,12 @@ class ContentImageViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.navVC?.tabBarController?.tabBar.isHidden = true
-        
-        if let mainTabController = viewModel.navVC?.tabBarController as? MainTabController {
-            mainTabController.disable()
+        if !UIDevice.isPad {
+            viewModel.navVC?.tabBarController?.tabBar.isHidden = true
+            
+            if let mainTabController = viewModel.navVC?.tabBarController as? MainTabController {
+                mainTabController.disable()
+            }
         }
     }
     
@@ -116,7 +114,7 @@ class ContentImageViewController: UIViewController {
 
         view.addSubviews(dismissButon, dotButton)
         
-        let padding: CGFloat = UIDevice.isPad ? 55 : 45
+        let padding: CGFloat = UIDevice.isPad ? 60 : 45
         let size: CGFloat = UIDevice.isPad ? 38 : 33
         
         topButtonConstraint = dismissButon.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
@@ -219,7 +217,9 @@ class ContentImageViewController: UIViewController {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 2, initialSpringVelocity: 1, options: .curveEaseOut) { [weak self] in
             guard let strongSelf = self else { return }
             
-            strongSelf.viewModel.navVC?.tabBarController?.tabBar.isHidden = false
+            if !UIDevice.isPad {
+                strongSelf.viewModel.navVC?.tabBarController?.tabBar.isHidden = false
+            }
             
             strongSelf.view.backgroundColor = .black.withAlphaComponent(0)
             strongSelf.dismissButon.alpha = 0

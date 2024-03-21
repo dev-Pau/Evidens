@@ -26,7 +26,7 @@ class DocumentViewController: UIViewController {
         label.textAlignment = .center
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .medium)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         return label
     }()
     
@@ -35,7 +35,7 @@ class DocumentViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.text = AppStrings.Opening.verifyQualityCheck
         return label
     }()
@@ -66,7 +66,7 @@ class DocumentViewController: UIViewController {
         label.textAlignment = .left
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular, scales: false)
         label.numberOfLines = 0
-        label.textColor = primaryColor
+        label.textColor = K.Colors.primaryColor
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))
@@ -80,7 +80,7 @@ class DocumentViewController: UIViewController {
     }
     
     private func configureNavigationBar() {
-        addNavigationBarLogo(withTintColor: primaryColor)
+        addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
     }
     
     init(viewModel: VerificationViewModel) {

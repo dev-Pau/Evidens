@@ -47,7 +47,7 @@ final class SideSubMenuKindTests: XCTestCase {
     
     func testAppImage() {
         let subMenuKind = SideSubMenuKind.app
-        let expectedImage = UIImage(named: AppStrings.Assets.blackLogo)?.withTintColor(primaryColor)
+        let expectedImage = UIImage(named: AppStrings.Assets.blackLogo)?.withTintColor(K.Colors.primaryColor)
         XCTAssertEqual(subMenuKind.image, expectedImage)
     }
     

@@ -22,7 +22,7 @@ class PostToolbar: UIToolbar {
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
         button.configuration?.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: 12, height: 12))
-        button.configuration?.baseBackgroundColor = primaryColor
+        button.configuration?.baseBackgroundColor = K.Colors.primaryColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleAddMediaButton), for: .touchUpInside)
         return button
@@ -33,7 +33,7 @@ class PostToolbar: UIToolbar {
         button.configuration = .plain()
         button.configuration?.cornerStyle = .capsule
         button.configuration?.buttonSize = .mini
-        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
+        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 23, height: 23))
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleAddQuote), for: .touchUpInside)
         return button
@@ -49,13 +49,7 @@ class PostToolbar: UIToolbar {
     }
     
     private func configure() {
-        /*
-         let standardAppearance = UINavigationBarAppearance.secondaryAppearance()
-         let scrollAppearance = UINavigationBarAppearance.contentAppearance()
-         navigationController?.navigationBar.standardAppearance = scrollAppearance
-         navigationController?.navigationBar.scrollEdgeAppearance = standardAppearance
-         */
-        
+
         let standardAppearance = UIToolbarAppearance()
         standardAppearance.configureWithOpaqueBackground()
         standardAppearance.backgroundColor = .systemBackground
@@ -65,7 +59,7 @@ class PostToolbar: UIToolbar {
         let scrollAppearance = UIToolbarAppearance()
         scrollAppearance.configureWithOpaqueBackground()
         scrollAppearance.backgroundColor = .systemBackground
-        scrollAppearance.shadowColor = separatorColor
+        scrollAppearance.shadowColor = K.Colors.separatorColor
 
         self.scrollEdgeAppearance = scrollAppearance
         self.standardAppearance = scrollAppearance

@@ -27,7 +27,7 @@ class SideSubMenuCell: UICollectionViewCell {
         iv.contentMode = .center
         iv.clipsToBounds = true
         iv.image = UIImage(systemName: AppStrings.Icons.downChevron, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysTemplate)
-        iv.tintColor = separatorColor
+        iv.tintColor = K.Colors.separatorColor
         return iv
     }()
     
@@ -59,7 +59,7 @@ class SideSubMenuCell: UICollectionViewCell {
     
     func toggleChevron() {
         let rotationAngle: CGFloat = clockwise ? -CGFloat.pi / 2 : CGFloat.pi / 2
-        let tintColor = (clockwise ? separatorColor : primaryColor)
+        let tintColor = (clockwise ? K.Colors.separatorColor : K.Colors.primaryColor)
         isUserInteractionEnabled = false
         UIView.animate(withDuration: 0.3, animations: { [weak self] in
             guard let strongSelf = self else { return }

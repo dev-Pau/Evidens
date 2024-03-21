@@ -18,7 +18,7 @@ class UserChangesViewController: UIViewController {
     private lazy var contentLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = primaryGray
+        label.textColor = K.Colors.primaryGray
         label.numberOfLines = 0
         label.text = change.content
         label.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)

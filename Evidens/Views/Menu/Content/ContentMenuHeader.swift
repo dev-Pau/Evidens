@@ -31,7 +31,7 @@ class ContentMenuHeader: UICollectionReusableView {
     
     private let bottomSeparator: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

@@ -23,7 +23,7 @@ class ContainerViewController: UIViewController {
     
     private lazy var baseView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor.withAlphaComponent(0)
+        view.backgroundColor = K.Colors.separatorColor.withAlphaComponent(0)
         view.isUserInteractionEnabled = false
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissMenu)))
         return view
@@ -68,6 +68,7 @@ class ContainerViewController: UIViewController {
             addChild(sideTabController)
             sideTabController.didMove(toParent: self)
             sideTabController.view.translatesAutoresizingMaskIntoConstraints = false
+            sideTabController.popoverDelegate = self
 
             view.addSubviews(sideTabController.view, mainController.view)
 
@@ -120,7 +121,7 @@ class ContainerViewController: UIViewController {
         
         if let _ = loadingView {
             baseLogoView = BaseLogoView(frame: view.bounds)
-            baseLogoView.backgroundColor = baseColor
+            baseLogoView.backgroundColor = K.Colors.primaryColor
             view.addSubview(baseLogoView)
         }
     }
@@ -222,7 +223,7 @@ extension ContainerViewController: UIScrollViewDelegate {
             let baseAlpha = 0.3 * normalizedOffsetX
             let imageAlpha = 1 - normalizedOffsetX
             
-            baseView.backgroundColor = separatorColor.withAlphaComponent(baseAlpha)
+            baseView.backgroundColor = K.Colors.separatorColor.withAlphaComponent(baseAlpha)
             mainController.updateUserProfileImageViewAlpha(withAlfa: imageAlpha)
         }
     }

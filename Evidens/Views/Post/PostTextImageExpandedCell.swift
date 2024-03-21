@@ -43,7 +43,7 @@ class PostTextImageExpandedCell: UICollectionViewCell {
         
         separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.backgroundColor = separatorColor
+        separator.backgroundColor = K.Colors.separatorColor
 
         buttonTopConstraint = actionButtonsView.topAnchor.constraint(equalTo: revisionView.bottomAnchor)
         
@@ -53,27 +53,26 @@ class PostTextImageExpandedCell: UICollectionViewCell {
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
             userPostView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            userPostView.heightAnchor.constraint(equalToConstant: 50),
-            
+           
             postTextView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 15),
-            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            postTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            postTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            postTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
 
             postImage.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
             postImage.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
             postImage.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
             
             contentTimestamp.topAnchor.constraint(equalTo: postImage.bottomAnchor),
-            contentTimestamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            contentTimestamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            contentTimestamp.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
+            contentTimestamp.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
 
             revisionView.topAnchor.constraint(equalTo: contentTimestamp.bottomAnchor),
             revisionView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor),
-            revisionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            revisionView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor),
            
             buttonTopConstraint,
-            actionButtonsView.leadingAnchor.constraint(equalTo: postImage.leadingAnchor, constant: 20),
-            actionButtonsView.trailingAnchor.constraint(equalTo: postImage.trailingAnchor, constant: -20),
+            actionButtonsView.leadingAnchor.constraint(equalTo: postTextView.leadingAnchor, constant: 20),
+            actionButtonsView.trailingAnchor.constraint(equalTo: postTextView.trailingAnchor, constant: -20),
             actionButtonsView.bottomAnchor.constraint(equalTo: bottomAnchor),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),

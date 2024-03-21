@@ -31,7 +31,7 @@ class CategoryView: UIView {
     private let selectionButton: UIButton = {
         let button = UIButton(type: .system)
         button.configuration = .plain()
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(separatorColor)
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(K.Colors.separatorColor)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = false
         return button
@@ -52,7 +52,7 @@ class CategoryView: UIView {
         backgroundColor = .secondarySystemGroupedBackground
         layer.cornerRadius = 16
         layer.borderWidth = 1
-        layer.borderColor = separatorColor.cgColor
+        layer.borderColor = K.Colors.separatorColor.cgColor
         translatesAutoresizingMaskIntoConstraints = false
         
         layer.masksToBounds = false
@@ -82,15 +82,15 @@ class CategoryView: UIView {
     }
     
     func resetCategoryView() {
-        selectionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(separatorColor)
-        layer.borderColor = separatorColor.cgColor
+        selectionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.circle)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(K.Colors.separatorColor)
+        layer.borderColor = K.Colors.separatorColor.cgColor
         layer.borderWidth = 1
     }
     
     @objc func handleCategoryTap() {
         delegate?.didTapCategory(self)
-        selectionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.checkmarkCircleFill)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(primaryColor)
-        layer.borderColor = primaryColor.cgColor
+        selectionButton.configuration?.image = UIImage(systemName: AppStrings.Icons.checkmarkCircleFill)?.scalePreservingAspectRatio(targetSize: CGSize(width: 24, height: 24)).withTintColor(K.Colors.primaryColor)
+        layer.borderColor = K.Colors.primaryColor.cgColor
         layer.borderWidth = 2
     }
 }

@@ -15,6 +15,7 @@ class SideTabViewController: UIViewController {
     var addButton: UIButton!
     
     weak var tabDelegate: SideTabViewControllerDelegate?
+    weak var popoverDelegate: SideMenuViewControllerDelegate?
     
     private var selectedIcon: TabIcon = .cases
     
@@ -40,14 +41,14 @@ class SideTabViewController: UIViewController {
         
         let separator = UIView()
         separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.backgroundColor = separatorColor
+        separator.backgroundColor = K.Colors.separatorColor
         
         addButton = UIButton(type: .custom)
         addButton.addTarget(self, action: #selector(handleAdd), for: .touchUpInside)
         addButton.translatesAutoresizingMaskIntoConstraints = false
         
         var configuration = UIButton.Configuration.filled()
-        configuration.baseBackgroundColor = primaryColor
+        configuration.baseBackgroundColor = K.Colors.primaryColor
         configuration.cornerStyle = .capsule
         configuration.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withTintColor(.white).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize / 2, height: buttonSize / 2))
         
@@ -90,6 +91,20 @@ class SideTabViewController: UIViewController {
         return UICollectionViewCompositionalLayout(section: section)
     }
     
+    private func presentPopoverController(for cell: UICollectionViewCell, at indexPath: IndexPath) {
+        
+        let popoverContentController = ResourcesPopoverViewController()
+        popoverContentController.delegate = self
+        popoverContentController.modalPresentationStyle = .popover
+        
+        if let popoverPresentationController = popoverContentController.popoverPresentationController, let cell = collectionView.cellForItem(at: indexPath) {
+            popoverPresentationController.permittedArrowDirections = [.down]
+            popoverPresentationController.sourceView = cell
+            popoverPresentationController.delegate = self
+            present(popoverContentController, animated: true)
+        }
+    }
+    
     @objc func handleAdd() {
         tabDelegate?.didTapAdd()
     }
@@ -115,6 +130,12 @@ extension SideTabViewController: UICollectionViewDelegate, UICollectionViewDeleg
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         if indexPath.row == 0 {
             return false
+        } else if indexPath.row == 8 {
+            if let cell = collectionView.cellForItem(at:  indexPath) as? TabBarIconCell {
+                cell.animateBounce(scale: 0.8)
+                presentPopoverController(for: cell, at: indexPath)
+            }
+            return false
         } else {
             return true
         }
@@ -125,25 +146,30 @@ extension SideTabViewController: UICollectionViewDelegate, UICollectionViewDeleg
         
         switch tabSelected {
             
-        case .icon:
+        case .icon, .resources:
             break
         case .cases, .network, .notifications, .search, .bookmark, .drafts, .profile:
             tabDelegate?.didTapTabIcon(tabSelected)
-        case .resources:
-            
-            let popoverContentController = ResourcesPopoverViewController()
-            popoverContentController.modalPresentationStyle = .popover
-            
-            if let popoverPresentationController = popoverContentController.popoverPresentationController, let cell = collectionView.cellForItem(at: indexPath) {
-                popoverPresentationController.permittedArrowDirections = [.down]
-                popoverPresentationController.sourceView = cell
-                popoverPresentationController.delegate = self
-                present(popoverContentController, animated: true)
-            }
         }
     }
 }
 
+extension SideTabViewController: SideMenuViewControllerDelegate {
+    func didTapMenuHeader() {
+        
+        let indexPath = IndexPath(item: 7, section: 0)
+        collectionView(collectionView, didSelectItemAt: indexPath)
+        collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .centeredVertically)
+    }
+    
+    func didSelectMenuOption(option: SideMenu) {
+        popoverDelegate?.didSelectMenuOption(option: option)
+    }
+    
+    func didSelectSubMenuOption(option: SideSubMenuKind) {
+        popoverDelegate?.didSelectSubMenuOption(option: option)
+    }
+}
 
 extension SideTabViewController: UIPopoverPresentationControllerDelegate {
     

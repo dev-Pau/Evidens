@@ -56,12 +56,12 @@ class SideMenuCell: UICollectionViewCell {
             self.image.layer.cornerRadius = 0
         case .create:
             self.image.image = option.image.scalePreservingAspectRatio(targetSize: CGSize(width: size / 1.5, height: size / 1.5)).withTintColor(option.color)
-            self.image.backgroundColor = primaryColor
+            self.image.backgroundColor = K.Colors.primaryColor
             self.image.layer.cornerRadius = size / 2
         }
         
         label.text = option.title
-        label.textColor = option == .create ? primaryColor : .label
+        label.textColor = option == .create ? K.Colors.primaryColor : .label
     }
     
     required init?(coder: NSCoder) {

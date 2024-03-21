@@ -42,7 +42,7 @@ class NavigationBarViewController: UIViewController {
         if !UIDevice.isPad {
             let profileImageItem = UIBarButtonItem(customView: userImageView)
             navigationItem.leftBarButtonItem = profileImageItem
-            addNavigationBarLogo(withTintColor: baseColor)
+            addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         }
         
         userImageView.addImage(forUrl: UserDefaults.getImage(), size: size)
@@ -65,7 +65,7 @@ class NavigationBarViewController: UIViewController {
         addButton.translatesAutoresizingMaskIntoConstraints = false
         
         var configuration = UIButton.Configuration.filled()
-        configuration.baseBackgroundColor = primaryAppearance ? primaryColor : .label
+        configuration.baseBackgroundColor = primaryAppearance ? K.Colors.primaryColor : .label
         
         let buttonSize = UIDevice.isPad ? view.frame.width / 28 : view.frame.width / 14
         

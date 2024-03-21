@@ -34,14 +34,14 @@ class BookmarkToolbar: UIToolbar {
     private var highlightView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = primaryColor
+        view.backgroundColor = K.Colors.primaryColor
         return view
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         return view
     }()
     
@@ -220,8 +220,8 @@ extension BookmarkToolbar {
             cellX = offset + insets
             let progress = offset / availableWidth
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
-            firstCell?.set(from: .label, to: primaryGray, progress: progress)
-            secondCell?.set(from: primaryGray, to: .label, progress: progress)
+            firstCell?.set(from: .label, to: K.Colors.primaryGray, progress: progress)
+            secondCell?.set(from: K.Colors.primaryGray, to: .label, progress: progress)
             currentIndex = IndexPath(item: 0, section: 0)
         default:
             widthConstantConstraint.constant = widthCell[1]

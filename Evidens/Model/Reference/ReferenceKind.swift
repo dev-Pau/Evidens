@@ -22,7 +22,7 @@ enum ReferenceKind: Int, CaseIterable {
     var image: UIImage {
         switch self {
         case .link, .citation:
-            return (UIImage(systemName: AppStrings.Icons.note, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(primaryColor))!
+            return (UIImage(systemName: AppStrings.Icons.note, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor))!
         }
     }
     

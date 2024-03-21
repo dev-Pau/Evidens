@@ -33,13 +33,13 @@ class EditNameCell: UICollectionViewCell {
         tf.clearButtonMode = .whileEditing
         tf.autocapitalizationType = .words
         tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        tf.tintColor = primaryColor
+        tf.tintColor = K.Colors.primaryColor
         return tf
     }()
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = separatorColor
+        view.backgroundColor = K.Colors.separatorColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -80,7 +80,7 @@ class EditNameCell: UICollectionViewCell {
     func set(title: String, placeholder: String, name: String) {
         titleLabel.text = title
         firstNameTextField.text = name
-        firstNameTextField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: primaryGray])
+        firstNameTextField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: K.Colors.primaryGray])
         firstNameTextField.placeholder = placeholder
     }
     
