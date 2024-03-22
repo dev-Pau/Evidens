@@ -61,7 +61,7 @@ class LikesViewController: UIViewController {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(ContentLikeCell.self, forCellWithReuseIdentifier: likesCellReuseIdentifier)
         collectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyCellReuseIdentifier)
-        
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
         collectionView.dataSource = self
         

@@ -65,7 +65,11 @@ class PostsViewController: NavigationBarViewController {
         collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingReuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.contentInset.bottom = 85
+
+        if !UIDevice.isPad {
+            collectionView.contentInset.bottom = 85
+        }
+        
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubviews(collectionView)
         

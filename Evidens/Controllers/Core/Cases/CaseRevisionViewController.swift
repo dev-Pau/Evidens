@@ -103,7 +103,7 @@ class CaseRevisionViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         navigationItem.rightBarButtonItem?.tintColor = viewModel.clinicalCase.uid == uid ? .label : .clear
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.clinicalCase.uid == uid ? true : false
     }

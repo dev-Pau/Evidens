@@ -549,19 +549,21 @@ extension HashtagViewController: BookmarkToolbarDelegate {
         default:
             break
         }
-/*
+
+        let scrollX = index == 0 ? 0 : scrollView.contentSize.width / CGFloat(2) * CGFloat(index)
+        
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
-            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            scrollView.setContentOffset(CGPoint(x: scrollX, y: 0), animated: true)
             viewModel.scrollIndex = index
             return
         }
-        */
+
         casesCollectionView.isScrollEnabled = false
         postsCollectionView.isScrollEnabled = false
         self.scrollView.isUserInteractionEnabled = false
         
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        scrollView.setContentOffset(CGPoint(x: scrollX, y: 0), animated: true)
         viewModel.scrollIndex = index
     }
 }

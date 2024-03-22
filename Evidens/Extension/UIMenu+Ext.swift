@@ -17,7 +17,7 @@ extension UIMenu {
     ///   - delegate: The delegate object conforming to the PostCellDelegate protocol.
     /// - Returns: A UIMenu instance with relevant UIAction items for the post cell.
     static func createPostMenu(_ cell: UICollectionViewCell? = nil, for viewModel: PostViewModel, delegate: PostCellDelegate) -> UIMenu? {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
+        guard let uid = UserDefaults.getUid() else { return nil }
         
         var menuItems = [UIAction]()
 
@@ -60,7 +60,7 @@ extension UIMenu {
     ///   - delegate: The delegate object conforming to the CaseCellDelegate protocol.
     /// - Returns: A UIMenu instance with relevant UIAction items for the clinical case cell.
     static func createCaseMenu(_ cell: UICollectionViewCell? = nil, for viewModel: CaseViewModel, delegate: CaseCellDelegate) -> UIMenu? {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
+        guard let uid = UserDefaults.getUid() else { return nil }
         
         var menuItems = [UIAction]()
         

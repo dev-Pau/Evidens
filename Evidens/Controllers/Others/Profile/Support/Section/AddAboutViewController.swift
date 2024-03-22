@@ -88,7 +88,7 @@ class AddAboutViewController: UIViewController {
     }
     
     private func fetchAboutUs() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         DatabaseManager.shared.fetchAboutUs(forUid: uid) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {

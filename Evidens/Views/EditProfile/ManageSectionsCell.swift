@@ -73,18 +73,18 @@ class ManageSectionsCell: UICollectionViewCell {
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            addSectionButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            addSectionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            addSectionButton.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            addSectionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             addSectionButton.heightAnchor.constraint(equalToConstant: size),
             addSectionButton.widthAnchor.constraint(equalToConstant: size),
             
             titleLabel.centerYAnchor.constraint(equalTo: addSectionButton.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: addSectionButton.leadingAnchor, constant: -10),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            titleLabel.trailingAnchor.constraint(equalTo: addSectionButton.leadingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            subtitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            subtitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             subtitleLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }

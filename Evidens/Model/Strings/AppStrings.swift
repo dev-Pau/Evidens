@@ -136,6 +136,7 @@ struct AppStrings {
         static let fillBell = "bell.fill"
         static let clipboard = "list.clipboard.fill"
         static let listClipboard = "list.clipboard"
+        static let stethoscope = "stethoscope"
     }
     
     struct About {

@@ -61,8 +61,9 @@ class CommentCaseExpandedCell: UICollectionViewCell {
         contentTopConstraint = commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor)
         
         addSubviews(userPostView, commentTextView, authorButton, commentActionButtons, separatorView)
-        let commentPadding: CGFloat = UIDevice.isPad ? 65 : 55
-      
+        
+        let commentPadding: CGFloat = K.Paddings.Content.horizontalPadding + K.Paddings.Content.userImageSize + 10
+        
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
             userPostView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -73,11 +74,11 @@ class CommentCaseExpandedCell: UICollectionViewCell {
 
             contentTopConstraint,
             commentTextView.leadingAnchor.constraint(equalTo: authorButton.leadingAnchor),
-            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
 
             commentActionButtons.topAnchor.constraint(equalTo: commentTextView.bottomAnchor),
-            commentActionButtons.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            commentActionButtons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            commentActionButtons.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            commentActionButtons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             commentActionButtons.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -155,7 +156,7 @@ class CommentCaseExpandedCell: UICollectionViewCell {
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel else { return nil }
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
+        guard let uid = UserDefaults.getUid() else { return nil }
         userPostView.dotButton.showsMenuAsPrimaryAction = true
         
         if viewModel.uid == uid {

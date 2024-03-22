@@ -60,7 +60,7 @@ class CommentCaseCell: UICollectionViewCell {
         return view
     }()
     
-    let ownerImageView = ProfileImageView(frame: .zero)
+    let authorImage = ProfileImageView(frame: .zero)
 
     //MARK: - Lifecycle
 
@@ -68,13 +68,13 @@ class CommentCaseCell: UICollectionViewCell {
         super.init(frame: frame)
         backgroundColor = .systemBackground
         
-        addSubviews(userPostView, commentTextView, authorButton, commentActionButtons, separatorView, lineView, ownerImageView)
+        addSubviews(userPostView, commentTextView, authorButton, commentActionButtons, separatorView, lineView, authorImage)
 
         contentTopConstraint = commentTextView.topAnchor.constraint(equalTo: authorButton.bottomAnchor)
         
-        let linePadding: CGFloat = UIDevice.isPad ? 45/2 : 35/2
-        let commentPadding: CGFloat = UIDevice.isPad ? 65 : 55
-        let ownerImage: CGFloat = UIDevice.isPad ? 31 : 27
+        let commentPadding: CGFloat = K.Paddings.Content.horizontalPadding + K.Paddings.Content.userImageSize + 10
+        let linePadding: CGFloat = K.Paddings.Content.horizontalPadding + K.Paddings.Content.userImageSize / 2
+        let ownerImage: CGFloat = K.Paddings.Content.ownerImageSize
 
         NSLayoutConstraint.activate([
             userPostView.topAnchor.constraint(equalTo: topAnchor),
@@ -86,22 +86,22 @@ class CommentCaseCell: UICollectionViewCell {
 
             contentTopConstraint,
             commentTextView.leadingAnchor.constraint(equalTo: authorButton.leadingAnchor),
-            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
 
             commentActionButtons.topAnchor.constraint(equalTo: commentTextView.bottomAnchor),
-            commentActionButtons.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            commentActionButtons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            commentActionButtons.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            commentActionButtons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             commentActionButtons.bottomAnchor.constraint(equalTo: bottomAnchor),
             
-            lineView.topAnchor.constraint(equalTo: userPostView.bottomAnchor, constant: 5),
-            lineView.centerXAnchor.constraint(equalTo: leadingAnchor, constant: linePadding + 10),
+            lineView.topAnchor.constraint(equalTo: userPostView.profileImageView.bottomAnchor, constant: 5),
+            lineView.centerXAnchor.constraint(equalTo: leadingAnchor, constant: linePadding),
             lineView.widthAnchor.constraint(equalToConstant: 2),
-            lineView.bottomAnchor.constraint(equalTo: ownerImageView.topAnchor, constant: -5),
+            lineView.bottomAnchor.constraint(equalTo: authorImage.topAnchor, constant: -5),
             
-            ownerImageView.centerYAnchor.constraint(equalTo: commentActionButtons.centerYAnchor),
-            ownerImageView.centerXAnchor.constraint(equalTo: lineView.centerXAnchor),
-            ownerImageView.heightAnchor.constraint(equalToConstant: ownerImage),
-            ownerImageView.widthAnchor.constraint(equalToConstant: ownerImage),
+            authorImage.centerYAnchor.constraint(equalTo: commentActionButtons.centerYAnchor),
+            authorImage.centerXAnchor.constraint(equalTo: lineView.centerXAnchor),
+            authorImage.heightAnchor.constraint(equalToConstant: ownerImage),
+            authorImage.widthAnchor.constraint(equalToConstant: ownerImage),
             
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -112,8 +112,8 @@ class CommentCaseCell: UICollectionViewCell {
         commentTextView.textContainer.maximumNumberOfLines = 7
         commentTextView.isSelectable = false
         
-        ownerImageView.layer.cornerRadius = ownerImage / 2
-        lineView.layer.cornerRadius = 2/2
+        authorImage.layer.cornerRadius = ownerImage / 2
+        lineView.layer.cornerRadius = 1
         
         commentActionButtons.delegate = self
         userPostView.delegate = self
@@ -157,14 +157,14 @@ class CommentCaseCell: UICollectionViewCell {
     
     private func commentIsRepliedByAuthor(_ replied: Bool) {
         lineView.isHidden = !replied
-        ownerImageView.isHidden = !replied
+        authorImage.isHidden = !replied
     }
     
     func set(user: User? = nil, author: User? = nil) {
         guard let viewModel = viewModel else { return }
         self.user = user
         
-        let ownerImage: CGFloat = UIDevice.isPad ? 31 : 27
+        let ownerImage: CGFloat = K.Paddings.Content.ownerImageSize
         
         switch viewModel.visible {
             
@@ -173,14 +173,14 @@ class CommentCaseCell: UICollectionViewCell {
             userPostView.set(user: user)
             
             if let author = author {
-                ownerImageView.addImage(forUser: author, size: ownerImage)
+                authorImage.addImage(forUser: author, size: ownerImage)
             } else {
-                ownerImageView.anonymize()
+                authorImage.anonymize()
             }
             
         case .anonymous:
             userPostView.anonymize()
-            ownerImageView.anonymize()
+            authorImage.anonymize()
         case .deleted:
             fatalError()
         }
@@ -198,7 +198,7 @@ class CommentCaseCell: UICollectionViewCell {
     
     private func addMenuItems() -> UIMenu? {
         guard let viewModel = viewModel else { return nil }
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return nil }
+        guard let uid = UserDefaults.getUid() else { return nil }
         userPostView.dotButton.showsMenuAsPrimaryAction = true
         
         if viewModel.uid == uid {

@@ -347,7 +347,7 @@ extension ConnectionService {
     ///   - uid: The UID of the user for whom the connection phase is queried.
     ///   - completion: A completion block that is called with the UserConnection object containing the connection phase information.
     static func getConnectionPhase(uid: String, completion: @escaping(UserConnection) -> Void) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let currentUid = UserDefaults.getUid() else { return }
         K.FirestoreCollections.COLLECTION_CONNECTIONS.document(currentUid).collection("user-connections").document(uid).getDocument { snapshot, error in
             if let _ = error {
                 completion(UserConnection(uid: uid))

@@ -63,7 +63,7 @@ class EditProfilePictureCell: UICollectionViewCell {
             bannerImageView.heightAnchor.constraint(equalToConstant: frame.width / K.Ratio.bannerAR),
 
             profileImageView.centerYAnchor.constraint(equalTo: bannerImageView.bottomAnchor),
-            profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: bannerImageView.leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
             profileImageView.heightAnchor.constraint(equalToConstant: size),
             profileImageView.widthAnchor.constraint(equalToConstant: size),
         ])

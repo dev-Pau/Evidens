@@ -54,29 +54,29 @@ class EditCategoryCell: UICollectionViewCell {
         backgroundColor = .systemBackground
         
         let width: CGFloat = UIDevice.isPad ? 150 : 100
-        let buttonSize: CGFloat = UIDevice.isPad ? 20 : 15
+        let buttonSize: CGFloat = UIDevice.isPad ? 25 : 15
         
         addSubviews(titleLabel, subtitleLabel, chevronButton, separatorView)
         
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             titleLabel.widthAnchor.constraint(equalToConstant: width),
             
-            chevronButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            chevronButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             chevronButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             chevronButton.widthAnchor.constraint(equalToConstant: buttonSize),
             chevronButton.heightAnchor.constraint(equalToConstant: buttonSize),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.topAnchor),
             subtitleLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
-            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
+            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: K.Paddings.Content.horizontalPadding),
             subtitleLabel.trailingAnchor.constraint(equalTo: chevronButton.leadingAnchor, constant: -5)
         ])
     }

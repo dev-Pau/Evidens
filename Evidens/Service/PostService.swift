@@ -157,7 +157,7 @@ extension PostService {
     ///   - postId: The ID of the post for which to fetch the comments count.
     ///   - completion: A completion handler that receives a `Result` enum containing either the comments count or a `FirestoreError`.
     static func fetchCommentsForPost(postId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let _ = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -184,7 +184,7 @@ extension PostService {
     ///   - completion: A completion handler that receives a result containing the query snapshot of bookmarked post documents.
     static func fetchPostBookmarkDocuments(lastSnapshot: QueryDocumentSnapshot?, completion: @escaping(Result<QuerySnapshot, FirestoreError>) -> Void) {
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -396,7 +396,7 @@ extension PostService {
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
             
@@ -671,7 +671,7 @@ extension PostService {
     /// - Parameters:
     ///   - id: The ID of the post to be removed from the user's home feed.
     static func removePostReference(withId id: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-network").document(id).delete()
         K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-bookmarks").document(id).delete()
     }
@@ -687,7 +687,7 @@ extension PostService {
     ///   - postId: The ID of the post for which to fetch the likes count.
     ///   - completion: A completion handler that receives a `Result` enum containing either the likes count or a `FirestoreError`.
     static func fetchLikesForPost(postId: String, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let _ = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -713,7 +713,7 @@ extension PostService {
     ///   - date: An optional `Date` representing the starting date to fetch likes from.
     ///   - completion: A closure that receives a result containing the like count or an error.
     static func fetchLikesForPost(postId: String, startingAt date: Date?, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let _ = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -776,7 +776,7 @@ extension PostService {
     ///   - post: The post to check for likes.
     ///   - completion: A completion handler that receives a result indicating if the user liked the post.
     static func checkIfUserLikedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         
         K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-post-likes").document(post.postId).getDocument { snapshot, error in
             if let _ = error {
@@ -798,7 +798,7 @@ extension PostService {
     ///   - post: The post to check for bookmarks.
     ///   - completion: A completion handler that receives a result indicating if the user bookmarked the post.
     static func checkIfUserBookmarkedPost(post: Post, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -831,7 +831,7 @@ extension PostService {
     ///                 If there is an error during the process, it will be returned in the `FirestoreError`.
     static func addPost(viewModel: AddPostViewModel, completion: @escaping(FirestoreError?) -> Void) {
 
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -1058,7 +1058,7 @@ extension PostService {
     ///   - id: The ID of the post to be liked.
     ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func likePost(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -1093,7 +1093,7 @@ extension PostService {
     ///   - id: The ID of the post to be unliked.
     ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func unlikePost(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -1126,7 +1126,7 @@ extension PostService {
     ///   - id: The ID of the post to be bookmarked.
     ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func bookmarkPost(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -1161,7 +1161,7 @@ extension PostService {
     ///   - id: The ID of the post to be unbookmarked.
     ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func unbookmarkPost(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }

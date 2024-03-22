@@ -44,7 +44,11 @@ class NotificationsViewController: NavigationBarViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.contentInset.bottom = 85
+        
+        if !UIDevice.isPad {
+            collectionView.contentInset.bottom = 85
+        }
+        
         view.addSubviews(collectionView)
         
         NSLayoutConstraint.activate([
@@ -269,13 +273,13 @@ extension NotificationsViewController: NotificationCellDelegate {
             viewModel.notifications[indexPath.row].set(isRead: true)
             collectionView.reloadData()
         case .likePostReply:
-            guard let contentId = notification.contentId, let path = notification.path, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            guard let contentId = notification.contentId, let path = notification.path, let uid = UserDefaults.getUid() else { return }
             let controller = CommentPostRepliesViewController(postId: contentId, uid: uid, path: path)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)
             collectionView.reloadData()
         case .likeCaseReply:
-            guard let contentId = notification.contentId, let path = notification.path, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            guard let contentId = notification.contentId, let path = notification.path, let uid = UserDefaults.getUid() else { return }
             let controller = CommentCaseRepliesViewController(caseId: contentId, uid: uid, path: path)
             navigationController?.pushViewController(controller, animated: true)
             viewModel.notifications[indexPath.row].set(isRead: true)

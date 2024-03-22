@@ -22,8 +22,13 @@ class SideTabViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
+        configureObserver()
     }
     
+    private func configureObserver() {
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidChange(notification:)), name: NSNotification.Name(AppPublishers.Names.refreshUser), object: nil)
+    }
+       
     private func configure() {
 
         view.backgroundColor = .systemBackground
@@ -107,6 +112,18 @@ class SideTabViewController: UIViewController {
     
     @objc func handleAdd() {
         tabDelegate?.didTapAdd()
+    }
+    
+    func updateUser(user: User) {
+        if let cell = collectionView.cellForItem(at: IndexPath(item: 7, section: 0)) as? TabBarIconCell {
+            cell.configureProfile()
+        }
+    }
+    
+    @objc func userDidChange(notification: NSNotification) {
+        if let user = notification.userInfo!["user"] as? User, user.isCurrentUser {
+            updateUser(user: user)
+        }
     }
 }
 

@@ -48,12 +48,17 @@ class UserNetworkViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
-        configure()
         getConnections()
     }
     
+    private var firstLayoutLoad: Bool = false
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        if !firstLayoutLoad {
+            configure()
+            firstLayoutLoad = true
+        }
     }
     
     init(user: User) {
@@ -443,9 +448,11 @@ extension UserNetworkViewController: NetworkToolbarDelegate {
             break
         }
         
+        let scrollX = index == 0 ? 0 : scrollView.contentSize.width / CGFloat(3) * CGFloat(index)
+        
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
-            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            scrollView.setContentOffset(CGPoint(x: scrollX, y: 0), animated: true)
             viewModel.index = index
             return
         }
@@ -455,7 +462,7 @@ extension UserNetworkViewController: NetworkToolbarDelegate {
         followingCollectionView.isScrollEnabled = false
         self.scrollView.isUserInteractionEnabled = false
 
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        scrollView.setContentOffset(CGPoint(x: scrollX, y: 0), animated: true)
         viewModel.index = index
     }
 }

@@ -34,7 +34,7 @@ extension DatabaseManager {
     ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
     public func addRecentComment(on commentUid: String, withId id: String, withContentId contentId: String, withPath path: [String], kind: CommentKind, source: CommentSource, date: Date, completion: @escaping(DatabaseError?) -> Void) {
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let ref = database.child("users").child("\(uid)/profile/comments").childByAutoId()
         
         let timeInterval = Int(Date().timeIntervalSince1970)
@@ -258,7 +258,7 @@ extension DatabaseManager {
     ///   - commentId: The unique identifier of the comment to be deleted.
     ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
     public func deleteRecentComment(forCommentId commentId: String, completion: @escaping(DatabaseError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let ref = database.child("users").child(uid).child("profile").child("comments")
         let query = ref.queryOrdered(byChild: "id").queryEqual(toValue: commentId).queryLimited(toFirst: 1)
         
@@ -288,7 +288,7 @@ extension DatabaseManager {
     ///   - date: The date and time when the post was created.
     ///   - completion: A closure called when the operation completes. It provides an error if there was any issue.
     public func addRecentPost(withId id: String, withDate date: Date, completion: @escaping(DatabaseError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let ref = database.child("users").child("\(uid)/profile/posts/\(id)/timestamp")
         
         let timestamp = Int(Date().timeIntervalSince1970)
@@ -309,7 +309,7 @@ extension DatabaseManager {
     ///                 If the operation is successful, the completion will be called with `nil`.
     ///                 If an error occurs during the operation, the completion will be called with an appropriate `DatabaseError`.
     public func deleteRecentPost(withId id: String, completion: @escaping(DatabaseError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         
         let ref = database.child("users").child(uid).child("profile").child("posts").child(id)
         ref.removeValue { error, _ in
@@ -329,7 +329,7 @@ extension DatabaseManager {
     ///                 If the operation is successful, the completion will be called with `nil`.
     ///                 If an error occurs during the operation, the completion will be called with an appropriate `DatabaseError`.
     public func deleteRecentCase(withId id: String, completion: @escaping(DatabaseError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         
         let ref = database.child("users").child(uid).child("profile").child("cases").child(id)
         ref.removeValue { error, _ in
@@ -473,7 +473,7 @@ extension DatabaseManager {
     ///
     /// - Parameter caseId: The unique identifier for the case to be added.
     public func addRecentCase(withCaseId caseId: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let ref = database.child("users").child(uid).child("profile").child("cases").child(caseId).child("timestamp")
 
         let timestamp = Int(Date().timeIntervalSince1970)
@@ -610,7 +610,7 @@ extension DatabaseManager {
     ///                 The parameter will be `nil` if the operation is successful, otherwise it will contain a `DatabaseError`
     ///                 indicating the reason for failure.
     public func addAboutUs(withText aboutText: String, completion: @escaping(DatabaseError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let ref = database.child("users").child("\(uid)/profile/sections/about")
         
         let trimAbout = aboutText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -666,7 +666,7 @@ extension DatabaseManager {
     ///   - url: The website URL to be added.
     ///   - completion: A closure to be executed once the operation is completed, indicating the result.
     public func addWebsite(withUrl url: String, completion: @escaping(DatabaseError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let ref = database.child("users").child("\(uid)/profile/sections/website")
         ref.setValue(url) { error, _ in
             if let _ = error {

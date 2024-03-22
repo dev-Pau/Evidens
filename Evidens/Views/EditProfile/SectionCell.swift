@@ -67,29 +67,29 @@ class SectionCell: UICollectionViewCell {
         
         addSubviews(image, titleLabel, contentLabel, chevron, separatorView)
         
-        let imageSize: CGFloat = UIDevice.isPad ? 35 : 25
+        let imageSize: CGFloat = UIDevice.isPad ? 30 : 25
         let chevronSize: CGFloat = UIDevice.isPad ? 25 : 20
         
         NSLayoutConstraint.activate([
             
-            image.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            image.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
             image.centerYAnchor.constraint(equalTo: centerYAnchor),
             image.widthAnchor.constraint(equalToConstant: imageSize),
             image.heightAnchor.constraint(equalToConstant: imageSize),
             
-            chevron.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            chevron.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             chevron.centerYAnchor.constraint(equalTo: centerYAnchor),
             chevron.widthAnchor.constraint(equalToConstant: chevronSize),
             chevron.heightAnchor.constraint(equalToConstant: chevronSize),
             
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            titleLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: K.Paddings.Content.horizontalPadding),
             titleLabel.trailingAnchor.constraint(equalTo: chevron.leadingAnchor, constant: -10),
             
             contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 3),
             contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
            
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),

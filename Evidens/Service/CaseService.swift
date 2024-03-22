@@ -183,7 +183,7 @@ extension CaseService {
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let query = K.FirestoreCollections.COLLECTION_CASES.whereField("uid", isNotEqualTo: uid).whereField("disciplines", arrayContainsAny: [disciple.rawValue]).whereField("visible", isEqualTo: CaseVisibility.regular.rawValue).limit(to: 3)
         
         query.getDocuments { snapshot, error in
@@ -493,7 +493,7 @@ extension CaseService {
     ///   - date: An optional `Date` representing the starting date to fetch likes from.
     ///   - completion: A closure that receives a result containing the like count or an error.
     static func fetchLikesForCase(caseId: String, startingAt date: Date?, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let _ = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -779,7 +779,7 @@ extension CaseService {
     ///   - clinicalCase: The case to check for liking.
     ///   - completion: A completion handler to be called with the result indicating whether the user liked the case or not.
     static func checkIfUserLikedCase(clinicalCase: Case, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
       
         K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-likes").document(clinicalCase.caseId).getDocument { snapshot, error in
             if let _ = error {
@@ -828,7 +828,7 @@ extension CaseService {
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -920,7 +920,7 @@ extension CaseService {
     /// - Parameters:
     ///   - id: The ID of the post to be removed from the user's home feed.
     static func removeCaseReference(withId id: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-case-bookmarks").document(id).delete()
     }
 }
@@ -1024,7 +1024,7 @@ extension CaseService {
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String, let title = viewModel.title, let description = viewModel.description, let phase = viewModel.phase else {
+        guard let uid = UserDefaults.getUid(), let title = viewModel.title, let description = viewModel.description, let phase = viewModel.phase else {
             completion(.unknown)
             return
         }
@@ -1204,7 +1204,7 @@ extension CaseService {
     ///   - id: The ID of the case to be liked.
     ///   - completion: A closure that is called when the like operation is complete. It takes a `FirestoreError?` parameter indicating the result of the operation.
     static func likeCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -1239,7 +1239,7 @@ extension CaseService {
     ///   - id: The ID of the case from which the like should be removed.
     ///   - completion: A closure that is called when the unlike operation is complete. It takes a `FirestoreError?` parameter indicating the result of the operation.
     static func unlikeCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -1272,7 +1272,7 @@ extension CaseService {
     ///   - id: The ID of the case to be bookmarked.
     ///   - completion: A closure that is called when the bookmark operation is complete. It takes a `FirestoreError?` parameter indicating the result of the operation.
     static func bookmarkCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -1307,7 +1307,7 @@ extension CaseService {
     ///   - id: The ID of the case to be unbookmarked.
     ///   - completion: A closure that is called when the unbookmark operation is complete. It takes a `FirestoreError?` parameter indicating the result of the operation.
     static func unbookmarkCase(withId id: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }

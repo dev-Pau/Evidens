@@ -198,7 +198,7 @@ extension ContentManager {
     ///   - commentId: The ID of the comment.
     ///   - didLike: A boolean indicating whether the comment was liked (true) or unliked (false).
     func likeCommentPostChange(postId: String, path: [String], commentId: String, owner: String, didLike: Bool) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let commentChange = PostCommentLikeChange(postId: postId, commentId: commentId, didLike: didLike)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.postCommentLike), object: commentChange)
 
@@ -444,7 +444,7 @@ extension ContentManager {
     ///   - commentId: The ID of the comment.
     ///   - didLike: A boolean indicating whether the comment was liked or unliked.
     func likeCommentCaseChange(caseId: String, path: [String], commentId: String, owner: String, didLike: Bool, anonymous: Bool) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let commentChange = CaseCommentLikeChange(caseId: caseId, commentId: commentId, didLike: didLike)
         NotificationCenter.default.post(name: NSNotification.Name(AppPublishers.Names.caseCommentLike), object: commentChange)
 

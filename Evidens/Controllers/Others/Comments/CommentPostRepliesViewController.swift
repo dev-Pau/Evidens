@@ -115,13 +115,15 @@ class CommentPostRepliesViewController: UIViewController {
         let intersection = convertedKeyboardFrame.intersection(view.bounds)
 
         let keyboardHeight = view.bounds.maxY - intersection.minY
-
-        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
-
+        
+        let tabBarHeight = UIDevice.isPad ? view.safeAreaInsets.bottom : (tabBarController?.tabBar.frame.height ?? 0)
+        
         let constant = -(keyboardHeight - tabBarHeight)
-        UIView.animate(withDuration: animationDuration) {
-            self.bottomAnchorConstraint.constant = constant
-            self.view.layoutIfNeeded()
+        
+        UIView.animate(withDuration: animationDuration) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.bottomAnchorConstraint.constant = constant
+            strongSelf.view.layoutIfNeeded()
         }
     }
     
@@ -134,11 +136,11 @@ class CommentPostRepliesViewController: UIViewController {
     
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: addLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
         collectionView.delegate = self
         collectionView.dataSource = self
-        
-        collectionView.backgroundColor = .systemBackground
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+
         collectionView.register(SecondaryNetworkFailureCell.self, forCellWithReuseIdentifier: networkFailureCellReuseIdentifier)
         collectionView.register(LoadingCell.self, forCellWithReuseIdentifier: loadingCellReuseIdentifier)
         collectionView.register(CommentPostCell.self, forCellWithReuseIdentifier: commentPostCellReuseIdentifier)
@@ -150,6 +152,13 @@ class CommentPostRepliesViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.alwaysBounceVertical = true
         collectionView.keyboardDismissMode = .onDrag
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
         
         if !viewModel.needsToFetch {
             configureCommentInputView()

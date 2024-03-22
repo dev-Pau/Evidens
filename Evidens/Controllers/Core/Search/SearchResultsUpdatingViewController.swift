@@ -117,7 +117,6 @@ class SearchResultsUpdatingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.definesPresentationContext = true
-        //configureUI()
         configureNotificationObservers()
     }
     
@@ -737,9 +736,11 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
             break
         }
 
+        let scrollX = index == 0 ? 0 : scrollView.contentSize.width / CGFloat(4) * CGFloat(index)
+        
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
-            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            scrollView.setContentOffset(CGPoint(x: scrollX, y: 0), animated: true)
             viewModel.scrollIndex = index
             return
         }
@@ -750,7 +751,7 @@ extension SearchResultsUpdatingViewController: SearchToolbarDelegate {
         casesCollectionView.isScrollEnabled = false
         self.scrollView.isUserInteractionEnabled = false
         
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + 10 * index, y: 0), animated: true)
+        scrollView.setContentOffset(CGPoint(x: scrollX, y: 0), animated: true)
         viewModel.scrollIndex = index
     }
 
@@ -1124,7 +1125,7 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
             nav.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(nav, animated: true)
         case .report:
-            guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+            guard let uid = UserDefaults.getUid() else { return }
             let controller = ReportViewController(source: .post, userId: uid, contentId: post.postId)
             let navVC = UINavigationController(rootViewController: controller)
             navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()

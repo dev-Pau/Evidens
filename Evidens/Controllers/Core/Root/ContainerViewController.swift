@@ -17,9 +17,9 @@ class ContainerViewController: UIViewController {
     private let padding: CGFloat = UIDevice.isPad ? 150 : 35
     private var menuWidth: CGFloat!
     
-    let menuController = SideMenuViewController()
+    lazy var menuController = SideMenuViewController()
     let mainController = MainViewController()
-    let sideTabController = SideTabViewController()
+    lazy var sideTabController = SideTabViewController()
     
     private lazy var baseView: UIView = {
         let view = UIView()
@@ -166,11 +166,19 @@ extension ContainerViewController: MainViewControllerDelegate {
     }
     
     func configureMenuWithUser(user: User) {
-        menuController.updateUserData(user: user)
+        if UIDevice.isPad {
+            sideTabController.updateUser(user: user)
+        } else {
+            menuController.updateUserData(user: user)
+        }
     }
     
     func updateUser(user: User) {
-        menuController.updateUserData()
+        if UIDevice.isPad {
+            sideTabController.updateUser(user: user)
+        } else {
+            menuController.updateUserData()
+        }
     }
     
     private func getNewNotificationCount() {

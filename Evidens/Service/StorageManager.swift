@@ -242,7 +242,7 @@ extension StorageManager {
     ///                 The result will be either `.success` with an array of download URLs for the uploaded images,
     ///                 or `.failure` with a `StorageError` indicating the reason for failure.
     static func addUserImages(images: [UIImage], completion: @escaping(Result<[String], StorageError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         
         var imageUrls: [String] = []
         let filename = uid

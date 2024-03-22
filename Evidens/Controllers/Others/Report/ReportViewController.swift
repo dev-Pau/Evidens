@@ -69,7 +69,7 @@ class ReportViewController: UIViewController {
     }
     
     init(source: ReportSource, userId: String, contentId: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             fatalError()
         }
         

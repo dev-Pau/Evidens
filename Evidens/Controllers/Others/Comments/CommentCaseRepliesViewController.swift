@@ -197,9 +197,11 @@ class CommentCaseRepliesViewController: UIViewController {
         let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
 
         let constant = -(keyboardHeight - tabBarHeight)
-        UIView.animate(withDuration: animationDuration) {
-            self.bottomAnchorConstraint.constant = constant
-            self.view.layoutIfNeeded()
+        
+        UIView.animate(withDuration: animationDuration) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.bottomAnchorConstraint.constant = constant
+            strongSelf.view.layoutIfNeeded()
         }
     }
     
@@ -221,7 +223,7 @@ class CommentCaseRepliesViewController: UIViewController {
     }
     
     private func handleLikeUnLike(for cell: CommentCaseProtocol, at indexPath: IndexPath) {
-        guard let comment = cell.viewModel?.comment, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let comment = cell.viewModel?.comment, let uid = UserDefaults.getUid() else { return }
         
         let caseId = viewModel.clinicalCase.caseId
         let commentId = comment.id

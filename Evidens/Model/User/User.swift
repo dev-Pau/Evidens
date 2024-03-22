@@ -60,7 +60,7 @@ struct User {
     }
     
     var isCurrentUser: Bool {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             return false
         }
         return uid == self.uid

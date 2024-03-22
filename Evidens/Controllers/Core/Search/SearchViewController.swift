@@ -155,7 +155,9 @@ class SearchViewController: NavigationBarViewController {
             collectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor)
         ])
         
-        collectionView.contentInset.bottom = 85
+        if !UIDevice.isPad {
+            collectionView.contentInset.bottom = 85
+        }
 
         collectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: searchHeaderReuseIdentifier)
 

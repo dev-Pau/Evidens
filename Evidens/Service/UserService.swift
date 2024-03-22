@@ -387,7 +387,7 @@ extension UserService {
     }
     
     static func removeImage(kind: ImageKind, completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.network)
@@ -429,7 +429,7 @@ extension UserService {
     ///                 or `.success(false)` if the current user is not following the specified user,
     ///                 or `.failure` with a `FirestoreError` indicating the reason for failure.
     static func checkIfUserIsFollowed(withUid uid: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let currentUid = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -470,7 +470,7 @@ extension UserService {
     static func updateUserImages(withBannerUrl bannerUrl: String? = nil, withProfileUrl profileUrl: String? = nil, completion: @escaping(User?) -> Void) {
 
         var data = [String: Any]()
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         if let bannerUrl = bannerUrl { data["bannerUrl"] = bannerUrl }
         if let profileUrl = profileUrl { data["imageUrl"] = profileUrl }
 
@@ -565,7 +565,7 @@ extension UserService {
     ///                 The parameter will be `nil` if the follow action is successful,
     ///                 or it will contain a `FirestoreError` indicating the reason for failure.
     static func follow(uid: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let currentUid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -603,7 +603,7 @@ extension UserService {
     ///                 The parameter will be `nil` if the unfollow action is successful,
     ///                 or it will contain a `FirestoreError` indicating the reason for failure.
     static func unfollow(uid: String, completion: @escaping(FirestoreError?) -> Void) {
-        guard let currentUid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let currentUid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }

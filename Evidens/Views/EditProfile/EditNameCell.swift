@@ -61,19 +61,19 @@ class EditNameCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             separatorView.topAnchor.constraint(equalTo: topAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            separatorView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
+            separatorView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            titleLabel.leadingAnchor.constraint(equalTo: separatorView.leadingAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             titleLabel.widthAnchor.constraint(equalToConstant: width),
             
             firstNameTextField.topAnchor.constraint(equalTo: titleLabel.topAnchor),
             firstNameTextField.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
-            firstNameTextField.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
-            firstNameTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -5)
+            firstNameTextField.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            firstNameTextField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding)
         ])
     }
     

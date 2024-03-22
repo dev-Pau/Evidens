@@ -652,9 +652,11 @@ extension UserProfileViewController: ProfileToolbarDelegate {
             break
         }
 
+        let scrollX = index == 0 ? 0 : scrollView.contentSize.width / CGFloat(3) * CGFloat(index)
+
         guard viewModel.isFirstLoad else {
             viewModel.isFirstLoad.toggle()
-            scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+            scrollView.setContentOffset(CGPoint(x: scrollX, y: 0), animated: true)
             viewModel.index = index
             return
         }
@@ -664,7 +666,7 @@ extension UserProfileViewController: ProfileToolbarDelegate {
         repliesCollectionView.isScrollEnabled = false
         self.scrollView.isUserInteractionEnabled = false
 
-        scrollView.setContentOffset(CGPoint(x: index * Int(view.frame.width) + index * 10, y: 0), animated: true)
+        scrollView.setContentOffset(CGPoint(x: scrollX, y: 0), animated: true)
         viewModel.index = index
     }
 }

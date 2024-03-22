@@ -364,7 +364,7 @@ extension EditProfileViewController: SectionListViewControllerDelegate {
     }
 
     func aboutSectionDidChange() {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         delegate?.fetchNewAboutValues(withUid: uid)
     }
 }

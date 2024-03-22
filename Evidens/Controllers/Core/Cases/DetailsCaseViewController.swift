@@ -256,7 +256,7 @@ class DetailsCaseViewController: UIViewController, UINavigationControllerDelegat
     }
     
     private func handleLikeUnLike(for cell: CommentCaseProtocol, at indexPath: IndexPath) {
-        guard let comment = cell.viewModel?.comment, let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let comment = cell.viewModel?.comment, let uid = UserDefaults.getUid() else { return }
         
         let caseId = viewModel.clinicalCase.caseId
         let commentId = comment.id

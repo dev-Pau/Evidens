@@ -53,7 +53,7 @@ extension NotificationService {
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion?(.unknown)
             return
         }
@@ -72,7 +72,7 @@ extension NotificationService {
     ///
     /// - Parameter code: The notification code to be set.
     static func set(code: String) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let preferenceRef = K.FirestoreCollections.COLLECTION_NOTIFICATIONS.document(uid)
         preferenceRef.setData(["code": code], merge: true)
     }
@@ -94,7 +94,7 @@ extension NotificationService {
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion?(.unknown)
             return
         }
@@ -136,7 +136,7 @@ extension NotificationService {
             return
         }
 
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -178,7 +178,7 @@ extension NotificationService {
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -233,7 +233,7 @@ extension NotificationService {
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
             
@@ -298,7 +298,7 @@ extension NotificationService {
             return
         }
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
             
@@ -355,7 +355,7 @@ extension NotificationService {
     ///                 the user's notification preferences, or `.failure` with a `FirestoreError` indicating
     ///                 the reason for failure.
     static func fetchPreferences(completion: @escaping(Result<NotificationPreference, FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         
         guard NetworkMonitor.shared.isConnected else {
             completion(.failure(.network))

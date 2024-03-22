@@ -587,7 +587,7 @@ struct AuthService {
     ///
     /// - Parameter completion: A closure to be called when the operation completes. It will pass a `FirestoreError` if there's an error, or `nil` if successful.
     static func deactivate(completion: @escaping(FirestoreError?) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
 
         let timestamp = Timestamp()
         
@@ -785,7 +785,7 @@ struct AuthService {
     /// Logs out the currently authenticated user from Firebase.
     static func logout() {
         do {
-             if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
+             if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let uid = UserDefaults.getUid() {
                  appDelegate.removeFCMToken(for: uid)
              }
              
@@ -800,7 +800,7 @@ struct AuthService {
     
     /// Logs out the user from the Google sign-in provider.
     static func googleLogout() {
-        if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let uid = UserDefaults.standard.value(forKey: "uid") as? String {
+        if let appDelegate = UIApplication.shared.delegate as? AppDelegate, let uid = UserDefaults.getUid() {
             appDelegate.removeFCMToken(for: uid)
         }
 
@@ -816,7 +816,7 @@ struct AuthService {
     ///   - type: The type of user history.
     ///   - value: The value associated with the user history.
     static func setUserHistory(for type: UserHistory, with value: Any) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         let path = K.FirestoreCollections.COLLECTION_HISTORY.document(uid).collection(type.path).document()
         
         switch type {

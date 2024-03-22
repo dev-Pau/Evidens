@@ -120,6 +120,8 @@ class SpecialityViewController: UIViewController {
             guard let strongSelf = self else { return nil }
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: registerCellReuseIdentifier, for: indexPath) as! RegisterCell
             cell.set(value: speciality.name)
+            
+            
 
             if strongSelf.viewModel.isEditingProfileSpeciality, let userSpeciality = strongSelf.viewModel.user.speciality {
                 if speciality == userSpeciality { collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .left) }

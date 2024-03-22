@@ -301,7 +301,7 @@ extension CommentService {
     ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func likeCaseComment(forId caseId: String, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -344,7 +344,7 @@ extension CommentService {
     ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func unlikeCaseComment(forId caseId: String, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -387,7 +387,7 @@ extension CommentService {
     ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func likePostComment(forId postId: String, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -431,7 +431,7 @@ extension CommentService {
     ///   - completion: A completion handler that indicates the success or failure of the operation.
     static func unlikePostComment(forId postId: String, forPath path: [String], forCommentId commentId: String, completion: @escaping(FirestoreError?) -> Void) {
         
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let uid = UserDefaults.getUid() else {
             completion(.unknown)
             return
         }
@@ -1380,7 +1380,7 @@ extension CommentService {
     ///                 It takes a `Result` enum with either a `Bool` indicating if the user has liked the comment (true) or not (false) on success
     ///                 or a `FirestoreError` on failure.
      static func checkIfUserLikedComment(forPost post: Post, forCommentId id: String, completion: @escaping(Result<Bool, FirestoreError>) -> Void) {
-         guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+         guard let uid = UserDefaults.getUid() else { return }
          
          K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-comment-likes").document(post.postId).collection("comment-likes").document(id).getDocument { snapshot, error in
              if let _ = error {
@@ -1526,7 +1526,7 @@ extension CommentService {
     ///                 It takes a single parameter of type `Result<Bool, FirestoreError>`.
     ///                 The `Result` will contain a `Bool` indicating whether the user liked the specified comment or not.
     static func checkIfUserLikedCaseComment(forCase clinicalCase: Case, forCommentId id: String, completion: @escaping(Result<Bool,FirestoreError>) -> Void) {
-        guard let uid = UserDefaults.standard.value(forKey: "uid") as? String else { return }
+        guard let uid = UserDefaults.getUid() else { return }
         
         K.FirestoreCollections.COLLECTION_USERS.document(uid).collection("user-comment-likes").document(clinicalCase.caseId).collection("comment-likes").document(id).getDocument { snapshot, error in
             
@@ -1551,7 +1551,7 @@ extension CommentService {
     ///   - date: An optional `Date` representing the starting date to fetch likes from.
     ///   - completion: A closure that receives a result containing the like count or an error.
     static func fetchLikesForPostComment(postId: String, path: [String], startingAt date: Date?, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let _ = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }
@@ -1607,7 +1607,7 @@ extension CommentService {
     ///   - date: An optional `Date` representing the starting date to fetch likes from.
     ///   - completion: A closure that receives a result containing the like count or an error.
     static func fetchLikesForCaseComment(caseId: String, path: [String], startingAt date: Date?, completion: @escaping(Result<Int, FirestoreError>) -> Void) {
-        guard let _ = UserDefaults.standard.value(forKey: "uid") as? String else {
+        guard let _ = UserDefaults.getUid() else {
             completion(.failure(.unknown))
             return
         }

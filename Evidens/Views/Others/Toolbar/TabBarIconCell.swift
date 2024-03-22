@@ -66,13 +66,17 @@ class TabBarIconCell: UICollectionViewCell {
     private func configureIcon() {
         guard let tabIcon else { return }
         if tabIcon == .profile {
-            addImage(forUrl: UserDefaults.getImage(), size: 28)
-            button.layer.borderColor = K.Colors.separatorColor.cgColor
-            button.layer.borderWidth = 1
-            button.layer.cornerRadius = 28 / 2
+            configureProfile()
         } else {
             button.image = tabIcon.padImage
         }
+    }
+    
+    func configureProfile() {
+        addImage(forUrl: UserDefaults.getImage(), size: 28)
+        button.layer.borderColor = K.Colors.separatorColor.cgColor
+        button.layer.borderWidth = 1
+        button.layer.cornerRadius = 28 / 2
     }
     
     func animateBounce(scale: CGFloat) {
