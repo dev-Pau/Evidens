@@ -141,8 +141,6 @@ class AddPostViewController: UIViewController {
         collectionView.isScrollEnabled = false
         scrollView.addSubviews(profileImageView, postTextView, collectionView)
         
-        let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
-        
         collectionViewHeightAnchor = collectionView.heightAnchor.constraint(equalToConstant: 30)
         
         NSLayoutConstraint.activate([
@@ -151,32 +149,30 @@ class AddPostViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            profileImageView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            profileImageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 15),
-            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
-            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
+            profileImageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            profileImageView.heightAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
+            profileImageView.widthAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
             
             postTextView.topAnchor.constraint(equalTo: profileImageView.centerYAnchor, constant: -(postTextView.font?.lineHeight ?? 0) / 2),
             postTextView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             
-            collectionView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: 10),
+            collectionView.topAnchor.constraint(equalTo: postTextView.bottomAnchor, constant: K.Paddings.Content.verticalPadding),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionViewHeightAnchor,
         ])
 
-        profileImageView.layer.cornerRadius = imageSize / 2
+        profileImageView.layer.cornerRadius = K.Paddings.Content.userImageSize / 2
         
-        profileImageView.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
+        profileImageView.addImage(forUrl: UserDefaults.getImage(), size: K.Paddings.Content.userImageSize)
        
         toolbar.toolbarDelegate = self
         updateForm()
     }
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
-        
-        let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
         
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
@@ -192,17 +188,17 @@ class AddPostViewController: UIViewController {
                 
                 section.orthogonalScrollingBehavior = .continuous
                 section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: imageSize + 20, bottom: 0, trailing: 10)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: K.Paddings.Content.userImageSize + 20, bottom: 0, trailing: 10)
                 return section
             } else {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
                
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.kind == .link ? .fractionalWidth(1) : .fractionalWidth(0.5), heightDimension: .absolute(strongSelf.cellHeight)), subitems: [item])                                         
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: strongSelf.viewModel.kind == .link ? .absolute(strongSelf.view.frame.width - (K.Paddings.Content.userImageSize + 20 + K.Paddings.Content.horizontalPadding)) : .fractionalWidth(0.5), heightDimension: .absolute(strongSelf.cellHeight)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
 
                 section.orthogonalScrollingBehavior = .continuous
                 section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: imageSize + 20, bottom: 0, trailing: 10)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: K.Paddings.Content.userImageSize + 20, bottom: 0, trailing: 10)
                 return section
             }
             
@@ -226,7 +222,7 @@ class AddPostViewController: UIViewController {
             } else {
                 scrollView.contentInset = UIEdgeInsets(top: 0,
                                                        left: 0,
-                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom/* + 20*/,
+                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom,
                                                        right: 0)
             }
             

@@ -26,7 +26,7 @@ enum TabIcon: CaseIterable {
         switch self {
         case .icon: return (UIImage(named: AppStrings.Assets.blackLogo)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor))!
         case .cases: return (UIImage(systemName: AppStrings.Icons.stethoscope)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
-        case .network: return (UIImage(systemName: AppStrings.Icons.globe)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
+        case .network: return (UIImage(systemName: AppStrings.Icons.person2Fill)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
         case .notifications: return (UIImage(systemName: AppStrings.Icons.fillBell)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
         case .search: return (UIImage(systemName: AppStrings.Icons.magnifyingglass)?.withRenderingMode(.alwaysOriginal).withTintColor(.secondaryLabel))!
         case .bookmark, .drafts, .profile, .resources: fatalError()
@@ -36,14 +36,14 @@ enum TabIcon: CaseIterable {
     var padImage: UIImage {
         switch self {
         case .icon: return (UIImage(named: AppStrings.Assets.blackLogo)?.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)).withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor))!
-        case .cases: return (UIImage(systemName: AppStrings.Icons.stethoscope, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
-        case .network: return (UIImage(systemName: AppStrings.Icons.globe, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
-        case .notifications: return (UIImage(systemName: AppStrings.Icons.bell, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
-        case .search: return (UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
-        case .bookmark: return (UIImage(named: AppStrings.Assets.bookmark)?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
-        case .drafts: return (UIImage(systemName: AppStrings.Icons.squareOnSquare, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .cases: return (UIImage(systemName: AppStrings.Icons.stethoscope, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .network: return (UIImage(systemName: AppStrings.Icons.person2, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .notifications: return (UIImage(systemName: AppStrings.Icons.bell, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .search: return (UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .bookmark: return (UIImage(systemName: AppStrings.Icons.bookmark, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .drafts: return (UIImage(systemName: AppStrings.Icons.squareOnSquare, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
         case .profile: return UIImage()
-        case .resources: return (UIImage(systemName: AppStrings.Icons.circleEllipsis, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .resources: return (UIImage(systemName: AppStrings.Icons.circleEllipsis, withConfiguration: UIImage.SymbolConfiguration(weight: .regular))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
         }
     }
     
@@ -51,15 +51,19 @@ enum TabIcon: CaseIterable {
         
         switch self {
         case .icon: return (UIImage(named: AppStrings.Assets.blackLogo)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor))!
-        case .cases: return (UIImage(systemName: AppStrings.Icons.stethoscope, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
-        case .network: return (UIImage(systemName: AppStrings.Icons.globe)?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .cases: return (UIImage(systemName: AppStrings.Icons.stethoscope, withConfiguration: UIImage.SymbolConfiguration(weight: weight))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .network: return (UIImage(systemName: AppStrings.Icons.person2Fill)?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
         case .notifications: return (UIImage(systemName: AppStrings.Icons.fillBell)?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
-        case .search: return (UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
-        case .bookmark: return (UIImage(named: AppStrings.Assets.fillBookmark)?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
-        case .drafts: return (UIImage(systemName: AppStrings.Icons.fillSquareOnSquare, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .search: return (UIImage(systemName: AppStrings.Icons.magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(weight: weight))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .bookmark: return (UIImage(systemName: AppStrings.Icons.fillBookmark)?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .drafts: return (UIImage(systemName: AppStrings.Icons.fillSquareOnSquare, withConfiguration: UIImage.SymbolConfiguration(weight: weight))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
         case .profile: return UIImage()
-        case .resources: return (UIImage(systemName: AppStrings.Icons.circleEllipsis, withConfiguration: UIImage.SymbolConfiguration(weight: .medium))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
+        case .resources: return (UIImage(systemName: AppStrings.Icons.circleEllipsis, withConfiguration: UIImage.SymbolConfiguration(weight: weight))?.withRenderingMode(.alwaysOriginal).withTintColor(.label))!
         }
+    }
+    
+    var weight: UIImage.SymbolWeight {
+        return UIDevice.isPad ? .bold : .medium
     }
     
     

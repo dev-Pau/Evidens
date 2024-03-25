@@ -171,7 +171,7 @@ class SearchViewController: NavigationBarViewController {
         collectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         collectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -236,7 +236,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
                 header.tag = indexPath.section
                 return header
             } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
                 return header
             }
 
@@ -454,8 +454,6 @@ extension SearchViewController: PostCellDelegate {
         if let url = URL(string: urlString) {
             if UIApplication.shared.canOpenURL(url) {
                 presentSafariViewController(withURL: url)
-            } else {
-                presentWebViewController(withURL: url)
             }
         }
     }
@@ -563,8 +561,6 @@ extension SearchViewController: ReferenceMenuViewControllerDelegate {
             if let url = URL(string: reference.referenceText) {
                 if UIApplication.shared.canOpenURL(url) {
                     presentSafariViewController(withURL: url)
-                } else {
-                    presentWebViewController(withURL: url)
                 }
             }
         case .citation:
@@ -573,8 +569,6 @@ extension SearchViewController: ReferenceMenuViewControllerDelegate {
                 if let url = URL(string: AppStrings.URL.googleQuery + encodedQuery) {
                     if UIApplication.shared.canOpenURL(url) {
                         presentSafariViewController(withURL: url)
-                    } else {
-                        presentWebViewController(withURL: url)
                     }
                 }
             }

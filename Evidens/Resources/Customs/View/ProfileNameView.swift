@@ -26,8 +26,8 @@ class ProfileNameView: UIView {
     private lazy var bannerImage: UIImageView = {
         let iv = UIImageView()
         iv.clipsToBounds = true
-        iv.contentMode = .scaleAspectFit
-        iv.backgroundColor = K.Colors.primaryColor
+        iv.contentMode = .scaleAspectFill
+        iv.backgroundColor = .quaternarySystemFill
         iv.layer.borderColor = K.Colors.separatorColor.cgColor
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleBannerTap)))
@@ -111,7 +111,7 @@ class ProfileNameView: UIView {
         var configuration = UIButton.Configuration.plain()
         configuration.baseForegroundColor = .label
         configuration.buttonSize = .mini
-        configuration.image = UIImage(named: AppStrings.Assets.link)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 25))
+        configuration.image = UIImage(named: AppStrings.Assets.link)?.withRenderingMode(.alwaysOriginal).withTintColor(.label).scalePreservingAspectRatio(targetSize: CGSize(width: 20, height: 25))
         configuration.imagePlacement = .leading
         configuration.imagePadding = 5
         
@@ -160,9 +160,8 @@ class ProfileNameView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         
         let bannerHeight = (UIWindow.visibleScreenWidth - 20.0) / K.Ratio.bannerAR
-        let imageHeight = UIDevice.isPad ? 140.0 : 75.0
-        _ = UIDevice.isPad ? 50.0 : 40.0
-        
+        let imageHeight = UIDevice.isPad ? 110.0 : 75.0
+       
         let disciplineStackView = UIStackView(arrangedSubviews: [discipline, connections])
         disciplineStackView.translatesAutoresizingMaskIntoConstraints = false
         disciplineStackView.axis = .vertical
@@ -184,8 +183,8 @@ class ProfileNameView: UIView {
         
         NSLayoutConstraint.activate([
             bannerImage.topAnchor.constraint(equalTo: topAnchor),
-            bannerImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
-            bannerImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
+            bannerImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Profile.horizontalPadding),
+            bannerImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Profile.horizontalPadding),
             bannerImage.heightAnchor.constraint(equalToConstant: bannerHeight),
 
             profileImage.centerYAnchor.constraint(equalTo: nameStackView.centerYAnchor),
@@ -194,25 +193,26 @@ class ProfileNameView: UIView {
             profileImage.heightAnchor.constraint(equalToConstant: imageHeight),
             
             nameStackView.topAnchor.constraint(equalTo: bannerImage.bottomAnchor, constant: UIDevice.isPad ? 3 * padding : 2 * padding),
-            nameStackView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: UIDevice.isPad ? 20 : 10),
-            nameStackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
+            nameStackView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: K.Paddings.Profile.horizontalPadding),
+            nameStackView.trailingAnchor.constraint(lessThanOrEqualTo: bannerImage.trailingAnchor),
             
             topAnchorAboutConstraint,
             aboutLabel.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
             aboutLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
             
-            chevronImage.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
+            chevronImage.trailingAnchor.constraint(lessThanOrEqualTo: bannerImage.trailingAnchor),
             chevronImage.centerYAnchor.constraint(equalTo: aboutLabel.centerYAnchor),
             chevronImage.widthAnchor.constraint(equalToConstant: 20),
             chevronImage.heightAnchor.constraint(equalToConstant: 20),
             
             websiteButton.topAnchor.constraint(greaterThanOrEqualTo: aboutLabel.bottomAnchor),
             websiteButton.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
-            websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
+            websiteButton.trailingAnchor.constraint(lessThanOrEqualTo: bannerImage.trailingAnchor),
 
+            actionButton.topAnchor.constraint(greaterThanOrEqualTo: nameStackView.bottomAnchor, constant: K.Paddings.Profile.horizontalPadding),
             actionButton.topAnchor.constraint(equalTo: websiteButton.bottomAnchor),
-            actionButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            actionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            actionButton.leadingAnchor.constraint(equalTo: bannerImage.leadingAnchor),
+            actionButton.trailingAnchor.constraint(equalTo: bannerImage.trailingAnchor),
             actionButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
         ])
         
@@ -230,7 +230,7 @@ class ProfileNameView: UIView {
         discipline.text = viewModel.user.details()
         username.text = viewModel.user.getUsername()
         
-        let imageHeight = UIDevice.isPad ? 140.0 : 75.0
+        let imageHeight = UIDevice.isPad ? 110.0 : 75.0
         
         if viewModel.user.isCurrentUser {
             profileImage.addImage(forUrl: viewModel.user.profileUrl, size: imageHeight)

@@ -101,7 +101,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
         scrollView.addSubviews(titleLabel, contentLabel, diagnosisButton, dismissButton)
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
@@ -109,7 +109,7 @@ class ShareCaseDiagnosisViewController: UIViewController {
             contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            dismissButton.topAnchor.constraint(equalTo: diagnosisButton.bottomAnchor, constant: 10),
+            dismissButton.topAnchor.constraint(equalTo: diagnosisButton.bottomAnchor, constant: K.Paddings.Content.verticalPadding),
             dismissButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             dismissButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             

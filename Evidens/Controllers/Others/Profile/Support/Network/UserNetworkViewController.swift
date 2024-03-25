@@ -90,15 +90,15 @@ class UserNetworkViewController: UIViewController {
         connectionSpacingView.translatesAutoresizingMaskIntoConstraints = false
         followerSpacingView.translatesAutoresizingMaskIntoConstraints = false
         
-        connectionCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        connectionCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         connectionCollectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         connectionCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: connectUserCellReuseIdentifier)
         
-        followerCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        followerCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         followerCollectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         followerCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: connectUserCellReuseIdentifier)
         
-        followingCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        followingCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         followingCollectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         followingCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: connectUserCellReuseIdentifier)
 
@@ -168,7 +168,7 @@ class UserNetworkViewController: UIViewController {
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.connections.isEmpty ? .estimated(300) : .estimated(70))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
-            group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+            group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: K.Paddings.Content.horizontalPadding, bottom: 0, trailing: K.Paddings.Content.horizontalPadding)
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
@@ -190,7 +190,7 @@ class UserNetworkViewController: UIViewController {
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.followers.isEmpty ? .estimated(300) : .estimated(70))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
-            group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+            group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: K.Paddings.Content.horizontalPadding, bottom: 0, trailing: K.Paddings.Content.horizontalPadding)
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
@@ -212,7 +212,7 @@ class UserNetworkViewController: UIViewController {
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: strongSelf.viewModel.following.isEmpty ? .estimated(300) : .estimated(70))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
-            group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+            group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: K.Paddings.Content.horizontalPadding, bottom: 0, trailing: K.Paddings.Content.horizontalPadding)
             let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
@@ -285,7 +285,7 @@ extension UserNetworkViewController: UICollectionViewDataSource, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
         return header
     }
     
@@ -393,6 +393,7 @@ extension UserNetworkViewController: UIScrollViewDelegate {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let scrollX = scrollView.contentSize.width
         
          if scrollView == connectionCollectionView || scrollView == followerCollectionView || scrollView == followingCollectionView {
              viewModel.isScrollingHorizontally = false
@@ -410,9 +411,9 @@ extension UserNetworkViewController: UIScrollViewDelegate {
              }
              
              switch scrollView.contentOffset.x {
-             case 0 ..< view.frame.width + 10:
+             case 0 ..< scrollX / 2:
                  viewModel.index = 0
-             case view.frame.width + 10 ..< 2 * (view.frame.width + 10):
+             case scrollX / 2 ..< scrollX:
                  viewModel.index = 1
              default:
                  viewModel.index = 2

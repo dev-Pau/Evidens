@@ -51,11 +51,13 @@ class MediaMenuCell: UICollectionViewCell {
         
         addSubviews(containerView, cameraImage)
         
+        let containerSize: CGFloat = UIDevice.isPad ? 100 : 80
+        
         NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            containerView.widthAnchor.constraint(equalToConstant: 80),
-            containerView.heightAnchor.constraint(equalToConstant: 80),
-            containerView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            containerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            containerView.widthAnchor.constraint(equalToConstant: containerSize),
+            containerView.heightAnchor.constraint(equalToConstant: containerSize),
+            containerView.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
             containerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             cameraImage.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
@@ -66,11 +68,11 @@ class MediaMenuCell: UICollectionViewCell {
         
         containerView.layer.masksToBounds = true
         containerView.layer.addSublayer(previewLayer)
-        containerView.layer.cornerRadius = 80 * 0.2
+        containerView.layer.cornerRadius = containerSize * 0.2
         containerView.layer.borderWidth = 1
         containerView.layer.borderColor = K.Colors.separatorColor.cgColor
         
-        previewLayer.cornerRadius = 80 * 0.2
+        previewLayer.cornerRadius = containerSize * 0.2
     }
 
     private func checkCameraPermissions() {

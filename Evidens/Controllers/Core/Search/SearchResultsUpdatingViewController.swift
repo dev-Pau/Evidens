@@ -154,7 +154,7 @@ class SearchResultsUpdatingViewController: UIViewController {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env -> NSCollectionLayoutSection? in
             guard let strongSelf = self else { return nil }
             
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
             let isEmpty = strongSelf.viewModel.topUsers.isEmpty && strongSelf.viewModel.topPosts.isEmpty && strongSelf.viewModel.topCases.isEmpty
@@ -162,7 +162,7 @@ class SearchResultsUpdatingViewController: UIViewController {
             if sectionNumber == 0 {
                 // People section
                 let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .estimated(70)))
-                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: isEmpty ? 0 : 10, bottom: 0, trailing: isEmpty ? 0 : 10)
+                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: isEmpty ? 0 : K.Paddings.Content.horizontalPadding, bottom: 0, trailing: isEmpty ? 0 : K.Paddings.Content.horizontalPadding)
                 
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .estimated(70)), subitems: [item])
 
@@ -198,11 +198,11 @@ class SearchResultsUpdatingViewController: UIViewController {
             
             let isEmpty = strongSelf.viewModel.people.isEmpty
             
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
             let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .estimated(70)))
-            item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: isEmpty ? 0 : 10, bottom: 0, trailing: isEmpty ? 0 : 10)
+            item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: isEmpty ? 0 : K.Paddings.Content.horizontalPadding, bottom: 0, trailing: isEmpty ? 0 : K.Paddings.Content.horizontalPadding)
             
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: isEmpty ? .estimated(300) : .estimated(70)), subitems: [item])
             
@@ -220,7 +220,7 @@ class SearchResultsUpdatingViewController: UIViewController {
             
             let _ = strongSelf.viewModel.cases.isEmpty
 
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
             let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)))
@@ -241,7 +241,7 @@ class SearchResultsUpdatingViewController: UIViewController {
             
             let _ = strongSelf.viewModel.posts.isEmpty
 
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(40))
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
             let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
             
             let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(600)))
@@ -289,7 +289,7 @@ class SearchResultsUpdatingViewController: UIViewController {
         searchCollectionView.register(EmptyRecentsSearchCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         searchCollectionView.register(RecentTextCell.self, forCellWithReuseIdentifier: recentSearchTextCellReuseIdentifier)
 
-        featuredCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        featuredCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         featuredCollectionView.register(PrimarySearchHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: topHeaderReuseIdentifier)
         featuredCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         featuredCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
@@ -302,18 +302,18 @@ class SearchResultsUpdatingViewController: UIViewController {
         featuredCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         featuredCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         
-        peopleCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        peopleCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         peopleCollectionView.register(ConnectUserCell.self, forCellWithReuseIdentifier: connectUserCellReuseIdentifier)
         peopleCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         peopleCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
         
-        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        casesCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
         casesCollectionView.register(SearchErrorCell.self, forCellWithReuseIdentifier: issuesCellReuseIdentifier)
         
-        postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        postsCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         postsCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
@@ -897,11 +897,11 @@ extension SearchResultsUpdatingViewController: UICollectionViewDelegateFlowLayou
                 
                 return header
             } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
                 return header
             }
         } else {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
             return header
         }
     }
@@ -1059,8 +1059,6 @@ extension SearchResultsUpdatingViewController: PostCellDelegate {
         if let url = URL(string: urlString) {
             if UIApplication.shared.canOpenURL(url) {
                 presentSafariViewController(withURL: url)
-            } else {
-                presentWebViewController(withURL: url)
             }
         }
     }
@@ -1312,8 +1310,6 @@ extension SearchResultsUpdatingViewController: ReferenceMenuViewControllerDelega
             if let url = URL(string: reference.referenceText) {
                 if UIApplication.shared.canOpenURL(url) {
                     presentSafariViewController(withURL: url)
-                } else {
-                    presentWebViewController(withURL: url)
                 }
             }
         case .citation:
@@ -1322,8 +1318,6 @@ extension SearchResultsUpdatingViewController: ReferenceMenuViewControllerDelega
                 if let url = URL(string: AppStrings.URL.googleQuery + encodedQuery) {
                     if UIApplication.shared.canOpenURL(url) {
                         presentSafariViewController(withURL: url)
-                    } else {
-                        presentWebViewController(withURL: url)
                     }
                 }
             }

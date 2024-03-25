@@ -60,7 +60,7 @@ class NotificationsViewController: NavigationBarViewController {
         
         configureAddButton(primaryAppearance: true)
         
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(NotificationConnectionCell.self, forCellWithReuseIdentifier: connectionRequestReuseIdentifier)
         collectionView.register(NotificationAcceptConnectionCell.self, forCellWithReuseIdentifier: connectionAcceptReuseIdentifer)
         collectionView.register(NotificationContentCell.self, forCellWithReuseIdentifier: likeCellReuseIdentifier)
@@ -192,7 +192,7 @@ extension NotificationsViewController: UICollectionViewDelegateFlowLayout, UICol
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
         return header
     }
     

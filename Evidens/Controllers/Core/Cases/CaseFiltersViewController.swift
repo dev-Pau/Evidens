@@ -53,8 +53,8 @@ class CaseFiltersViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
 
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
-        
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -63,6 +63,13 @@ class CaseFiltersViewController: UIViewController {
         
         collectionView.register(NotificationHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: filterHeaderReuseIdentifier)
         collectionView.register(FilterCaseCell.self, forCellWithReuseIdentifier: filterCellReuseIdentifier)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor)
+        ])
     }
 
     @objc func handleDismiss() {

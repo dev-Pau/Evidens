@@ -81,7 +81,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
         addSubviews(unreadImage, profileImageView, dotButton, contentLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17),
             profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
             profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
@@ -92,7 +92,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
             unreadImage.widthAnchor.constraint(equalToConstant: 7),
             
             dotButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             dotButton.heightAnchor.constraint(equalToConstant: buttonSize),
             dotButton.widthAnchor.constraint(equalToConstant: buttonSize),
             
@@ -103,7 +103,7 @@ class NotificationAcceptConnectionCell: UICollectionViewCell {
             timeLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             timeLabel.bottomAnchor.constraint(greaterThanOrEqualTo: profileImageView.bottomAnchor),
-            timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
 
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),

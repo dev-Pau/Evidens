@@ -104,7 +104,7 @@ class ShareCaseStageViewController: UIViewController {
         scrollView.addSubviews(titleLabel, contentLabel, solvedButton, unsolvedButton)
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
@@ -112,7 +112,7 @@ class ShareCaseStageViewController: UIViewController {
             contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            unsolvedButton.topAnchor.constraint(equalTo: solvedButton.bottomAnchor, constant: 10),
+            unsolvedButton.topAnchor.constraint(equalTo: solvedButton.bottomAnchor, constant: K.Paddings.Content.verticalPadding),
             unsolvedButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             unsolvedButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             

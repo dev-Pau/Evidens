@@ -86,8 +86,8 @@ class HashtagViewController: UIViewController {
         postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentnifier)
         
-        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        casesCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        postsCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
         postsCollectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyHashtagCellReuseIdentifier)
         casesCollectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyHashtagCellReuseIdentifier)
@@ -364,7 +364,7 @@ extension HashtagViewController: UICollectionViewDataSource, UICollectionViewDel
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
         return header
     }
     
@@ -581,8 +581,6 @@ extension HashtagViewController: PostCellDelegate {
         if let url = URL(string: urlString) {
             if UIApplication.shared.canOpenURL(url) {
                 presentSafariViewController(withURL: url)
-            } else {
-                presentWebViewController(withURL: url)
             }
         }
     }
@@ -1044,8 +1042,6 @@ extension HashtagViewController: ReferenceMenuViewControllerDelegate {
             if let url = URL(string: reference.referenceText) {
                 if UIApplication.shared.canOpenURL(url) {
                     presentSafariViewController(withURL: url)
-                } else {
-                    presentWebViewController(withURL: url)
                 }
             }
         case .citation:
@@ -1054,8 +1050,6 @@ extension HashtagViewController: ReferenceMenuViewControllerDelegate {
                 if let url = URL(string: AppStrings.URL.googleQuery + encodedQuery) {
                     if UIApplication.shared.canOpenURL(url) {
                         presentSafariViewController(withURL: url)
-                    } else {
-                        presentWebViewController(withURL: url)
                     }
                 }
             }

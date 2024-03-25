@@ -32,23 +32,48 @@ class BaseGuidelineHeader: UICollectionReusableView {
     
     private func configure() {
         backgroundColor = K.Colors.primaryColor
-        paddingView = QuarterCircleView()
-        paddingView.backgroundColor = .systemBackground
-        paddingView.translatesAutoresizingMaskIntoConstraints = false
-
-        addSubviews(paddingView, titleLabel)
         
-        topPaddingLayoutConstraint = paddingView.topAnchor.constraint(equalTo: topAnchor)
-        NSLayoutConstraint.activate([
-            topPaddingLayoutConstraint,
-            paddingView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            paddingView.widthAnchor.constraint(equalToConstant: frame.width),
-            paddingView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        if UIDevice.isPad {
+            let padView = UIView()
+            padView.translatesAutoresizingMaskIntoConstraints = false
+            padView.backgroundColor = K.Colors.primaryColor
             
-            titleLabel.topAnchor.constraint(equalTo: paddingView.topAnchor, constant: 20),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-        ])
+            addSubviews(padView, titleLabel)
+            
+            topPaddingLayoutConstraint = padView.topAnchor.constraint(equalTo: topAnchor)
+            
+            
+            NSLayoutConstraint.activate([
+                topPaddingLayoutConstraint,
+                padView.leadingAnchor.constraint(equalTo: leadingAnchor),
+                padView.widthAnchor.constraint(equalToConstant: frame.width),
+                padView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                
+                titleLabel.topAnchor.constraint(equalTo: padView.topAnchor, constant: 20),
+                titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+                titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            ])
+            
+        } else {
+            paddingView = QuarterCircleView()
+            paddingView.backgroundColor = .systemBackground
+            paddingView.translatesAutoresizingMaskIntoConstraints = false
+
+            addSubviews(paddingView, titleLabel)
+            
+            topPaddingLayoutConstraint = paddingView.topAnchor.constraint(equalTo: topAnchor)
+            
+            NSLayoutConstraint.activate([
+                topPaddingLayoutConstraint,
+                paddingView.leadingAnchor.constraint(equalTo: leadingAnchor),
+                paddingView.widthAnchor.constraint(equalToConstant: frame.width),
+                paddingView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                
+                titleLabel.topAnchor.constraint(equalTo: paddingView.topAnchor, constant: 20),
+                titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+                titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            ])
+        }
     }
     
     func offsetDidMove(_ y: CGFloat) {

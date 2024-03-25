@@ -17,6 +17,7 @@ class QuarterCircleView: UIView {
             lay.fillColor = K.Colors.primaryColor.cgColor
             layer.addSublayer(lay)
         }
+        
         if let lay = layer.sublayers?.first as? CAShapeLayer {
             let bez  = UIBezierPath()
             bez.move(to: CGPoint(x: 0, y: 0))

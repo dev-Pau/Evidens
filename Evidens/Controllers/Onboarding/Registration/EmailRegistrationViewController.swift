@@ -186,8 +186,6 @@ extension EmailRegistrationViewController: UITextViewDelegate {
         if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {
             if UIApplication.shared.canOpenURL(privacyURL) {
                 presentSafariViewController(withURL: privacyURL)
-            } else {
-                presentWebViewController(withURL: privacyURL)
             }
         }
         return false
@@ -195,8 +193,6 @@ extension EmailRegistrationViewController: UITextViewDelegate {
         if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {
             if UIApplication.shared.canOpenURL(privacyURL) {
                 presentSafariViewController(withURL: privacyURL)
-            } else {
-                presentWebViewController(withURL: privacyURL)
             }
         }
         return false

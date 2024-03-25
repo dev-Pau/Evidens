@@ -38,12 +38,12 @@ class LegalHeader: UICollectionReusableView {
         addSubviews(contentLabel, separatorView)
         NSLayoutConstraint.activate([
             
-            contentLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            contentLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
             contentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             contentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
+            contentLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             
-            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4)

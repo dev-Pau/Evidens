@@ -105,40 +105,43 @@ class NotificationTargetViewController: UIViewController {
         followingView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
         anyoneView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
         
-        followingView.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        followingView.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
-        anyoneView.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        anyoneView.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
-        separator.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
-        separator.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
-        
         stackView = UIStackView(arrangedSubviews: [separator, followingView, anyoneView])
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.spacing = 10
+        stackView.spacing = K.Paddings.Settings.verticalPadding
         stackView.alignment = .leading
         
         scrollView.addSubviews(contentLabel, titleLabel, uiSwitch, stackView, targetLabel)
 
         NSLayoutConstraint.activate([
-            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Settings.verticalPadding),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: K.Paddings.Settings.horizontalPadding),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
             
-            uiSwitch.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
-            uiSwitch.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            uiSwitch.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: K.Paddings.Settings.verticalPadding),
+            uiSwitch.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             
             titleLabel.centerYAnchor.constraint(equalTo: uiSwitch.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            titleLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: uiSwitch.leadingAnchor, constant: -10),
             
-            stackView.topAnchor.constraint(equalTo: uiSwitch.bottomAnchor, constant: 10),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: uiSwitch.bottomAnchor, constant: K.Paddings.Settings.verticalPadding),
+            stackView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             
             targetLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 10),
-            targetLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            targetLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            targetLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            targetLabel.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
+            
+            separator.heightAnchor.constraint(equalToConstant: 0.4),
+            separator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            followingView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
+            followingView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            
+            anyoneView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            anyoneView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor)
         ])
         
         contentLabel.text = topic.content

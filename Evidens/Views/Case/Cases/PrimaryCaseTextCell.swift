@@ -83,7 +83,7 @@ class PrimaryCaseTextCell: UICollectionViewCell {
         tv.textContainer.lineBreakMode = .byTruncatingTail
         return tv
     }()
- 
+    
     private let separator: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -228,11 +228,34 @@ class PrimaryCaseTextCell: UICollectionViewCell {
             let attributes = contentTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
             
             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
-                delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
+                if hashtag.hasPrefix("hash:") {
+                    delegate?.clinicalCase(wantsToSeeHashtag: hashtag)
+                } else {
+                    didTapClinicalCase()
+                }
             } else {
                 didTapClinicalCase()
             }
         }
+        
+        /*
+        
+         if let range = postTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
+             let startIndex = postTextView.offset(from: postTextView.beginningOfDocument, to: range.start)
+            
+             let attributes = postTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
+             
+             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
+                 if hashtag.hasPrefix("hash:") {
+                     delegate?.cell(wantsToSeeHashtag: hashtag)
+                 } else {
+                     delegate?.cell(showURL: hashtag)
+                 }
+             } else {
+                 didTapPost()
+             }
+         }
+         */
     }
 }
 

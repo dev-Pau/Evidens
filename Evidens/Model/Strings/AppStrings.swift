@@ -106,7 +106,7 @@ struct AppStrings {
         static let lineRightArrow = "arrow.right.to.line"
         static let circleEllipsis = "ellipsis.circle"
         static let car = "car"
-        static let compass = "line.3.horizontal"
+        static let compass = "square.on.square"
         static let cropPerson = "person.crop.rectangle"
         static let rectangle = "rectangle"
         static let eyeGlasses = "eyeglasses"
@@ -131,12 +131,14 @@ struct AppStrings {
         static let filter = "slider.horizontal.3"
         static let squareOnSquare = "square.on.square"
         static let fillSquareOnSquare = "square.fill.on.square.fill"
-        static let network = "person.fill"
-        static let padNetwork = "person"
+        static let person2Fill = "person.2.fill"
+        static let person2 = "person.2"
         static let fillBell = "bell.fill"
         static let clipboard = "list.clipboard.fill"
         static let listClipboard = "list.clipboard"
         static let stethoscope = "stethoscope"
+        static let bookmark = "bookmark"
+        static let fillBookmark = "bookmark.fill"
     }
     
     struct About {

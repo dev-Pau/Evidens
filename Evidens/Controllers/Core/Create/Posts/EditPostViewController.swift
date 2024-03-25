@@ -120,8 +120,6 @@ class EditPostViewController: UIViewController {
         
         postTextView.delegate = self
         
-        let imageSize: CGFloat = UIDevice.isPad ? 45 : 35
-        
         view.addSubview(scrollView)
         scrollView.addSubviews(profileImage, postTextView)
     
@@ -131,19 +129,19 @@ class EditPostViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            profileImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            profileImage.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 15),
-            profileImage.heightAnchor.constraint(equalToConstant: imageSize),
-            profileImage.widthAnchor.constraint(equalToConstant: imageSize),
+            profileImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
+            profileImage.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            profileImage.heightAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
+            profileImage.widthAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
             
             postTextView.topAnchor.constraint(equalTo: profileImage.centerYAnchor, constant: -(postTextView.font?.lineHeight ?? 0) / 2),
             postTextView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 10),
-            postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            postTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
         ])
         
-        profileImage.layer.cornerRadius = imageSize / 2
+        profileImage.layer.cornerRadius = K.Paddings.Content.userImageSize / 2
         
-        profileImage.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
+        profileImage.addImage(forUrl: UserDefaults.getImage(), size: K.Paddings.Content.userImageSize)
     }
     
     //MARK: - Actions

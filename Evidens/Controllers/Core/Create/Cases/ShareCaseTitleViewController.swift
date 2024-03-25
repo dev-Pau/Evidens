@@ -87,7 +87,6 @@ class ShareCaseTitleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureNavigationBar()
-        //configureObservers()
         configure()
     }
     
@@ -137,7 +136,7 @@ class ShareCaseTitleViewController: UIViewController {
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.heightAnchor.constraint(equalToConstant: 50),
             
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
@@ -189,8 +188,9 @@ class ShareCaseTitleViewController: UIViewController {
     
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
-            
+
             if notification.name == UIResponder.keyboardWillHideNotification {
+                
                 UIView.animate(withDuration: duration) { [weak self] in
                     guard let strongSelf = self else { return }
                     
@@ -201,7 +201,15 @@ class ShareCaseTitleViewController: UIViewController {
                 UIView.animate(withDuration: duration) { [weak self] in
                     guard let strongSelf = self else { return }
                     
-                    strongSelf.nextButtonConstraint.constant = -keyboardSize.height + 10
+                    let keyboardViewEndFrame = strongSelf.view.convert(keyboardSize, from: strongSelf.view.window)
+                    let bottomInset = keyboardViewEndFrame.height
+                    
+                    if UIDevice.isPad {
+                        strongSelf.nextButtonConstraint.constant = -(bottomInset)
+                    } else {
+                        strongSelf.nextButtonConstraint.constant = -(bottomInset) + 10
+                    }
+
                     strongSelf.view.layoutIfNeeded()
                 }
             }

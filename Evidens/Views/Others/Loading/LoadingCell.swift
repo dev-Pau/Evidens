@@ -31,7 +31,7 @@ class LoadingCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
             activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
-            activityIndicator.topAnchor.constraint(equalTo: topAnchor, constant: 10)
+            activityIndicator.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding)
         ])
         
         activityIndicator.startAnimating()

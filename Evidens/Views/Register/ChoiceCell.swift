@@ -52,10 +52,10 @@ class ChoiceCell: UICollectionViewCell {
         addSubviews(choiceLabel)
         
         NSLayoutConstraint.activate([
-            choiceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            choiceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            choiceLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            choiceLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10)
+            choiceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            choiceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
+            choiceLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
+            choiceLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding)
         ])
     }
 

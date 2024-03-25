@@ -92,7 +92,7 @@ class SideTabViewController: UIViewController {
         let item = NSCollectionLayoutItem(layoutSize: size)
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets.top = -10
+        section.contentInsets.top = -20
         return UICollectionViewCompositionalLayout(section: section)
     }
     

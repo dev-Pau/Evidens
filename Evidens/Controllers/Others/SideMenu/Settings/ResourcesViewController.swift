@@ -140,28 +140,28 @@ class ResourcesViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            kindLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Settings.verticalPadding),
+            kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: K.Paddings.Settings.horizontalPadding),
+            kindLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
             
-            kindSeparator.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: 10),
+            kindSeparator.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: K.Paddings.Settings.verticalPadding),
             kindSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             kindSeparator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             kindSeparator.heightAnchor.constraint(equalToConstant: 0.4),
             
             versionLabel.topAnchor.constraint(equalTo: kindSeparator.bottomAnchor, constant: 20),
-            versionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            versionLabel.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
             
             versionNumber.centerYAnchor.constraint(equalTo: versionLabel.centerYAnchor),
-            versionNumber.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            versionNumber.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             
             buildLabel.topAnchor.constraint(equalTo: versionLabel.bottomAnchor, constant: 20),
-            buildLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            buildLabel.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
             
             buildNumber.centerYAnchor.constraint(equalTo: buildLabel.centerYAnchor),
-            buildNumber.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            buildNumber.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             
             separatorView.topAnchor.constraint(equalTo: buildLabel.bottomAnchor, constant: 20),
             separatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -169,18 +169,18 @@ class ResourcesViewController: UIViewController {
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             helpTitle.topAnchor.constraint(equalTo: separatorView.bottomAnchor, constant: 20),
-            helpTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            helpTitle.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            helpTitle.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
+            helpTitle.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
   
             contentLabel.topAnchor.constraint(equalTo: errorTitle.bottomAnchor, constant: 15),
-            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            contentLabel.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
+            contentLabel.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             
-            uiSwitch.topAnchor.constraint(equalTo: helpTitle.bottomAnchor, constant: 10),
-            uiSwitch.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            uiSwitch.topAnchor.constraint(equalTo: helpTitle.bottomAnchor, constant: K.Paddings.Settings.verticalPadding),
+            uiSwitch.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             
             errorTitle.centerYAnchor.constraint(equalTo: uiSwitch.centerYAnchor),
-            errorTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            errorTitle.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
             errorTitle.trailingAnchor.constraint(equalTo: uiSwitch.leadingAnchor, constant: -10),
             
             copyright.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 40),

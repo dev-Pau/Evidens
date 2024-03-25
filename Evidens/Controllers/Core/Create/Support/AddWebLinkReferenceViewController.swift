@@ -127,7 +127,7 @@ class AddWebLinkReferenceViewController: UIViewController {
     private func configureUI() {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
-        scrollView.frame = view.frame
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         webLinkTextField.delegate = self
         let stack = UIStackView(arrangedSubviews: [referenceTitleLabel, referenceDescriptionLabel])
         stack.axis = .vertical
@@ -137,6 +137,11 @@ class AddWebLinkReferenceViewController: UIViewController {
         scrollView.addSubviews(stack, webLinkTextField, separatorView, verifyLinkButton)
         
         NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
             stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
             stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -171,13 +176,9 @@ class AddWebLinkReferenceViewController: UIViewController {
         if let url = URL(string: link) {
             if UIApplication.shared.canOpenURL(url) {
                 presentSafariViewController(withURL: url)
-            } else {
-                presentWebViewController(withURL: url)
             }
         }
     }
-    
-    //ga9lEBGQyNQb3uLUBu6X38I2tOl2
     
     private func addDiagnosisToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
@@ -220,7 +221,7 @@ class AddWebLinkReferenceViewController: UIViewController {
         cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .regular, scales: false)
         cancelConfig.attributedTitle = AttributedString(AppStrings.Actions.remove, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
-        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         
         referenceButton.configuration = shareConfig
         

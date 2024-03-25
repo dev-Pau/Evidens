@@ -83,14 +83,14 @@ class ContentLikeCell: UICollectionViewCell {
 
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: nameStackView.topAnchor),
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
             profileImageView.heightAnchor.constraint(equalToConstant: 43),
             profileImageView.widthAnchor.constraint(equalToConstant: 43),
           
-            nameStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            nameStackView.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
             nameStackView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            nameStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            nameStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            nameStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
+            nameStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
 
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),

@@ -62,23 +62,23 @@ class DiagnosisCaseCell: UICollectionViewCell {
     private func configure() {
         addSubviews(authorLabel, imageView, revisionLabel, contentLabel, separatorView)
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            imageView.heightAnchor.constraint(equalToConstant: 40),
-            imageView.widthAnchor.constraint(equalToConstant: 40),
+            imageView.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            imageView.heightAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
+            imageView.widthAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
             
             authorLabel.topAnchor.constraint(equalTo: imageView.topAnchor),
             authorLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 10),
-            authorLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),
+            authorLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             
             contentLabel.topAnchor.constraint(equalTo: authorLabel.bottomAnchor, constant: 5),
             contentLabel.leadingAnchor.constraint(equalTo: authorLabel.leadingAnchor),
-            contentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            contentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
 
             revisionLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
             revisionLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             revisionLabel.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
-            revisionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            revisionLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
@@ -86,7 +86,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
             separatorView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
         
-        imageView.layer.cornerRadius = 40 / 2
+        imageView.layer.cornerRadius = K.Paddings.Content.userImageSize / 2
     }
     
     private func configureWithRevision() {
@@ -97,7 +97,7 @@ class DiagnosisCaseCell: UICollectionViewCell {
     }
 
     func set(user: User) {
-        imageView.addImage(forUser: user, size: 40)
+        imageView.addImage(forUser: user, size: K.Paddings.Content.userImageSize)
     }
     
     func anonymize() {

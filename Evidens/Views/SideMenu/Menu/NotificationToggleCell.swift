@@ -42,13 +42,13 @@ class NotificationToggleCell: UICollectionViewCell {
     private func configure() {
         addSubviews(title, uiSwitch)
         NSLayoutConstraint.activate([
-            uiSwitch.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            uiSwitch.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
             uiSwitch.centerYAnchor.constraint(equalTo: centerYAnchor),
 
-            title.topAnchor.constraint(equalTo: topAnchor, constant: 13),
-            title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            title.trailingAnchor.constraint(equalTo: uiSwitch.leadingAnchor, constant: -10),
-            title.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -13)
+            title.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Settings.verticalPadding),
+            title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Settings.horizontalPadding),
+            title.trailingAnchor.constraint(equalTo: uiSwitch.leadingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
+            title.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Settings.verticalPadding)
         ])
         
         uiSwitch.addTarget(self, action: #selector(didToggleSwitch), for: .valueChanged)

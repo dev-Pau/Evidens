@@ -14,14 +14,19 @@ class TabBarIconCell: UICollectionViewCell {
     override var isSelected: Bool {
         didSet {
             guard let tabIcon = tabIcon else { return }
-            animateBounce(scale: isSelected ? 0.8 : 1.0)
+            
+            
             switch tabIcon {
-                
-            case .cases, .network, .notifications, .search, .bookmark, .drafts:
-                button.image = isSelected ? tabIcon.selectedImage : tabIcon.padImage
+            case .cases, .network:
+                let image = isSelected ? tabIcon.selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32)) : tabIcon.padImage.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32))
+                animateBounce(scale: isSelected ? 0.8 : 1.0, image: image)
+            case .notifications, .search, .bookmark, .drafts:
+                let image = isSelected ? tabIcon.selectedImage.scalePreservingAspectRatio(targetSize: CGSize(width: 28, height: 28)) : tabIcon.padImage.scalePreservingAspectRatio(targetSize: CGSize(width: 28, height: 28))
+                animateBounce(scale: isSelected ? 0.8 : 1.0, image: image)
             case .icon, .resources:
                 break
             case .profile:
+                animateBounce(scale: isSelected ? 0.8 : 1.0)
                 button.layer.borderColor = isSelected ? K.Colors.primaryColor.cgColor : K.Colors.separatorColor.cgColor
             }
         }
@@ -47,16 +52,15 @@ class TabBarIconCell: UICollectionViewCell {
     private func configure() {
         button = UIImageView()
         button.clipsToBounds = true
-        button.contentMode = .scaleAspectFit
         button.translatesAutoresizingMaskIntoConstraints = false
         addSubview(button)
         
         NSLayoutConstraint.activate([
-            button.topAnchor.constraint(equalTo: topAnchor, constant: 30),
+            button.topAnchor.constraint(equalTo: topAnchor, constant: 25),
             button.centerXAnchor.constraint(equalTo: centerXAnchor),
-            button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
-            button.heightAnchor.constraint(equalToConstant: 28),
-            button.widthAnchor.constraint(equalToConstant: 28)
+            button.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -25),
+            button.heightAnchor.constraint(equalToConstant: 35),
+            button.widthAnchor.constraint(equalToConstant: 35)
         ])
 
         button.isUserInteractionEnabled = false
@@ -65,34 +69,46 @@ class TabBarIconCell: UICollectionViewCell {
     
     private func configureIcon() {
         guard let tabIcon else { return }
-        if tabIcon == .profile {
-            configureProfile()
-        } else {
+        
+        switch tabIcon {
+        case .icon:
+            button.contentMode = .center
             button.image = tabIcon.padImage
+        case .cases, .network:
+            button.contentMode = .center
+            button.image = tabIcon.padImage.scalePreservingAspectRatio(targetSize: CGSize(width: 32, height: 32))
+        case .notifications, .search, .bookmark, .drafts, .resources:
+            button.contentMode = .center
+            button.image = tabIcon.padImage.scalePreservingAspectRatio(targetSize: CGSize(width: 28, height: 28))
+        case .profile:
+            button.contentMode = .scaleAspectFit
+            configureProfile()
         }
     }
     
     func configureProfile() {
-        addImage(forUrl: UserDefaults.getImage(), size: 28)
+        addImage(forUrl: UserDefaults.getImage(), size: 35)
         button.layer.borderColor = K.Colors.separatorColor.cgColor
         button.layer.borderWidth = 1
-        button.layer.cornerRadius = 28 / 2
+        button.layer.cornerRadius = 35 / 2
     }
     
-    func animateBounce(scale: CGFloat) {
+    func animateBounce(scale: CGFloat, image: UIImage? = nil) {
         guard !isAnimating else { return }
         isAnimating = true
         
-        UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 10, options: [.curveEaseInOut]) { [weak self] in
+        UIView.animate(withDuration: 0.1) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.button.transform = CGAffineTransform(scaleX: scale, y: scale)
-            strongSelf.layoutIfNeeded()
         } completion: { [weak self] _ in
-            guard let _ = self else { return }
-            UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 10, options: [.curveEaseOut]) { [weak self] in
+            UIView.animate(withDuration: 0.1) { [weak self] in
                 guard let strongSelf = self else { return }
+                
+                if let image {
+                    strongSelf.button.image = image
+                }
+                
                 strongSelf.button.transform = CGAffineTransform.identity
-                strongSelf.layoutIfNeeded()
             } completion: { [weak self] _ in
                 guard let strongSelf = self else { return }
                 strongSelf.isAnimating = false

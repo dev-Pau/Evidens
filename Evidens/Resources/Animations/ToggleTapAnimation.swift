@@ -22,7 +22,8 @@ final class ToggleTapAnimation {
             guard let _ = self else { return }
             button.transform = button.transform.scaledBy(x: 0.8, y: 0.8)
         } completion: { _ in
-            UIView.animate(withDuration: 0.1) {
+            UIView.animate(withDuration: 0.1) { [weak self] in
+                guard let _ = self else { return }
                 button.transform = CGAffineTransform.identity
             }
         }

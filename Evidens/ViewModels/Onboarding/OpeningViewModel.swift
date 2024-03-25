@@ -21,6 +21,10 @@ class OpeningViewModel {
         return UIDevice.isPad ? 40.0 : 20.0
     }
     
+    var linePadding: CGFloat {
+        return UIDevice.isPad ? 20.0 : 10.0
+    }
+    
     var buttonSize: CGFloat {
         return UIDevice.isPad ? 60.0 : 50.0
     }

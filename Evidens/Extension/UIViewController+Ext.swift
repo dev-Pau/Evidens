@@ -84,16 +84,6 @@ extension UIViewController {
         present(safariViewController, animated: true, completion: nil)
     }
     
-    /// Presents a Web View Controller with the specified URL.
-    ///
-    /// - Parameters:
-    ///   - url: The URL to be displayed in the Web View Controller.
-    func presentWebViewController(withURL url: URL) {
-        let webViewController = WebViewController(url: url)
-        let navVC = UINavigationController(rootViewController: webViewController)
-        present(navVC, animated: true, completion: nil)
-    }
-    
     /// Displays an alert with the specified title and optional message.
     ///
     /// - Parameters:

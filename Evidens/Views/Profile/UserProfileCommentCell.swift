@@ -11,6 +11,8 @@ class UserProfileCommentCell: UICollectionViewCell {
     
     var user: User?
     
+    private let imageSize: CGFloat = UIDevice.isPad ? 35 : 30
+    
     private var profileImageView = ProfileImageView(frame: .zero)
     
     private var commentLabel: UILabel = {
@@ -54,19 +56,20 @@ class UserProfileCommentCell: UICollectionViewCell {
         addSubviews(profileImageView, commentLabel, commentUserLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            commentLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            commentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            commentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            commentLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            commentLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            commentLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
 
-            profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            profileImageView.heightAnchor.constraint(equalToConstant: 30),
-            profileImageView.widthAnchor.constraint(equalToConstant: 30),
+            profileImageView.leadingAnchor.constraint(equalTo: commentLabel.leadingAnchor),
+            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
             profileImageView.topAnchor.constraint(equalTo: commentLabel.bottomAnchor, constant: 5),
             
             commentUserLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             commentUserLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
-            commentUserLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            commentUserLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
+            commentUserLabel.trailingAnchor.constraint(equalTo: commentLabel.trailingAnchor),
+            commentUserLabel.bottomAnchor.constraint(greaterThanOrEqualTo: profileImageView.bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
+            commentUserLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -74,7 +77,7 @@ class UserProfileCommentCell: UICollectionViewCell {
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
         ])
         
-        profileImageView.layer.cornerRadius = 30 / 2
+        profileImageView.layer.cornerRadius = imageSize / 2
     }
     
     func commentLabelAttributedString(text: String, timestamp: String) -> NSAttributedString? {
@@ -103,6 +106,6 @@ class UserProfileCommentCell: UICollectionViewCell {
         commentLabel.attributedText = commentLabelAttributedString(text: recentComment.kind.title + " " + AppStrings.Profile.Comment.onThis + " " + recentComment.source.title, timestamp: commentTimestamp ?? "")
         commentUserLabel.text = recentComment.content
         
-        profileImageView.addImage(forUser: user, size: 30)
+        profileImageView.addImage(forUser: user, size: imageSize)
     }
 }

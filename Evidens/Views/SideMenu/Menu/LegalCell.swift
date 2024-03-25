@@ -27,10 +27,10 @@ class LegalCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate([
 
-            label.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            label.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Settings.verticalPadding),
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Settings.verticalPadding)
         ])
     }
     

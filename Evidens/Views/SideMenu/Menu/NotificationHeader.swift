@@ -31,10 +31,10 @@ class NotificationHeader: UICollectionReusableView {
     private func configure() {
         addSubviews(title)
         NSLayoutConstraint.activate([
-            title.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            title.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            title.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+            title.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Settings.verticalPadding),
+            title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Settings.horizontalPadding),
+            title.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
+            title.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Settings.verticalPadding)
         ])
     }
     

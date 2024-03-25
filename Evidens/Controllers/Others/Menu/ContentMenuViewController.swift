@@ -43,7 +43,7 @@ class ContentMenuViewController: UIViewController {
         collectionView.register(ContentMenuHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(ContentMenuCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = false
-        collectionView.layer.cornerRadius = 30
+        collectionView.layer.cornerRadius = 35
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         
         backgroundView = UIView()

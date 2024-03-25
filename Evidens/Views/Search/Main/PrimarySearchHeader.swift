@@ -28,6 +28,7 @@ class PrimarySearchHeader: UICollectionReusableView {
         let button = UIButton(type: .system)
         button.configuration = .plain()
         button.configuration?.baseForegroundColor = K.Colors.primaryColor
+        button.configuration?.contentInsets = .zero
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(handleSeeAllButtonTap), for: .touchUpInside)
         return button
@@ -46,12 +47,12 @@ class PrimarySearchHeader: UICollectionReusableView {
         backgroundColor = .systemBackground
         addSubviews(titleLabel, seeAllButton)
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             
             seeAllButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            seeAllButton.trailingAnchor.constraint(equalTo: trailingAnchor)
+            seeAllButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding)
         ])
 
     }
@@ -60,6 +61,7 @@ class PrimarySearchHeader: UICollectionReusableView {
         titleLabel.text = title
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 16, scaleStyle: .title3, weight: .medium)
+        
         if let linkText = linkText {
             seeAllButton.configuration?.attributedTitle = AttributedString(linkText, attributes: container)
         } else {

@@ -125,7 +125,7 @@ class ReferenceViewController: UIViewController {
             referenceImageView.heightAnchor.constraint(equalToConstant: buttonSize),
             referenceImageView.widthAnchor.constraint(equalToConstant: buttonSize),
             
-            stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: -40),
+            stack.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor, constant: UIDevice.isPad ? -100 : -40),
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])

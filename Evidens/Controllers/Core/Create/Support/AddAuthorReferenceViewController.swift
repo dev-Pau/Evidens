@@ -119,8 +119,7 @@ class AddAuthorReferenceViewController: UIViewController {
     private func configureUI() {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
-        scrollView.frame = view.bounds
-        
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         let stack = UIStackView(arrangedSubviews: [titleLabel, contentLabel])
         stack.axis = .vertical
         stack.spacing = 20
@@ -129,6 +128,11 @@ class AddAuthorReferenceViewController: UIViewController {
         scrollView.addSubviews(stack, citationTextView, separatorView)
         
         NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
             stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
@@ -200,7 +204,7 @@ class AddAuthorReferenceViewController: UIViewController {
         cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .body, weight: .regular, scales: false)
         cancelConfig.attributedTitle = AttributedString(AppStrings.Actions.remove, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
-        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         
         referenceButton.configuration = shareConfig
         
@@ -219,10 +223,9 @@ class AddAuthorReferenceViewController: UIViewController {
     }
     
     @objc func addReference() {
-        guard let text = citationTextView.text, !text.isEmpty else { return }
+        guard let text = citationTextView.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         let reference = Reference(option: .citation, referenceText: text)
         delegate?.didAddReference(reference)
-        //NotificationCenter.default.post(name: NSNotification.Name("PostReference"), object: nil, userInfo: ["reference": reference])
         dismiss(animated: true)
     }
     
@@ -232,21 +235,41 @@ class AddAuthorReferenceViewController: UIViewController {
     }
 
     @objc func handleDismiss() {
-        dismiss(animated: true)
+        if referenceButton.isEnabled {
+            displayAlert(withTitle: AppStrings.Alerts.Title.cancelContent, withMessage: AppStrings.Alerts.Subtitle.cancelContent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.quit, style: .default) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.citationTextView.resignFirstResponder()
+                strongSelf.dismiss(animated: true)
+            }
+        } else {
+            dismiss(animated: true)
+        }
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             scrollView.resizeContentSize()
-            let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+          
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
-                scrollView.contentInset = UIEdgeInsets(top: 0,
-                                                       left: 0,
-                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
-                                                       right: 0)
+                let lineHeight = 1.5 * (citationTextView.font?.lineHeight ?? 20.0)
+                
+                let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+                var bottomInset = keyboardViewEndFrame.height
+
+                if UIDevice.isPad {
+                    let windowBottom = UIWindow.visibleScreenBounds.maxY
+                    let viewControllerBottom = view.frame.maxY
+                    let distance = windowBottom - viewControllerBottom
+                    bottomInset -= distance
+                    scrollView.contentInset.bottom = bottomInset + 2 * lineHeight
+                } else {
+                    bottomInset -= view.safeAreaInsets.bottom
+                    scrollView.contentInset.bottom = bottomInset + lineHeight
+                }
             }
+            
             scrollView.scrollIndicatorInsets = scrollView.contentInset
             scrollView.resizeContentSize()
         }
@@ -271,7 +294,7 @@ extension AddAuthorReferenceViewController: UITextViewDelegate {
             textView.text = textView.text.replacingOccurrences(of: AppStrings.Reference.citationExample, with: "")
         }
         
-        referenceButton.isEnabled = textView.text.isEmpty ? false : true
+        referenceButton.isEnabled = textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? false : true
         
         let size = CGSize(width: view.frame.width, height: .infinity)
         let estimatedSize = textView.sizeThatFits(size)

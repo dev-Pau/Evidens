@@ -41,11 +41,11 @@ class FilterCaseCell: UICollectionViewCell {
         isUserInteractionEnabled = true
         addSubviews(targetLabel, targetImageView)
         NSLayoutConstraint.activate([
-            targetLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            targetLabel.trailingAnchor.constraint(equalTo: targetImageView.leadingAnchor, constant: -10),
+            targetLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            targetLabel.trailingAnchor.constraint(equalTo: targetImageView.leadingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             targetLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
 
-            targetImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            targetImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             targetImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
             targetImageView.heightAnchor.constraint(equalToConstant: 25),
             targetImageView.widthAnchor.constraint(equalToConstant: 25)

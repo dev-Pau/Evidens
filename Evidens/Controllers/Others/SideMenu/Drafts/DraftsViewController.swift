@@ -45,7 +45,7 @@ class DraftsViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(DraftCaseTextCell.self, forCellWithReuseIdentifier: draftCaseTextCellReuseIdentifier)
         collectionView.register(DraftCaseImageCell.self, forCellWithReuseIdentifier: draftCaseImageCellReuseIdentifier)
         collectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: draftEmptyCellReuseIdentifier)
@@ -73,6 +73,15 @@ class DraftsViewController: UIViewController {
             guard let strongSelf = self else { return }
             strongSelf.collectionView.reloadData()
         }
+    }
+    
+    
+    func draftLoaded() -> Bool {
+        return viewModel.caseLoaded
+    }
+    
+    func scrollCollectionViewToTop() {
+        collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     }
     
     private func addLayout() -> UICollectionViewCompositionalLayout {
@@ -119,7 +128,7 @@ extension DraftsViewController: UICollectionViewDelegateFlowLayout, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
         return header
     }
     
@@ -146,6 +155,7 @@ extension DraftsViewController: UICollectionViewDelegateFlowLayout, UICollection
                 return cell
             case .image:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: draftCaseImageCellReuseIdentifier, for: indexPath) as! DraftCaseImageCell
+                cell.delegate = self
                 cell.viewModel = CaseViewModel(clinicalCase: clinicalCase)
                 return cell
             }
@@ -164,5 +174,17 @@ extension DraftsViewController: NetworkFailureCellDelegate {
         viewModel.reset()
         collectionView.reloadData()
         getCases()
+    }
+}
+
+extension DraftsViewController: DraftCaseImageCellDelegate {
+    func didTapImage(_ imageView: UIImageView) {
+        if let image = imageView.image {
+            let controller = ContentImageViewController(image: image, navVC: navigationController)
+            let navVC = UINavigationController(rootViewController: controller)
+            navVC.setNavigationBarHidden(true, animated: false)
+            navVC.modalPresentationStyle = .overFullScreen
+            present(navVC, animated: true)
+        }
     }
 }

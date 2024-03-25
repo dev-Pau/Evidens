@@ -50,19 +50,19 @@ class NotificationTargetCell: UICollectionViewCell {
         addSubviews(title, onOffLabel, chevronImage)
         NSLayoutConstraint.activate([
             
-            chevronImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            chevronImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
             chevronImage.centerYAnchor.constraint(equalTo: centerYAnchor),
             chevronImage.widthAnchor.constraint(equalToConstant: 20),
             chevronImage.heightAnchor.constraint(equalToConstant: 20),
             
-            onOffLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
+            onOffLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
             onOffLabel.centerYAnchor.constraint(equalTo: chevronImage.centerYAnchor),
             onOffLabel.widthAnchor.constraint(equalToConstant: 100),
             
-            title.topAnchor.constraint(equalTo: topAnchor, constant: 13),
-            title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            title.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Settings.verticalPadding),
+            title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Settings.horizontalPadding),
             title.trailingAnchor.constraint(equalTo: onOffLabel.leadingAnchor, constant: -10),
-            title.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -13)
+            title.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Settings.verticalPadding)
             
         ])
         

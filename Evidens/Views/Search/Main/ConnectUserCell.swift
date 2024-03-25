@@ -67,8 +67,7 @@ class ConnectUserCell: UICollectionViewCell {
     }
     
     private func configure() {
-        let imageSize: CGFloat = UIDevice.isPad ? 53 : 43
-        
+
         let stackView = UIStackView(arrangedSubviews: [nameLabel, usernameLabel])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -77,10 +76,10 @@ class ConnectUserCell: UICollectionViewCell {
         addSubviews(profileImageView, stackView, discipline, separator)
         
         NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
             profileImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
-            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.heightAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
+            profileImageView.widthAnchor.constraint(equalToConstant: K.Paddings.Content.userImageSize),
             
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             stackView.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
@@ -89,21 +88,21 @@ class ConnectUserCell: UICollectionViewCell {
             discipline.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 5),
             discipline.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             discipline.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-            discipline.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            discipline.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
-            separator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -10),
-            separator.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
+            separator.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -K.Paddings.Content.horizontalPadding),
+            separator.trailingAnchor.constraint(equalTo: trailingAnchor, constant: K.Paddings.Content.horizontalPadding),
             separator.heightAnchor.constraint(equalToConstant: 0.4)
         ])
         
-        profileImageView.layer.cornerRadius = imageSize / 2
+        profileImageView.layer.cornerRadius = K.Paddings.Content.userImageSize / 2
     }
     
     func configureUser() {
         guard let viewModel = viewModel else { return }
-        let imageSize: CGFloat = UIDevice.isPad ? 53 : 43
-        profileImageView.addImage(forUser: viewModel.user, size: imageSize)
+
+        profileImageView.addImage(forUser: viewModel.user, size: K.Paddings.Content.userImageSize)
         nameLabel.text = viewModel.name
         discipline.text = viewModel.details
         usernameLabel.text = viewModel.username

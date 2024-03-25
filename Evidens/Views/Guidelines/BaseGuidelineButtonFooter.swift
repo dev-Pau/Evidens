@@ -44,7 +44,8 @@ class BaseGuidelineButtonFooter: UICollectionReusableView {
             guideButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             guideButton.leadingAnchor.constraint(equalTo: leadingAnchor),
             guideButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            guideButton.bottomAnchor.constraint(equalTo: bottomAnchor)
+            guideButton.heightAnchor.constraint(equalToConstant: 50),
+            guideButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: UIDevice.isPad ? -10 : 0)
         ])
         
         var container = AttributeContainer()

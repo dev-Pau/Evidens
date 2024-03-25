@@ -148,9 +148,9 @@ class ChangePasswordViewController: UIViewController {
         confirmPasswordLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
         NSLayoutConstraint.activate([
-            kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            kindLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+            kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Settings.verticalPadding),
+            kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: K.Paddings.Settings.horizontalPadding),
+            kindLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
             
             kindSeparator.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: 10),
             kindSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -158,29 +158,29 @@ class ChangePasswordViewController: UIViewController {
             kindSeparator.heightAnchor.constraint(equalToConstant: 0.4),
             
             currentPasswordLabel.topAnchor.constraint(equalTo: kindSeparator.bottomAnchor, constant: 30),
-            currentPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            currentPasswordLabel.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
             
             newPasswordLabel.topAnchor.constraint(equalTo: currentPasswordLabel.bottomAnchor, constant: 30),
-            newPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            newPasswordLabel.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
             
             confirmPasswordLabel.topAnchor.constraint(equalTo: newPasswordLabel.bottomAnchor, constant: 30),
-            confirmPasswordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            confirmPasswordLabel.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
             
             currentPasswordTextField.centerYAnchor.constraint(equalTo: currentPasswordLabel.centerYAnchor),
             currentPasswordTextField.leadingAnchor.constraint(equalTo: confirmPasswordLabel.trailingAnchor, constant: 20),
-            currentPasswordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            currentPasswordTextField.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             
             newPasswordTextField.centerYAnchor.constraint(equalTo: newPasswordLabel.centerYAnchor),
             newPasswordTextField.leadingAnchor.constraint(equalTo: confirmPasswordLabel.trailingAnchor, constant: 20),
-            newPasswordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            newPasswordTextField.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             
             confirmPasswordTextField.centerYAnchor.constraint(equalTo: confirmPasswordLabel.centerYAnchor),
             confirmPasswordTextField.leadingAnchor.constraint(equalTo: confirmPasswordLabel.trailingAnchor, constant: 20),
-            confirmPasswordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            confirmPasswordTextField.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             
             passwordConditionTextView.topAnchor.constraint(equalTo: confirmPasswordLabel.bottomAnchor, constant: 30),
-            passwordConditionTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            passwordConditionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            passwordConditionTextView.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
+            passwordConditionTextView.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
         ])
         
         let font = UIFont.addFont(size: 13, scaleStyle: .title2, weight: .regular)

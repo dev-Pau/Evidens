@@ -216,7 +216,7 @@ class UserProfileViewController: UIViewController {
         casesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         casesCollectionView.register(CaseTextCell.self, forCellWithReuseIdentifier: caseTextCellReuseIdentifier)
         casesCollectionView.register(CaseTextImageCell.self, forCellWithReuseIdentifier: caseTextImageCellReuseIdentifier)
-        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        casesCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
 
         postsCollectionView.delegate = self
         postsCollectionView.dataSource = self
@@ -224,13 +224,13 @@ class UserProfileViewController: UIViewController {
         postsCollectionView.register(PostTextCell.self, forCellWithReuseIdentifier: postTextCellReuseIdentifier)
         postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postTextImageCellReuseIdentifier)
         postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
-        postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        postsCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
        
         repliesCollectionView.delegate = self
         repliesCollectionView.dataSource = self
         repliesCollectionView.register(PrimaryEmptyCell.self, forCellWithReuseIdentifier: emptyContentCellReuseIdentifier)
         repliesCollectionView.register(UserProfileCommentCell.self, forCellWithReuseIdentifier: commentsCellReuseIdentifier)
-        repliesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        repliesCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
         casesSpacingView.translatesAutoresizingMaskIntoConstraints = false
         postsSpacingView.translatesAutoresizingMaskIntoConstraints = false
@@ -692,7 +692,7 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
         return header
     }
     
@@ -810,31 +810,12 @@ extension UserProfileViewController: UICollectionViewDataSource, UICollectionVie
     }
 }
 
-extension UserProfileViewController: UserProfileAboutCellDelegate {
-    func wantsToSeeHashtag(_ hashtag: String) {
-        let controller = HashtagViewController(hashtag: hashtag)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-    
-    func showUrl(_ url: String) {
-        if let url = URL(string: url) {
-            if UIApplication.shared.canOpenURL(url) {
-                presentSafariViewController(withURL: url)
-            } else {
-                presentWebViewController(withURL: url)
-            }
-        }
-    }
-}
-
 extension UserProfileViewController: PostCellDelegate {
     
     func cell(showURL urlString: String) {
         if let url = URL(string: urlString) {
             if UIApplication.shared.canOpenURL(url) {
                 presentSafariViewController(withURL: url)
-            } else {
-                presentWebViewController(withURL: url)
             }
         }
     }
@@ -1324,8 +1305,6 @@ extension UserProfileViewController: ReferenceMenuViewControllerDelegate {
             if let url = URL(string: reference.referenceText) {
                 if UIApplication.shared.canOpenURL(url) {
                     presentSafariViewController(withURL: url)
-                } else {
-                    presentWebViewController(withURL: url)
                 }
             }
         case .citation:
@@ -1334,8 +1313,6 @@ extension UserProfileViewController: ReferenceMenuViewControllerDelegate {
                 if let url = URL(string: AppStrings.URL.googleQuery + encodedQuery) {
                     if UIApplication.shared.canOpenURL(url) {
                         presentSafariViewController(withURL: url)
-                    } else {
-                        presentWebViewController(withURL: url)
                     }
                 }
             }
@@ -1358,8 +1335,6 @@ extension UserProfileViewController: ProfileNameViewDelegate {
         if let url = URL(string: viewModel.getFormatUrl()) {
             if UIApplication.shared.canOpenURL(url) {
                 presentSafariViewController(withURL: url)
-            } else {
-                presentWebViewController(withURL: url)
             }
         }
     }

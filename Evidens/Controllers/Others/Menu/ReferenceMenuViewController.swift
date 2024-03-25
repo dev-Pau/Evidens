@@ -63,7 +63,7 @@ class ReferenceMenuViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         
-        collectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        collectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         collectionView.register(ContentMenuHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(ContextMenuFooter.self, forSupplementaryViewOfKind: ElementKind.sectionFooter, withReuseIdentifier: footerReuseIdentifier)
         
@@ -71,7 +71,7 @@ class ReferenceMenuViewController: UIViewController {
         collectionView.register(ContextMenuCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         
         collectionView.isScrollEnabled = false
-        collectionView.layer.cornerRadius = 30
+        collectionView.layer.cornerRadius = 35
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
 
         backgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))
@@ -207,7 +207,7 @@ extension ReferenceMenuViewController: UICollectionViewDelegateFlowLayout, UICol
                 header.set(reference: reference)
                 return header
             } else {
-                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+                let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
                 return header
             }
         }

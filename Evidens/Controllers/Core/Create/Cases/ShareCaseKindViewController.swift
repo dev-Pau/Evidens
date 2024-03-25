@@ -78,7 +78,7 @@ class ShareCaseKindViewController: UIViewController {
         view.addSubviews(collectionView, nextButton)
         
         NSLayoutConstraint.activate([
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -20 : 0),
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.heightAnchor.constraint(equalToConstant: 50),
@@ -101,6 +101,7 @@ class ShareCaseKindViewController: UIViewController {
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
+            
             group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
             
             let section = NSCollectionLayoutSection(group: group)

@@ -62,7 +62,7 @@ class BaseGuidelineFooter: UICollectionReusableView {
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: chevron.leadingAnchor, constant: -10),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             
             chevron.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             chevron.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -10),

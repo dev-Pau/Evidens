@@ -122,8 +122,8 @@ class AddReportContextViewController: UIViewController {
     
     private func configureUI() {
         view.addSubview(scrollView)
-        scrollView.frame = view.bounds
-
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        
         let stack = UIStackView(arrangedSubviews: [titleLabel, contextDescription])
         stack.axis = .vertical
     
@@ -133,7 +133,12 @@ class AddReportContextViewController: UIViewController {
         scrollView.addSubviews(stack, contextTextView)
         
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            stack.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
@@ -156,10 +161,7 @@ class AddReportContextViewController: UIViewController {
             cancelButton.isHidden = false
         }
     }
-    
-    //   shareConfig.attributedTitle = AttributedString(AppStrings.Global.add, attributes: shareContainer)
-    // cancelConfig.attributedTitle = AttributedString(AppStrings.Actions.remove, attributes: cancelContainer)
-    
+   
     private func addReportToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
         toolbar.translatesAutoresizingMaskIntoConstraints = false
@@ -198,7 +200,7 @@ class AddReportContextViewController: UIViewController {
         cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
         cancelConfig.attributedTitle = AttributedString(AppStrings.Actions.remove, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
-        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         
         referenceButton.configuration = shareConfig
         cancelButton.configuration = cancelConfig
@@ -240,15 +242,27 @@ class AddReportContextViewController: UIViewController {
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             scrollView.resizeContentSize()
-            let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
-                scrollView.contentInset = UIEdgeInsets(top: 0,
-                                                       left: 0,
-                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
-                                                       right: 0)
+                let lineHeight = 1.5 * (contextTextView.font?.lineHeight ?? 20.0)
+                
+                let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+                var bottomInset = keyboardViewEndFrame.height
+
+                if UIDevice.isPad {
+                    let windowBottom = UIWindow.visibleScreenBounds.maxY
+                    let viewControllerBottom = view.frame.maxY
+                    let distance = windowBottom - viewControllerBottom
+                    bottomInset -= distance
+                    scrollView.contentInset.bottom = bottomInset + 2 * lineHeight
+                } else {
+                    bottomInset -= view.safeAreaInsets.bottom
+                    scrollView.contentInset.bottom = bottomInset + lineHeight
+                }
             }
+            
             scrollView.scrollIndicatorInsets = scrollView.contentInset
             scrollView.resizeContentSize()
         }

@@ -50,7 +50,7 @@ class ConnectMenuViewController: UIViewController {
         collectionView.register(ContentMenuHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: headerReuseIdentifier)
         collectionView.register(ConnectionMenuCell.self, forCellWithReuseIdentifier: cellReuseIdentifier)
         collectionView.isScrollEnabled = false
-        collectionView.layer.cornerRadius = 30
+        collectionView.layer.cornerRadius = 35
         collectionView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
 
         backgroundView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))

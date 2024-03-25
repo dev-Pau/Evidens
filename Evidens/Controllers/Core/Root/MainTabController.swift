@@ -487,6 +487,30 @@ extension MainTabController: UITabBarControllerDelegate {
                 return true
             }
             return true
+        } else if viewController == tabBarController.viewControllers?[4] {
+            if let currentNavController = selectedViewController as? UINavigationController {
+                if currentNavController.viewControllers.count == 1 {
+                    if let controller = currentNavController.viewControllers.first as? BookmarksViewController, controller.bookmarkLoaded() == true {
+                        controller.scrollCollectionViewToTop()
+                        return false
+                    }
+                    return true
+                }
+                return true
+            }
+            return true
+        } else if viewController == tabBarController.viewControllers?[5] {
+            if let currentNavController = selectedViewController as? UINavigationController {
+                if currentNavController.viewControllers.count == 1 {
+                    if let controller = currentNavController.viewControllers.first as? DraftsViewController, controller.draftLoaded() == true {
+                        controller.scrollCollectionViewToTop()
+                        return false
+                    }
+                    return true
+                }
+                return true
+            }
+            return true
         }
         return true
     }
@@ -602,21 +626,22 @@ extension MainTabController: SideTabViewControllerDelegate {
         case .icon, .resources:
             break
         case .cases:
-            selectedIndex = 0
+            shouldSelectItemAt(index: 0)
         case .network:
-            selectedIndex = 1
+            shouldSelectItemAt(index: 1)
         case .notifications:
-            selectedIndex = 2
+            shouldSelectItemAt(index: 2)
         case .search:
-            selectedIndex = 3
+            shouldSelectItemAt(index: 3)
         case .bookmark:
-            selectedIndex = 4
+            shouldSelectItemAt(index: 4)
         case .drafts:
-            selectedIndex = 5
-#warning("això si, em d'afegir a draft i a cases un mecanisme per mirar si hi ha de nous com tenim a notificationVC quan estem a IPAD")
+            shouldSelectItemAt(index: 5)
         case .profile:
             selectProfileIndex()
             #warning("aquí en comptes de cada vegada obrirlo seria interessant que sempr estigués obert o no eh potser el podríem deixar així i que cada vegada que s'apreti es carregui, ho mirem")
+            
+            #warning("això si, em d'afegir a draft i a cases un mecanisme per mirar si hi ha de nous com tenim a notificationVC quan estem a IPAD")
         }
     }
     
@@ -625,11 +650,30 @@ extension MainTabController: SideTabViewControllerDelegate {
     }
     
     private func selectProfileIndex() {
-        guard let user, selectedIndex != 6 else { return }
+        let profileIndex = 6
+        guard let user, selectedIndex != profileIndex else { return }
         let controller = UserProfileViewController(user: user)
         let navVC = UINavigationController(rootViewController: controller)
-        let profileIndex = 6
-        viewControllers?[6] = navVC
-        selectedIndex = 6
+ 
+        viewControllers?[profileIndex] = navVC
+        selectedIndex = profileIndex
+    }
+    
+    private func shouldSelectItemAt(index: Int) {
+        if selectedIndex != index {
+            selectedIndex = index
+        } else {
+            selectedIndex = index
+            
+            guard let navController = viewControllers?[index] as? UINavigationController else {
+                return
+            }
+            
+            let shouldSelect = tabBarController(self, shouldSelect: navController)
+            
+            if shouldSelect {
+                navController.popToRootViewController(animated: true)
+            }
+        }
     }
 }

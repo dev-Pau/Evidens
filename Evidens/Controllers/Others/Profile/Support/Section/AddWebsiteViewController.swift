@@ -108,7 +108,7 @@ class AddWebsiteViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.horizontalPadding),
             contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
@@ -160,7 +160,7 @@ class AddWebsiteViewController: UIViewController {
         cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
         cancelConfig.attributedTitle = AttributedString(AppStrings.Miscellaneous.goBack, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
-        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         
         aboutButton.configuration = shareConfig
         

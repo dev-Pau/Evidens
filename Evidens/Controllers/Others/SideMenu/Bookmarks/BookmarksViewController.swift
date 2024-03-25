@@ -136,8 +136,8 @@ class BookmarksViewController: UIViewController {
         postsCollectionView.register(PostTextImageCell.self, forCellWithReuseIdentifier: postImageCellReuseIdentifier)
         postsCollectionView.register(PostLinkCell.self, forCellWithReuseIdentifier: postLinkCellReuseIdentifier)
         
-        casesCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
-        postsCollectionView.register(MELoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        casesCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
+        postsCollectionView.register(LoadingHeader.self, forSupplementaryViewOfKind: ElementKind.sectionHeader, withReuseIdentifier: loadingHeaderReuseIdentifier)
         
         postsCollectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
         casesCollectionView.register(SecondaryEmptyCell.self, forCellWithReuseIdentifier: emptyBookmarkCellCaseReuseIdentifier)
@@ -224,6 +224,28 @@ class BookmarksViewController: UIViewController {
         }
     }
     
+    func bookmarkLoaded() -> Bool {
+        switch viewModel.scrollIndex {
+        case 0:
+            return viewModel.caseLoaded
+        case 1:
+            return viewModel.postLoaded
+        default:
+            return false
+        }
+    }
+    
+    func scrollCollectionViewToTop() {
+        switch viewModel.scrollIndex {
+        case 0:
+            casesCollectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
+        case 1:
+            postsCollectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
+        default:
+            break
+        }
+    }
+    
     private func handleLikeUnlike(for cell: CaseCellProtocol, at indexPath: IndexPath) {
         guard let clinicalCase = cell.viewModel?.clinicalCase else { return }
         
@@ -261,7 +283,7 @@ extension BookmarksViewController: UICollectionViewDelegateFlowLayout, UICollect
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! MELoadingHeader
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: loadingHeaderReuseIdentifier, for: indexPath) as! LoadingHeader
         return header
     }
     
@@ -596,8 +618,6 @@ extension BookmarksViewController: PostCellDelegate {
         if let url = URL(string: urlString) {
             if UIApplication.shared.canOpenURL(url) {
                 presentSafariViewController(withURL: url)
-            } else {
-                presentWebViewController(withURL: url)
             }
         }
     }
@@ -869,8 +889,6 @@ extension BookmarksViewController: ReferenceMenuViewControllerDelegate {
             if let url = URL(string: reference.referenceText) {
                 if UIApplication.shared.canOpenURL(url) {
                     presentSafariViewController(withURL: url)
-                } else {
-                    presentWebViewController(withURL: url)
                 }
             }
         case .citation:
@@ -879,8 +897,6 @@ extension BookmarksViewController: ReferenceMenuViewControllerDelegate {
                 if let url = URL(string: AppStrings.URL.googleQuery + encodedQuery) {
                     if UIApplication.shared.canOpenURL(url) {
                         presentSafariViewController(withURL: url)
-                    } else {
-                        presentWebViewController(withURL: url)
                     }
                 }
             }

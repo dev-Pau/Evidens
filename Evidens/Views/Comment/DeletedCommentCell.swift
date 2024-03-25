@@ -80,9 +80,9 @@ class DeletedCommentCell: UICollectionViewCell {
         addSubviews(bgView, title, help, replies, line)
         NSLayoutConstraint.activate([
             bgView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
-            bgView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            bgView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            bgView.bottomAnchor.constraint(equalTo: help.bottomAnchor, constant: 10),
+            bgView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            bgView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
+            bgView.bottomAnchor.constraint(equalTo: help.bottomAnchor, constant: K.Paddings.Content.verticalPadding),
 
             title.topAnchor.constraint(equalTo: bgView.topAnchor, constant: 10),
             title.leadingAnchor.constraint(equalTo: bgView.leadingAnchor, constant: 10),

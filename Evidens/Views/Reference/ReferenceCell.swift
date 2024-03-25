@@ -20,13 +20,14 @@ class ReferenceCell: UICollectionViewCell {
     
     private lazy var copyButton: UIButton = {
         let button = UIButton(type: .system)
+        let imageSize: CGFloat = UIDevice.isPad ? 20 : 16
         button.configuration = .plain()
         button.configuration?.contentInsets = .zero
        
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         button.configuration?.attributedTitle = AttributedString(AppStrings.Actions.copy, attributes: container)
-        button.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: imageSize, height: imageSize))
         button.configuration?.baseForegroundColor = K.Colors.primaryGray
         button.configuration?.imagePadding = 5
         button.addTarget(self, action: #selector(handleCopyReference), for: .touchUpInside)
@@ -47,13 +48,13 @@ class ReferenceCell: UICollectionViewCell {
         addSubviews(referenceLabel, copyButton)
         
         NSLayoutConstraint.activate([
-            referenceLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            referenceLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
             referenceLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             referenceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
  
             copyButton.trailingAnchor.constraint(equalTo: referenceLabel.trailingAnchor),
-            copyButton.topAnchor.constraint(equalTo: referenceLabel.bottomAnchor, constant: 10),
-            copyButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+            copyButton.topAnchor.constraint(equalTo: referenceLabel.bottomAnchor, constant: K.Paddings.Content.verticalPadding),
+            copyButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding)
         ])
     }
     
@@ -75,9 +76,10 @@ class ReferenceCell: UICollectionViewCell {
     }
     
     @objc func fireTimer() {
+        let imageSize: CGFloat = UIDevice.isPad ? 20 : 16
         var container = AttributeContainer()
         container.font = UIFont.addFont(size: 15, scaleStyle: .body, weight: .medium, scales: false)
         copyButton.configuration?.attributedTitle = AttributedString(AppStrings.Actions.copy, attributes: container)
-        copyButton.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: 16, height: 16))
+        copyButton.configuration?.image = UIImage(systemName: AppStrings.Icons.copy, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: imageSize, height: imageSize))
     }
 }

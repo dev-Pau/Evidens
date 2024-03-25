@@ -1,5 +1,5 @@
 //
-//  MELoadingHeader.swift
+//  LoadingHeader.swift
 //  Evidens
 //
 //  Created by Pau Fernández Solà on 28/1/23.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MELoadingHeader: UICollectionReusableView {
+class LoadingHeader: UICollectionReusableView {
     
     private let activityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(style: .medium)

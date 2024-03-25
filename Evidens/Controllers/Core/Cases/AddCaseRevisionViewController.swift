@@ -96,6 +96,11 @@ class AddCaseRevisionViewController: UIViewController {
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillShow(notification:)),
+                                               name: UIResponder.keyboardWillHideNotification,
+                                               object: nil)
     }
     
      private func configureNavigationBar() {
@@ -115,34 +120,41 @@ class AddCaseRevisionViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
-        scrollView.frame = view.bounds
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .onDrag
-        view.addSubview(scrollView)
         
+        view.addSubview(scrollView)
         scrollView.addSubviews(profileImageView, contentLabel, titleTextField, descriptionLabel, contentTextView, bottomSeparatorView)
+        
+        let imageSize: CGFloat = UIDevice.isPad ? 60 : 40
 
         contentTextView.delegate = self
         titleTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
 
-        profileImageView.layer.cornerRadius = 40 / 2
+        profileImageView.layer.cornerRadius = imageSize / 2
         contentTextView.placeholderLabel.textColor = UIColor.tertiaryLabel
         
         if viewModel.clinicalCase.privacy == .anonymous {
             profileImageView.image = UIImage(named: AppStrings.Assets.privacyProfile)
         } else {
-            profileImageView.addImage(forUrl: UserDefaults.getImage(), size: 40)
+            profileImageView.addImage(forUrl: UserDefaults.getImage(), size: imageSize)
         }
         
         NSLayoutConstraint.activate([
-            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor),
+            
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
 
             profileImageView.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 15),
             profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            profileImageView.heightAnchor.constraint(equalToConstant: 40),
-            profileImageView.widthAnchor.constraint(equalToConstant: 40),
+            profileImageView.heightAnchor.constraint(equalToConstant: imageSize),
+            profileImageView.widthAnchor.constraint(equalToConstant: imageSize),
             
             titleTextField.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 2),
             titleTextField.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
@@ -157,8 +169,8 @@ class AddCaseRevisionViewController: UIViewController {
             contentTextView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
 
             bottomSeparatorView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
-            bottomSeparatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            bottomSeparatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            bottomSeparatorView.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
+            bottomSeparatorView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
         ])
     }
@@ -187,7 +199,16 @@ class AddCaseRevisionViewController: UIViewController {
     }
     
     @objc func handleDismiss() {
-        dismiss(animated: true)
+        if viewModel.isValid {
+            displayAlert(withTitle: AppStrings.Alerts.Title.cancelContent, withMessage: AppStrings.Alerts.Subtitle.cancelContent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.quit, style: .default) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.titleTextField.resignFirstResponder()
+                strongSelf.contentTextView.resignFirstResponder()
+                strongSelf.dismiss(animated: true)
+            }
+        } else {
+            dismiss(animated: true)
+        }
     }
     
     @objc func textFieldDidChange(_ textField: UITextField) {
@@ -198,14 +219,25 @@ class AddCaseRevisionViewController: UIViewController {
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             scrollView.resizeContentSize()
-            let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
-                scrollView.contentInset = UIEdgeInsets(top: 0,
-                                                       left: 0,
-                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
-                                                       right: 0)
+                let lineHeight = 1.5 * (contentTextView.font?.lineHeight ?? 20.0)
+                
+                let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+                var bottomInset = keyboardViewEndFrame.height
+
+                if UIDevice.isPad {
+                    let windowBottom = UIWindow.visibleScreenBounds.maxY
+                    let viewControllerBottom = view.frame.maxY
+                    let distance = windowBottom - viewControllerBottom
+                    bottomInset -= distance
+                    scrollView.contentInset.bottom = bottomInset + 2 * lineHeight
+                } else {
+                    bottomInset -= view.safeAreaInsets.bottom
+                    scrollView.contentInset.bottom = bottomInset + lineHeight
+                }
             }
             
             scrollView.scrollIndicatorInsets = scrollView.contentInset

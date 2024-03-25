@@ -53,5 +53,16 @@ struct K {
             static let userImageSize: CGFloat = UIDevice.isPad ? 55 : 35
             static let ownerImageSize: CGFloat = UIDevice.isPad ? 31 : 27
         }
+        
+        struct Settings {
+            static let horizontalPadding: CGFloat = UIDevice.isPad ? 20 : 10
+            static let verticalPadding: CGFloat = UIDevice.isPad ? 15 : 10
+        }
+        
+        struct Profile {
+            static let horizontalPadding: CGFloat = UIDevice.isPad ? 20 : 10
+            static let verticalPadding: CGFloat = UIDevice.isPad ? 20 : 10
+            
+        }
     }
 }

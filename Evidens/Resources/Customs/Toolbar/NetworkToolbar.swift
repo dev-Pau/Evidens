@@ -20,7 +20,7 @@ class NetworkToolbar: UIToolbar {
     private var widthCell = [0.0, 0.0, 0.0]
     private var sizes: CGFloat = 0.0
     
-    private let insets = UIDevice.isPad ? 130.0 : 25.0
+    private let insets = UIDevice.isPad ? 70.0 : 25.0
     
     private var didSelectFirstByDefault: Bool = false
     private var firstTime: Bool = false
@@ -191,49 +191,56 @@ extension NetworkToolbar {
     
     /// Changes the bottom border position and the color as we scroll to the left/right. This function gets called every time the collectionView moves
     func collectionViewDidScroll(for x: CGFloat) {
-
-        let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row }
-        guard !indexPaths.isEmpty, let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? ToolbarSearchCell, let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? ToolbarSearchCell, let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? ToolbarSearchCell else { return }
-        
         getCollectionViewLayout()
         
-        
+        let indexPaths = collectionView.indexPathsForVisibleItems.sorted { $0.row < $1.row }
+        let firstCell = collectionView.cellForItem(at: indexPaths[0]) as? ToolbarSearchCell
+        let secondCell = collectionView.cellForItem(at: indexPaths[1]) as? ToolbarSearchCell
+        let thirdCell = collectionView.cellForItem(at: indexPaths[2]) as? ToolbarSearchCell
+      
         switch x {
         case 0 ..< frame.width + 10:
+            
             let availableWidth = originCell[1] - originCell[0]
             let factor = availableWidth / (frame.width + 10.0)
+            
             let offset = x * factor
+            let progress = offset / availableWidth
+            
             leadingConstraint.constant = offset + insets
             
-            let progress = offset / availableWidth
             widthConstantConstraint.constant = widthCell[0] + (widthCell[1] - widthCell[0]) * progress
-            firstCell.set(from: .label, to: K.Colors.primaryGray, progress: progress)
-            secondCell.set(from: K.Colors.primaryGray, to: .label, progress: progress)
-            thirdCell.setDefault()
+            firstCell?.set(from: .label, to: K.Colors.primaryGray, progress: progress)
+            secondCell?.set(from: K.Colors.primaryGray, to: .label, progress: progress)
+            thirdCell?.setDefault()
             currentIndex = IndexPath(item: 0, section: 0)
-        case (frame.width + 10) ..< 2 * (frame.width + 10):
+        case frame.width + 10 ..< 2 * frame.width + 20:
+            
             let availableWidth = originCell[2] - originCell[1] - (widthCell[1] - widthCell[0])
             let factor = availableWidth / (frame.width + 10.0)
             
             let factor2 = (widthCell[1] - widthCell[0]) / (frame.width + 10.0)
-
+            
             let offset = x * factor + (x - (frame.width + 10.0)) * factor2
             
             let startOffset = frame.width + 10.0
             let endOffset = 2 * frame.width + 20.0
-
+            
             let progress = (x - startOffset) / (endOffset - startOffset)
             
             let normalizedProgress = max(0.0, min(1.0, progress))
             
             leadingConstraint.constant = offset + insets
+            
             widthConstantConstraint.constant = widthCell[1] + (widthCell[2] - widthCell[1]) * normalizedProgress
-            thirdCell.set(from: K.Colors.primaryGray, to: .label, progress: normalizedProgress)
-            secondCell.set(from: .label, to: K.Colors.primaryGray, progress: normalizedProgress)
-            firstCell.setDefault()
+            thirdCell?.set(from: K.Colors.primaryGray, to: .label, progress: normalizedProgress)
+            secondCell?.set(from: .label, to: K.Colors.primaryGray, progress: normalizedProgress)
+            firstCell?.setDefault()
             currentIndex = IndexPath(item: 1, section: 0)
         default:
             currentIndex = IndexPath(item: 2, section: 0)
+            widthConstantConstraint.constant = widthCell[2]
+            leadingConstraint.constant = originCell[2]
         }
     }
 }

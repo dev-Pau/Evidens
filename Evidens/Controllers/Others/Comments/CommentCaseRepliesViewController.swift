@@ -191,11 +191,11 @@ class CommentCaseRepliesViewController: UIViewController {
         
         let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
         let intersection = convertedKeyboardFrame.intersection(view.bounds)
-
+        
         let keyboardHeight = view.bounds.maxY - intersection.minY
-
-        let tabBarHeight = tabBarController?.tabBar.frame.height ?? 0
-
+        
+        let tabBarHeight = UIDevice.isPad ? view.safeAreaInsets.bottom : (tabBarController?.tabBar.frame.height ?? 0)
+        
         let constant = -(keyboardHeight - tabBarHeight)
         
         UIView.animate(withDuration: animationDuration) { [weak self] in

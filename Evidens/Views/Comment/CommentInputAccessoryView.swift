@@ -113,12 +113,12 @@ class CommentInputAccessoryView: UIView {
         
         NSLayoutConstraint.activate([
             commentTextView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            commentTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            commentTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             commentTextView.bottomAnchor.constraint(equalTo: saveChangesButton.topAnchor, constant: -10),
 
             bottomConstraint,
-            saveChangesButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            saveChangesButton.trailingAnchor.constraint(equalTo: commentTextView.trailingAnchor),
 
             cancelButton.centerYAnchor.constraint(equalTo: saveChangesButton.centerYAnchor),
             cancelButton.trailingAnchor.constraint(equalTo: saveChangesButton.leadingAnchor, constant: -15),

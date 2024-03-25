@@ -9,6 +9,10 @@ import UIKit
 
 private let imageCellReuseIdentifier = "ImageCellReuseIdentifier"
 
+protocol DraftCaseImageCellDelegate: AnyObject {
+    func didTapImage(_ imageView: UIImageView)
+}
+
 class DraftCaseImageCell: UICollectionViewCell {
     
     var viewModel: CaseViewModel? {
@@ -16,6 +20,8 @@ class DraftCaseImageCell: UICollectionViewCell {
             configure()
         }
     }
+    
+    weak var delegate: DraftCaseImageCellDelegate?
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -172,7 +178,15 @@ extension DraftCaseImageCell: UICollectionViewDelegateFlowLayout, UICollectionVi
         if let viewModel {
             cell.caseImageView.sd_setImage(with: URL(string: viewModel.images[indexPath.row]))
         }
+        
+        cell.delegate = self
 
         return cell
+    }
+}
+
+extension DraftCaseImageCell: CaseImageCellDelegate {
+    func didTapImage(_ imageView: UIImageView) {
+        delegate?.didTapImage(imageView)
     }
 }

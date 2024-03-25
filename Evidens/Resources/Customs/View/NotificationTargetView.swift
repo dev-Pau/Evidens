@@ -55,15 +55,18 @@ class NotificationTargetView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         isUserInteractionEnabled = true
         addSubviews(targetLabel, targetImageView)
+        
+        let size: CGFloat = UIDevice.isPad ? 30 : 25
+        
         NSLayoutConstraint.activate([
-            targetLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            targetLabel.trailingAnchor.constraint(equalTo: targetImageView.leadingAnchor, constant: -10),
-            targetLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            targetLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            targetLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            targetLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
 
-            targetImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            targetImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            targetImageView.heightAnchor.constraint(equalToConstant: 25),
-            targetImageView.widthAnchor.constraint(equalToConstant: 25)
+            targetImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            targetImageView.centerYAnchor.constraint(equalTo: targetLabel.centerYAnchor),
+            targetImageView.heightAnchor.constraint(equalToConstant: size),
+            targetImageView.widthAnchor.constraint(equalToConstant: size)
         ])
         
         targetLabel.text = title

@@ -61,9 +61,7 @@ class SpecialityListViewController: UIViewController {
         navigationController?.navigationBar.standardAppearance.shadowColor = .clear
         navigationController?.navigationBar.scrollEdgeAppearance?.shadowColor = .clear
     }
-    
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -126,25 +124,27 @@ class SpecialityListViewController: UIViewController {
         }
     }
     
-    #warning("Fer-ho amb compositional")
-    func createTwoColumnFlowLayout() -> UICollectionViewFlowLayout {
-        let width = view.bounds.width
-        let padding: CGFloat = 12
-        let minimumItemSpacing: CGFloat = 6
-        let availableWidth = width - padding * 2 - minimumItemSpacing * 2
-        let cellWidth = availableWidth / 2
-        
+    func addLayout() -> UICollectionViewCompositionalLayout {
         let fontHeight = UIFont.addFont(size: 15, scaleStyle: .largeTitle, weight: .semibold).lineHeight * 3 + 30
-
-        let layout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
-        layout.itemSize = CGSize(width: cellWidth, height: fontHeight)
+        
+        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .absolute(fontHeight))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(fontHeight))
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        
+        group.interItemSpacing = .fixed(UIDevice.isPad ? 20 : 10)
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 10
+        
+        section.contentInsets = NSDirectionalEdgeInsets(top: K.Paddings.Content.verticalPadding, leading: K.Paddings.Content.horizontalPadding, bottom: K.Paddings.Content.verticalPadding, trailing: K.Paddings.Content.verticalPadding)
+        let layout = UICollectionViewCompositionalLayout(section: section)
         return layout
     }
     
     private func configureCollectionView() {
         view.backgroundColor = .systemBackground
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: createTwoColumnFlowLayout())
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: addLayout())
         collectionView.backgroundColor = .systemBackground
         collectionView.keyboardDismissMode = .onDrag
         collectionView.allowsMultipleSelection = true

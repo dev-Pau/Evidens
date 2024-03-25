@@ -121,7 +121,7 @@ class AddAboutViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
             contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             

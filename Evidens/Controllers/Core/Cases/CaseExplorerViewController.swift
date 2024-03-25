@@ -63,6 +63,8 @@ class CaseExplorerViewController: UIViewController {
         let layout = UICollectionViewCompositionalLayout { [weak self] sectionNumber, env in
             guard let strongSelf = self else { return nil }
             
+            let padding: CGFloat = K.Paddings.Content.horizontalPadding
+            
             if sectionNumber == 0 {
                 let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
                 let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: ElementKind.sectionHeader, alignment: .top)
@@ -76,7 +78,7 @@ class CaseExplorerViewController: UIViewController {
                 group.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
                 let section = NSCollectionLayoutSection(group: group)
                 section.orthogonalScrollingBehavior = .continuous
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 15, trailing: 10)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: padding, bottom: 15, trailing: padding)
                 section.interGroupSpacing = 10
                 
                 section.boundarySupplementaryItems = [header]
@@ -98,7 +100,7 @@ class CaseExplorerViewController: UIViewController {
                 
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = 20
-                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 20, trailing: 10)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: padding, bottom: 20, trailing: padding)
                 section.orthogonalScrollingBehavior = .continuous
                 
                 section.boundarySupplementaryItems = [header]

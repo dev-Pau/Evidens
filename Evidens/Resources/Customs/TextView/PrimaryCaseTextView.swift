@@ -22,7 +22,7 @@ class PrimaryCaseTextView: UITextView {
         textContainerInset = UIEdgeInsets.zero
         contentInset = UIEdgeInsets.zero
         textContainer.lineFragmentPadding = .zero
-        isSelectable = true
+        isSelectable = false
         isUserInteractionEnabled = true
         isEditable = false
         delaysContentTouches = false

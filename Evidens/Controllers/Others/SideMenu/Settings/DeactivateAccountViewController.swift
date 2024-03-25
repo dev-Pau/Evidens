@@ -102,13 +102,13 @@ class DeactivateAccountViewController: UIViewController {
         scrollView.frame = view.bounds
         scrollView.backgroundColor = .systemBackground
         
-        let size: CGFloat = UIDevice.isPad ? 45 : 35
+        let size: CGFloat = UIDevice.isPad ? 55 : 35
         
         scrollView.addSubviews(kindLabel, kindSeparator, image, titleLabel, contentLabel, additionalLabel, additionalTitleLabel, deactivateLabel)
         NSLayoutConstraint.activate([
-            kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            kindLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+            kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Settings.verticalPadding),
+            kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: K.Paddings.Settings.horizontalPadding),
+            kindLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Settings.verticalPadding),
             
             kindSeparator.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: 10),
             kindSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -122,7 +122,7 @@ class DeactivateAccountViewController: UIViewController {
             
             titleLabel.topAnchor.constraint(equalTo: image.bottomAnchor, constant: 40),
             titleLabel.leadingAnchor.constraint(equalTo: image.leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            titleLabel.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             
             contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 15),
             contentLabel.leadingAnchor.constraint(equalTo: image.leadingAnchor),

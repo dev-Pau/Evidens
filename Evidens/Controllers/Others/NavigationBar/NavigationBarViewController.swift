@@ -47,7 +47,7 @@ class NavigationBarViewController: UIViewController {
         
         userImageView.addImage(forUrl: UserDefaults.getImage(), size: size)
 
-        let searchImage = UIImage(systemName: AppStrings.Icons.squareOnSquare, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        let searchImage = UIImage(systemName: AppStrings.Icons.compass, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         let searchImageView = UIImageView(image: searchImage)
         
         searchImageView.translatesAutoresizingMaskIntoConstraints = false

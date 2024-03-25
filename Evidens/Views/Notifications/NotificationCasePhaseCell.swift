@@ -96,8 +96,8 @@ class NotificationCasePhaseCell: UICollectionViewCell {
         addSubviews(unreadImage, phaseImage, dotButton, textLabel, timeLabel, separatorView)
         
         NSLayoutConstraint.activate([
-            phaseImage.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            phaseImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17),
+            phaseImage.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Content.verticalPadding),
+            phaseImage.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             phaseImage.widthAnchor.constraint(equalToConstant: imageSize),
             phaseImage.heightAnchor.constraint(equalToConstant: imageSize),
             
@@ -107,7 +107,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
             unreadImage.widthAnchor.constraint(equalToConstant: 7),
             
             dotButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            dotButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
             dotButton.heightAnchor.constraint(equalToConstant: buttonSize),
             dotButton.widthAnchor.constraint(equalToConstant: buttonSize),
             
@@ -118,7 +118,7 @@ class NotificationCasePhaseCell: UICollectionViewCell {
             timeLabel.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 5),
             timeLabel.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
             timeLabel.bottomAnchor.constraint(greaterThanOrEqualTo: phaseImage.bottomAnchor),
-            timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            timeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),

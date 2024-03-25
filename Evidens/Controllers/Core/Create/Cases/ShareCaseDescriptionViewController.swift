@@ -157,7 +157,7 @@ class ShareCaseDescriptionViewController: UIViewController {
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.heightAnchor.constraint(equalToConstant: 50),
             
-            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
@@ -208,7 +208,15 @@ class ShareCaseDescriptionViewController: UIViewController {
                 UIView.animate(withDuration: duration) { [weak self] in
                     guard let strongSelf = self else { return }
                     
-                    strongSelf.nextButtonConstraint.constant = -keyboardSize.height + 10
+                    let keyboardViewEndFrame = strongSelf.view.convert(keyboardSize, from: strongSelf.view.window)
+                    let bottomInset = keyboardViewEndFrame.height
+                    
+                    if UIDevice.isPad {
+                        strongSelf.nextButtonConstraint.constant = -(bottomInset)
+                    } else {
+                        strongSelf.nextButtonConstraint.constant = -(bottomInset) + 10
+                    }
+
                     strongSelf.view.layoutIfNeeded()
                 }
             }

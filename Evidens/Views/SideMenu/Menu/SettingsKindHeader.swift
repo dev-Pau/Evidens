@@ -38,10 +38,10 @@ class SettingsKindHeader: UICollectionReusableView {
         addSubviews(kindLabel, separator)
         
         NSLayoutConstraint.activate([
-            kindLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            kindLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            kindLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            kindLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            kindLabel.topAnchor.constraint(equalTo: topAnchor, constant: K.Paddings.Settings.verticalPadding),
+            kindLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: K.Paddings.Settings.horizontalPadding),
+            kindLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
+            kindLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Settings.verticalPadding),
             
             separator.bottomAnchor.constraint(equalTo: bottomAnchor),
             separator.heightAnchor.constraint(equalToConstant: 0.4),

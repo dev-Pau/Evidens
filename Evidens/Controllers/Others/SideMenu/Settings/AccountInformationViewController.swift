@@ -245,9 +245,9 @@ class AccountInformationViewController: UIViewController {
         let size: CGFloat = UIDevice.isPad ? 25 : 20
         
         NSLayoutConstraint.activate([
-            kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            kindLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            kindLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Settings.verticalPadding),
+            kindLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: K.Paddings.Settings.horizontalPadding),
+            kindLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Settings.horizontalPadding),
             
             kindSeparator.topAnchor.constraint(equalTo: kindLabel.bottomAnchor, constant: 10),
             kindSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -255,23 +255,23 @@ class AccountInformationViewController: UIViewController {
             kindSeparator.heightAnchor.constraint(equalToConstant: 0.4),
             
             emailLabel.topAnchor.constraint(equalTo: kindSeparator.bottomAnchor, constant: 30),
-            emailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            emailLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+            emailLabel.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
+            emailLabel.trailingAnchor.constraint(lessThanOrEqualTo: kindLabel.trailingAnchor),
             
             emailUserLabel.centerYAnchor.constraint(equalTo: emailLabel.centerYAnchor),
             emailUserLabel.leadingAnchor.constraint(equalTo: emailLabel.trailingAnchor, constant: 10),
             emailUserLabel.trailingAnchor.constraint(equalTo: chevronImage.leadingAnchor, constant: -10),
             
-            chevronImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            chevronImage.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             chevronImage.centerYAnchor.constraint(equalTo: emailLabel.centerYAnchor),
             chevronImage.widthAnchor.constraint(equalToConstant: size),
             chevronImage.heightAnchor.constraint(equalToConstant: size),
 
             usernameLabel.topAnchor.constraint(equalTo: emailUserLabel.bottomAnchor, constant: 30),
-            usernameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            usernameLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+            usernameLabel.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
+            usernameLabel.trailingAnchor.constraint(lessThanOrEqualTo: kindLabel.trailingAnchor),
             
-            usernameChevronImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            usernameChevronImage.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             usernameChevronImage.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor),
             usernameChevronImage.widthAnchor.constraint(equalToConstant: size),
             usernameChevronImage.heightAnchor.constraint(equalToConstant: size),
@@ -281,21 +281,21 @@ class AccountInformationViewController: UIViewController {
             usernameUserLabel.trailingAnchor.constraint(equalTo: usernameChevronImage.leadingAnchor, constant: -10),
 
             accountConditionLabel.topAnchor.constraint(equalTo: usernameUserLabel.bottomAnchor, constant: 30),
-            accountConditionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            accountConditionLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+            accountConditionLabel.leadingAnchor.constraint(equalTo: kindLabel.leadingAnchor),
+            accountConditionLabel.trailingAnchor.constraint(lessThanOrEqualTo: kindLabel.trailingAnchor),
 
             accountConditionStateLabel.topAnchor.constraint(equalTo: accountConditionLabel.topAnchor),
             accountConditionStateLabel.leadingAnchor.constraint(equalTo: accountConditionLabel.trailingAnchor, constant: 10),
             accountConditionStateLabel.trailingAnchor.constraint(equalTo: phaseChevronImage.leadingAnchor, constant: -10),
 
-            phaseChevronImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            phaseChevronImage.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             phaseChevronImage.centerYAnchor.constraint(equalTo: accountConditionLabel.centerYAnchor),
             phaseChevronImage.widthAnchor.constraint(equalToConstant: size),
             phaseChevronImage.heightAnchor.constraint(equalToConstant: size),
 
             providerLabel.topAnchor.constraint(equalTo: accountConditionStateLabel.bottomAnchor, constant: 30),
             providerLabel.leadingAnchor.constraint(equalTo: accountConditionLabel.leadingAnchor),
-            providerLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
+            providerLabel.trailingAnchor.constraint(lessThanOrEqualTo: kindLabel.trailingAnchor),
             
             providerImage.centerYAnchor.constraint(equalTo: providerLabel.centerYAnchor),
             providerImage.trailingAnchor.constraint(equalTo: providerChevronImage.leadingAnchor, constant: -10),
@@ -307,7 +307,7 @@ class AccountInformationViewController: UIViewController {
             phaseChevronImage.widthAnchor.constraint(equalToConstant: size),
             phaseChevronImage.heightAnchor.constraint(equalToConstant: size),
 
-            providerChevronImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            providerChevronImage.trailingAnchor.constraint(equalTo: kindLabel.trailingAnchor),
             providerChevronImage.centerYAnchor.constraint(equalTo: providerLabel.centerYAnchor),
             providerChevronImage.widthAnchor.constraint(equalToConstant: size),
             providerChevronImage.heightAnchor.constraint(equalToConstant: size),

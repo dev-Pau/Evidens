@@ -79,8 +79,8 @@ class AboutProfileViewController: UIViewController {
             separator.widthAnchor.constraint(equalToConstant: 40),
             
             aboutTextView.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 20),
-            aboutTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            aboutTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            aboutTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            aboutTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
         ])
         
         scrollView.contentSize.width = view.frame.width

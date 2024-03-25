@@ -61,13 +61,15 @@ class ContentMenuCell: UICollectionViewCell {
         addSubview(contentLabel)
         addSubview(separatorView)
         
+        let buttonSize: CGFloat = UIDevice.isPad ? 40 : 35
+        
         backgroundColor = .systemBackground
         
         NSLayoutConstraint.activate([
             button.topAnchor.constraint(equalTo: topAnchor, constant: padding),
             button.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding),
-            button.widthAnchor.constraint(equalToConstant: 35),
-            button.heightAnchor.constraint(equalToConstant: 35),
+            button.widthAnchor.constraint(equalToConstant: buttonSize),
+            button.heightAnchor.constraint(equalToConstant: buttonSize),
             
             titleLabel.topAnchor.constraint(equalTo: button.topAnchor, constant: padding / 2),
             titleLabel.leadingAnchor.constraint(equalTo: button.trailingAnchor, constant: padding),
@@ -86,23 +88,29 @@ class ContentMenuCell: UICollectionViewCell {
     }
     
     func set(withText text: String, withImage image: UIImage, withBaseColor color: UIColor? = .label) {
-        button.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(color ?? .label)
+        let buttonSize: CGFloat = UIDevice.isPad ? 30 : 25
+        
+        button.configuration?.image = image.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(color ?? .label)
         titleLabel.text = text
     }
     
     func set(media: MediaKind) {
+        let buttonSize: CGFloat = UIDevice.isPad ? 30 : 25
+        
         titleLabel.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         let color = media == .remove ? UIColor.red : UIColor.label
         
-        button.configuration?.image = media.image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(color)
+        button.configuration?.image = media.image.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(color)
         titleLabel.textColor = color
         titleLabel.text = media.title
     }
     
     func set(kind: ContentKind) {
+        let buttonSize: CGFloat = UIDevice.isPad ? 30 : 25
+        
         titleLabel.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .semibold)
         titleLabel.text = kind.title
         contentLabel.text = kind.content
-        button.configuration?.image = kind.image.scalePreservingAspectRatio(targetSize: CGSize(width: 25, height: 25)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        button.configuration?.image = kind.image.scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize)).withRenderingMode(.alwaysOriginal).withTintColor(.label)
     }
 }

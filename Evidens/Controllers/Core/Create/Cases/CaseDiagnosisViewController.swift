@@ -96,6 +96,11 @@ class CaseDiagnosisViewController: UIViewController {
                                                selector: #selector(keyboardWillShow(notification:)),
                                                name: UIResponder.keyboardWillChangeFrameNotification,
                                                object: nil)
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillShow(notification:)),
+                                               name: UIResponder.keyboardWillHideNotification,
+                                               object: nil)
     }
 
     deinit {
@@ -183,7 +188,7 @@ class CaseDiagnosisViewController: UIViewController {
         cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
         cancelConfig.attributedTitle = AttributedString(clinicalCase != nil ? AppStrings.Content.Case.Share.skip : AppStrings.Miscellaneous.goBack, attributes: cancelContainer)
         cancelConfig.buttonSize = .mini
-        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         
         shareButton.configuration = shareConfig
         cancelButton.configuration = cancelConfig
@@ -203,11 +208,11 @@ class CaseDiagnosisViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
-        scrollView.frame = view.bounds
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.backgroundColor = .systemBackground
         scrollView.keyboardDismissMode = .none
 
-        nextButtonConstraint = nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        nextButtonConstraint = nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: UIDevice.isPad ? -20 : 0)
 
         view.addSubview(scrollView)
         
@@ -218,11 +223,16 @@ class CaseDiagnosisViewController: UIViewController {
         contentTextView.placeholderLabel.textColor = UIColor.tertiaryLabel
 
         NSLayoutConstraint.activate([
-            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 10),
-            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: UIDevice.isPad ? view.bottomAnchor : view.safeAreaLayoutGuide.bottomAnchor),
+            
+            contentLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: K.Paddings.Content.verticalPadding),
+            contentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: K.Paddings.Content.horizontalPadding),
+            contentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -K.Paddings.Content.horizontalPadding),
 
-            descriptionLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: 10),
+            descriptionLabel.topAnchor.constraint(equalTo: contentLabel.bottomAnchor, constant: K.Paddings.Content.verticalPadding),
             descriptionLabel.leadingAnchor.constraint(equalTo: contentLabel.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             
@@ -248,14 +258,25 @@ class CaseDiagnosisViewController: UIViewController {
             
             if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
                 scrollView.resizeContentSize()
+                
                 let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+                
                 if notification.name == UIResponder.keyboardWillHideNotification {
                     scrollView.contentInset = .zero
                 } else {
-                    scrollView.contentInset = UIEdgeInsets(top: 0,
-                                                           left: 0,
-                                                           bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
-                                                           right: 0)
+                    let lineHeight = 1.5 * (contentTextView.font?.lineHeight ?? 20.0)
+                    var bottomInset = keyboardViewEndFrame.height
+
+                    if UIDevice.isPad {
+                        let windowBottom = UIWindow.visibleScreenBounds.maxY
+                        let viewControllerBottom = view.frame.maxY
+                        let distance = windowBottom - viewControllerBottom
+                        bottomInset -= distance
+                        scrollView.contentInset.bottom = bottomInset + 2 * lineHeight
+                    } else {
+                        bottomInset -= view.safeAreaInsets.bottom
+                        scrollView.contentInset.bottom = bottomInset + lineHeight
+                    }
                 }
                 
                 scrollView.scrollIndicatorInsets = scrollView.contentInset
@@ -269,14 +290,22 @@ class CaseDiagnosisViewController: UIViewController {
                     UIView.animate(withDuration: duration) { [weak self] in
                         guard let strongSelf = self else { return }
                         
-                        strongSelf.nextButtonConstraint.constant = 0
+                        strongSelf.nextButtonConstraint.constant = UIDevice.isPad ? -20 : 0
                         strongSelf.view.layoutIfNeeded()
                     }
                 } else {
                     UIView.animate(withDuration: duration) { [weak self] in
                         guard let strongSelf = self else { return }
                         
-                        strongSelf.nextButtonConstraint.constant = -keyboardSize.height + 10
+                        let keyboardViewEndFrame = strongSelf.view.convert(keyboardSize, from: strongSelf.view.window)
+                        let bottomInset = keyboardViewEndFrame.height
+                        
+                        if UIDevice.isPad {
+                            strongSelf.nextButtonConstraint.constant = -(bottomInset)
+                        } else {
+                            strongSelf.nextButtonConstraint.constant = -(bottomInset) + 10
+                        }
+
                         strongSelf.view.layoutIfNeeded()
                     }
                 }

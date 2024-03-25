@@ -123,13 +123,6 @@ class ContentDisciplinesViewController: UIViewController {
                 section.boundarySupplementaryItems = [header]
             } else {
                 section.boundarySupplementaryItems = [footer]
-                /*
-                if strongSelf.kind == .clinicalCase {
-                    section.boundarySupplementaryItems = [footer]
-                } else {
-                    section.contentInsets.bottom = 0
-                }
-                 */
             }
             
             return section

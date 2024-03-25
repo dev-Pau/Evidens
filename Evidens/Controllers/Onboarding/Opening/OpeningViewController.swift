@@ -187,7 +187,7 @@ class OpeningViewController: UIViewController {
             googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -viewModel.padding),
             googleSignInButton.heightAnchor.constraint(equalToConstant: viewModel.buttonSize),
             
-            appleSignInButton.bottomAnchor.constraint(equalTo: orLabel.topAnchor, constant: -10),
+            appleSignInButton.bottomAnchor.constraint(equalTo: orLabel.topAnchor, constant: -15),
             appleSignInButton.leadingAnchor.constraint(equalTo: googleSignInButton.leadingAnchor),
             appleSignInButton.trailingAnchor.constraint(equalTo: googleSignInButton.trailingAnchor),
             appleSignInButton.heightAnchor.constraint(equalToConstant: viewModel.buttonSize),
@@ -197,8 +197,8 @@ class OpeningViewController: UIViewController {
             orLabel.widthAnchor.constraint(equalToConstant: 40),
             
             separatorView.centerYAnchor.constraint(equalTo: orLabel.centerYAnchor),
-            separatorView.leadingAnchor.constraint(equalTo: appleSignInButton.leadingAnchor, constant: 10),
-            separatorView.trailingAnchor.constraint(equalTo: appleSignInButton.trailingAnchor, constant: -10),
+            separatorView.leadingAnchor.constraint(equalTo: appleSignInButton.leadingAnchor, constant: viewModel.linePadding),
+            separatorView.trailingAnchor.constraint(equalTo: appleSignInButton.trailingAnchor, constant: -viewModel.linePadding),
             separatorView.heightAnchor.constraint(equalToConstant: 0.4),
             
             signUpButton.bottomAnchor.constraint(equalTo: legalTextView.topAnchor, constant: -10),
@@ -365,8 +365,6 @@ extension OpeningViewController: UITextViewDelegate {
         if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {
             if UIApplication.shared.canOpenURL(privacyURL) {
                 presentSafariViewController(withURL: privacyURL)
-            } else {
-                presentWebViewController(withURL: privacyURL)
             }
         }
         return false
@@ -374,8 +372,6 @@ extension OpeningViewController: UITextViewDelegate {
         if let privacyURL = URL(string: AppStrings.URL.draftPrivacy) {
             if UIApplication.shared.canOpenURL(privacyURL) {
                 presentSafariViewController(withURL: privacyURL)
-            } else {
-                presentWebViewController(withURL: privacyURL)
             }
         }
         return false
