@@ -237,25 +237,6 @@ class PrimaryCaseTextCell: UICollectionViewCell {
                 didTapClinicalCase()
             }
         }
-        
-        /*
-        
-         if let range = postTextView.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left)) {
-             let startIndex = postTextView.offset(from: postTextView.beginningOfDocument, to: range.start)
-            
-             let attributes = postTextView.attributedText.attributes(at: startIndex, effectiveRange: nil)
-             
-             if attributes.keys.contains(.link), let hashtag = attributes[.link] as? String {
-                 if hashtag.hasPrefix("hash:") {
-                     delegate?.cell(wantsToSeeHashtag: hashtag)
-                 } else {
-                     delegate?.cell(showURL: hashtag)
-                 }
-             } else {
-                 didTapPost()
-             }
-         }
-         */
     }
 }
 

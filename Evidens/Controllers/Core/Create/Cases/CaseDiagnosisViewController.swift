@@ -17,9 +17,10 @@ class CaseDiagnosisViewController: UIViewController {
     private var nextButtonConstraint: NSLayoutConstraint!
 
     private var shareButton: UIButton!
+    private var textButton: UIButton!
     private var cancelButton: UIButton!
     
-    private let charCount = 1000
+    private let maxCount = 800
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -27,7 +28,6 @@ class CaseDiagnosisViewController: UIViewController {
         scrollView.alwaysBounceVertical = true
         return scrollView
     }()
-    
     
     private lazy var nextButton: UIButton = {
         let button = UIButton(type: .system)
@@ -66,6 +66,7 @@ class CaseDiagnosisViewController: UIViewController {
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero
+        tv.layoutManager.allowsNonContiguousLayout = false
         tv.layer.cornerRadius = 0
         tv.textContainer.lineFragmentPadding = .zero
         return tv
@@ -156,6 +157,7 @@ class CaseDiagnosisViewController: UIViewController {
     private func addDiagnosisToolbar() -> UIToolbar {
         let toolbar = UIToolbar()
         toolbar.translatesAutoresizingMaskIntoConstraints = false
+        
         let appearance = UIToolbarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .systemBackground
@@ -167,10 +169,15 @@ class CaseDiagnosisViewController: UIViewController {
         
         shareButton = UIButton(type: .system)
         shareButton.addTarget(self, action: #selector(shareCase), for: .touchUpInside)
+        shareButton.translatesAutoresizingMaskIntoConstraints = false
         
         cancelButton = UIButton(type: .system)
         cancelButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
+        cancelButton.translatesAutoresizingMaskIntoConstraints = false
         
+        textButton = UIButton(type: .system)
+        textButton.translatesAutoresizingMaskIntoConstraints = false
+
         var shareConfig = UIButton.Configuration.filled()
         shareConfig.baseBackgroundColor = K.Colors.primaryColor
         shareConfig.baseForegroundColor = .white
@@ -190,17 +197,21 @@ class CaseDiagnosisViewController: UIViewController {
         cancelConfig.buttonSize = .mini
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         
+        var textConfig = UIButton.Configuration.plain()
+        textConfig.baseForegroundColor = .label
+        textConfig.buttonSize = .mini
+        textConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+
         shareButton.configuration = shareConfig
+        textButton.configuration = textConfig
         cancelButton.configuration = cancelConfig
         
         let rightButton = UIBarButtonItem(customView: shareButton)
-
+        let midButton = UIBarButtonItem(customView: textButton)
         let leftButton = UIBarButtonItem(customView: cancelButton)
 
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-                
-        toolbar.setItems([leftButton, flexibleSpace, rightButton], animated: false)
-        
+        toolbar.setItems([leftButton, .flexibleSpace(), midButton, .flexibleSpace(), rightButton], animated: false)
+        toolbar.layoutIfNeeded()
         shareButton.isEnabled = false
                 
         return toolbar
@@ -250,32 +261,32 @@ class CaseDiagnosisViewController: UIViewController {
             contentTextView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -20).isActive = true
         } else {
             nextButton.removeFromSuperview()
+            updateTextCount(0)
         }
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        if clinicalCase != nil {
+        if let _ = clinicalCase {
             
-            if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let window = UIWindow.visibleScreen {
                 scrollView.resizeContentSize()
                 
+                let convertedFrame = view.convert(view.bounds, to: window)
                 let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
                 
                 if notification.name == UIResponder.keyboardWillHideNotification {
                     scrollView.contentInset = .zero
                 } else {
-                    let lineHeight = 1.5 * (contentTextView.font?.lineHeight ?? 20.0)
-                    var bottomInset = keyboardViewEndFrame.height
-
+                  
                     if UIDevice.isPad {
+                        var bottomInset = keyboardViewEndFrame.height
                         let windowBottom = UIWindow.visibleScreenBounds.maxY
-                        let viewControllerBottom = view.frame.maxY
+                        let viewControllerBottom = convertedFrame.maxY
                         let distance = windowBottom - viewControllerBottom
                         bottomInset -= distance
-                        scrollView.contentInset.bottom = bottomInset + 2 * lineHeight
+                        scrollView.contentInset.bottom = bottomInset
                     } else {
-                        bottomInset -= view.safeAreaInsets.bottom
-                        scrollView.contentInset.bottom = bottomInset + lineHeight
+                        scrollView.contentInset.bottom = keyboardViewEndFrame.height - view.safeAreaInsets.bottom
                     }
                 }
                 
@@ -283,7 +294,7 @@ class CaseDiagnosisViewController: UIViewController {
                 scrollView.resizeContentSize()
             }
         } else {
-            if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
+            if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval, let window = UIWindow.visibleScreen {
 
                 if notification.name == UIResponder.keyboardWillHideNotification {
                     
@@ -298,9 +309,16 @@ class CaseDiagnosisViewController: UIViewController {
                         guard let strongSelf = self else { return }
                         
                         let keyboardViewEndFrame = strongSelf.view.convert(keyboardSize, from: strongSelf.view.window)
-                        let bottomInset = keyboardViewEndFrame.height
+                        let convertedFrame = strongSelf.view.convert(strongSelf.view.bounds, to: window)
+                        
+                        var bottomInset = keyboardViewEndFrame.height
                         
                         if UIDevice.isPad {
+
+                            let windowBottom = UIWindow.visibleScreenBounds.maxY
+                            let viewControllerBottom = convertedFrame.maxY
+                            let distance = windowBottom - viewControllerBottom
+                            bottomInset -= distance
                             strongSelf.nextButtonConstraint.constant = -(bottomInset)
                         } else {
                             strongSelf.nextButtonConstraint.constant = -(bottomInset) + 10
@@ -388,6 +406,7 @@ class CaseDiagnosisViewController: UIViewController {
 }
 
 extension CaseDiagnosisViewController: UITextViewDelegate {
+    
     func textViewDidChange(_ textView: UITextView) {
         
         UIView.animate(withDuration: 0.4) { [weak self] in
@@ -397,20 +416,34 @@ extension CaseDiagnosisViewController: UITextViewDelegate {
             } else {
                 strongSelf.descriptionLabel.alpha = 0
             }
-            strongSelf.view.layoutIfNeeded()
         }
         
         nextButton.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         
         if clinicalCase != nil {
+            textView.sizeToFit()
             scrollView.resizeContentSize()
         }
 
         if let shareButton { shareButton.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         
         let count = textView.text.count
-        if count > charCount {
+        if count > maxCount {
             textView.deleteBackward()
+        } else {
+            if let _ = clinicalCase {
+                updateTextCount(count)
+            }
         }
+    }
+    
+    private func updateTextCount(_ count: Int) {
+        
+        var tContainer = AttributeContainer()
+        tContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
+        tContainer.foregroundColor = K.Colors.primaryGray
+        
+        let remainingCount = maxCount - count
+        textButton.configuration?.attributedTitle = AttributedString("\(remainingCount)", attributes: tContainer)
     }
 }

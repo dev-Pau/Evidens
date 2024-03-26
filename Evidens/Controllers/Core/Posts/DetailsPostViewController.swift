@@ -582,13 +582,7 @@ extension DetailsPostViewController: CommentCellDelegate {
         navigationController?.pushViewController(controller, animated: true)
     }
 }
-/*
-extension DetailsPostViewController: ZoomTransitioningDelegate {
-    func zoomingImageView(for transition: ZoomTransitioning) -> UIImageView? {
-        return viewModel.selectedImage
-    }
-}
-*/
+
 extension DetailsPostViewController: ReferenceMenuViewControllerDelegate {
     func didTapReference(reference: Reference) {
         switch reference.option {

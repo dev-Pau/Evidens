@@ -38,8 +38,8 @@ struct ShareCaseViewModel: ShareViewModel {
     var maxBodyParts = 2
     var selectedBodyParts = 0
     
-    let titleSize = 100
-    let descriptionSize = 700
+    let titleSize = 200
+    let maxDescriptionCount = 700
     
     var hasTitle: Bool {
         return title?.trimmingCharacters(in: .whitespaces).isEmpty == false

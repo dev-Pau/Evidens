@@ -128,6 +128,7 @@ struct AppStrings {
         static let switchArrow = "repeat"
         static let pawprint = "pawprint"
         static let cross = "cross"
+        static let quote = "quote.closing"
         static let filter = "slider.horizontal.3"
         static let squareOnSquare = "square.on.square"
         static let fillSquareOnSquare = "square.fill.on.square.fill"
@@ -205,8 +206,6 @@ struct AppStrings {
         static let caseBody = "case.body"
         static let placeholderContent = "content.placeholder"
         static let postGuideline = "post.guideline"
-        static let quote = "quote"
-        static let fillQuote = "quote.fill"
         static let blackFrontBody = "blackFrontBody"
         static let whiteFrontBody = "whiteFrontBody"
         static let blackBackBody = "blackBackBody"
@@ -874,10 +873,6 @@ struct AppStrings {
             static let replied = "replied on a comment".localized(key: "profile.comment.replied")
         }
 
-        static func interestsContent(withDiscipline discipline: Discipline) -> String {
-            return besides + " " + discipline.name  + ", " + otherInterests
-        }
-        
         struct Section {
             static let post = "Posts".localized(key: "profile.section.post")
             static let cases = "Cases".localized(key: "profile.section.cases")

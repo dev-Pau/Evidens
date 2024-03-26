@@ -82,7 +82,7 @@ class PrimaryUserView: UIView {
         button.isUserInteractionEnabled = false
         button.isHidden = true
         let buttonSize: CGFloat = UIDevice.isPad ? 25 : 20
-        button.configuration?.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
+        button.configuration?.image = UIImage(systemName: AppStrings.Icons.quote)?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryGray).scalePreservingAspectRatio(targetSize: CGSize(width: buttonSize, height: buttonSize))
         return button
     }()
     

@@ -18,6 +18,10 @@ class AddReportContextViewController: UIViewController {
     
     private var referenceButton: UIButton!
     private var cancelButton: UIButton!
+    private var textButton: UIButton!
+    
+    private let maxCount = 800
+    
     private var firstTimeTap: Bool = true
     
     private let scrollView: UIScrollView = {
@@ -48,6 +52,7 @@ class AddReportContextViewController: UIViewController {
         tv.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         tv.isScrollEnabled = false
         tv.delegate = self
+        tv.layoutManager.allowsNonContiguousLayout = false
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
@@ -159,6 +164,9 @@ class AddReportContextViewController: UIViewController {
             contextTextView.text = content
             cancelButton.isEnabled = true
             cancelButton.isHidden = false
+            updateTextCount(contextTextView.text.count)
+        } else {
+            updateTextCount(0)
         }
     }
    
@@ -183,6 +191,9 @@ class AddReportContextViewController: UIViewController {
         cancelButton.addTarget(self, action: #selector(handleRemove), for: .touchUpInside)
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         
+        textButton = UIButton(type: .system)
+        textButton.translatesAutoresizingMaskIntoConstraints = false
+
         var shareConfig = UIButton.Configuration.filled()
         shareConfig.baseBackgroundColor = K.Colors.primaryColor
         shareConfig.baseForegroundColor = .white
@@ -202,17 +213,21 @@ class AddReportContextViewController: UIViewController {
         cancelConfig.buttonSize = .mini
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         
+        var textConfig = UIButton.Configuration.plain()
+        textConfig.baseForegroundColor = .label
+        textConfig.buttonSize = .mini
+        textConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+      
+        textButton.configuration = textConfig
         referenceButton.configuration = shareConfig
         cancelButton.configuration = cancelConfig
         
         let rightButton = UIBarButtonItem(customView: referenceButton)
-
+        let midButton = UIBarButtonItem(customView: textButton)
         let leftButton = UIBarButtonItem(customView: cancelButton)
 
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-                
-        toolbar.setItems([leftButton, flexibleSpace, rightButton], animated: false)
-        
+        toolbar.setItems([leftButton, .flexibleSpace(), midButton, .flexibleSpace(), rightButton], animated: false)
+        toolbar.layoutIfNeeded()
         referenceButton.isEnabled = false
                 
         return toolbar
@@ -240,29 +255,28 @@ class AddReportContextViewController: UIViewController {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let window = UIWindow.visibleScreen {
+            
+            let convertedFrame = view.convert(view.bounds, to: window)
+            let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+            
             scrollView.resizeContentSize()
 
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
-                let lineHeight = 1.5 * (contextTextView.font?.lineHeight ?? 20.0)
-                
-                let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
-                var bottomInset = keyboardViewEndFrame.height
-
                 if UIDevice.isPad {
+                    var bottomInset = keyboardViewEndFrame.height
                     let windowBottom = UIWindow.visibleScreenBounds.maxY
-                    let viewControllerBottom = view.frame.maxY
+                    let viewControllerBottom = convertedFrame.maxY
                     let distance = windowBottom - viewControllerBottom
                     bottomInset -= distance
-                    scrollView.contentInset.bottom = bottomInset + 2 * lineHeight
+                    scrollView.contentInset.bottom = bottomInset
                 } else {
-                    bottomInset -= view.safeAreaInsets.bottom
-                    scrollView.contentInset.bottom = bottomInset + lineHeight
+                    scrollView.contentInset.bottom = keyboardViewEndFrame.height - view.safeAreaInsets.bottom
                 }
             }
-            
+ 
             scrollView.scrollIndicatorInsets = scrollView.contentInset
             scrollView.resizeContentSize()
         }
@@ -294,17 +308,13 @@ extension AddReportContextViewController: UITextViewDelegate {
         referenceButton.isEnabled = textView.text.isEmpty ? false : true
         
         let count = textView.text.count
-        if count > 300 { contextTextView.deleteBackward() }
-        
-        let size = CGSize(width: view.frame.width, height: .infinity)
-        let estimatedSize = textView.sizeThatFits(size)
-        
-        textView.constraints.forEach { constraint in
-            if constraint.firstAttribute == .height {
-                constraint.constant = estimatedSize.height
-            }
+        if count > maxCount {
+            contextTextView.deleteBackward()
+        } else {
+            updateTextCount(count)
         }
         
+        textView.sizeToFit()
         scrollView.resizeContentSize()
     }
     
@@ -312,6 +322,16 @@ extension AddReportContextViewController: UITextViewDelegate {
         if firstTimeTap && textView.text == AppStrings.Report.Submit.details {
             textView.selectedRange = NSMakeRange(0, 0)
         }
+    }
+    
+    private func updateTextCount(_ count: Int) {
+        
+        var tContainer = AttributeContainer()
+        tContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
+        tContainer.foregroundColor = K.Colors.primaryGray
+        
+        let remainingCount = maxCount - count
+        textButton.configuration?.attributedTitle = AttributedString("\(remainingCount)", attributes: tContainer)
     }
 }
 

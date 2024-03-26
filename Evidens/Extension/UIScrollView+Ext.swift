@@ -17,6 +17,6 @@ extension UIScrollView {
             contentRect = contentRect.union(view.frame)
         }
         
-        self.contentSize = contentRect.size
+        self.contentSize = contentRect.size 
     }
 }

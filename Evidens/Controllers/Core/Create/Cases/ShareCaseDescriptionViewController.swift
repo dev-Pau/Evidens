@@ -58,6 +58,7 @@ class ShareCaseDescriptionViewController: UIViewController {
         tv.isScrollEnabled = true
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.contentInset = UIEdgeInsets.zero
+        tv.layoutManager.allowsNonContiguousLayout = false
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
         return tv
@@ -194,7 +195,7 @@ class ShareCaseDescriptionViewController: UIViewController {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval, let window = UIWindow.visibleScreen {
 
             if notification.name == UIResponder.keyboardWillHideNotification {
                 
@@ -209,9 +210,16 @@ class ShareCaseDescriptionViewController: UIViewController {
                     guard let strongSelf = self else { return }
                     
                     let keyboardViewEndFrame = strongSelf.view.convert(keyboardSize, from: strongSelf.view.window)
-                    let bottomInset = keyboardViewEndFrame.height
+                    let convertedFrame = strongSelf.view.convert(strongSelf.view.bounds, to: window)
+                    
+                    var bottomInset = keyboardViewEndFrame.height
                     
                     if UIDevice.isPad {
+                        
+                        let windowBottom = UIWindow.visibleScreenBounds.maxY
+                        let viewControllerBottom = convertedFrame.maxY
+                        let distance = windowBottom - viewControllerBottom
+                        bottomInset -= distance
                         strongSelf.nextButtonConstraint.constant = -(bottomInset)
                     } else {
                         strongSelf.nextButtonConstraint.constant = -(bottomInset) + 10
@@ -226,6 +234,7 @@ class ShareCaseDescriptionViewController: UIViewController {
 
 extension ShareCaseDescriptionViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
+        
         UIView.animate(withDuration: 0.4) { [weak self] in
             guard let strongSelf = self else { return }
             if !textView.text.isEmpty {
@@ -233,7 +242,6 @@ extension ShareCaseDescriptionViewController: UITextViewDelegate {
             } else {
                 strongSelf.descriptionLabel.alpha = 0
             }
-            strongSelf.view.layoutIfNeeded()
         }
         
         nextButton.isEnabled = !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -242,7 +250,7 @@ extension ShareCaseDescriptionViewController: UITextViewDelegate {
 
         let count = textView.text.count
         
-        if count > viewModel.descriptionSize {
+        if count > viewModel.maxDescriptionCount {
             textView.deleteBackward()
         }
     }

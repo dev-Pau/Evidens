@@ -23,9 +23,9 @@ class ReferenceViewController: UIViewController {
     private let referenceImageView: UIImageView = {
         let iv = UIImageView()
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .scaleAspectFit
         iv.clipsToBounds = true
-        iv.image = UIImage(named: AppStrings.Assets.fillQuote)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
+        iv.image = UIImage(systemName: AppStrings.Icons.quote)?.withRenderingMode(.alwaysOriginal).withTintColor(.label)
         return iv
     }()
     

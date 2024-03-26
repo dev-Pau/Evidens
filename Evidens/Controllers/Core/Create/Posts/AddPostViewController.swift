@@ -24,6 +24,10 @@ class AddPostViewController: UIViewController {
 
     private let cellHeight: CGFloat = (UIWindow.visibleScreenWidth - 40) * 0.55
 
+    var textButton: UIButton!
+    var mediaButton: UIButton!
+    var referenceButton: UIButton!
+    
     private var collectionView: UICollectionView!
     private var collectionViewHeightAnchor: NSLayoutConstraint!
     
@@ -35,8 +39,6 @@ class AddPostViewController: UIViewController {
         scrollView.backgroundColor = .systemBackground
         return scrollView
     }()
-    
-    private let toolbar = PostToolbar()
     
     private let profileImageView = ProfileImageView(frame: .zero)
    
@@ -50,6 +52,7 @@ class AddPostViewController: UIViewController {
         tv.delegate = self
         tv.isScrollEnabled = false
         tv.contentInset = UIEdgeInsets.zero
+        tv.layoutManager.allowsNonContiguousLayout = false
         tv.textContainerInset = UIEdgeInsets.zero
         tv.textContainer.lineFragmentPadding = .zero
         tv.translatesAutoresizingMaskIntoConstraints = false
@@ -89,16 +92,10 @@ class AddPostViewController: UIViewController {
                                                object: nil)
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        scrollView.resizeContentSize()
-    }
-    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        scrollView.resizeContentSize()
         postTextView.becomeFirstResponder()
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name("PostReference"), object: nil)
+        scrollView.resizeContentSize()
     }
     
     init(user: User, viewModel: AddPostViewModel) {
@@ -167,8 +164,7 @@ class AddPostViewController: UIViewController {
         profileImageView.layer.cornerRadius = K.Paddings.Content.userImageSize / 2
         
         profileImageView.addImage(forUrl: UserDefaults.getImage(), size: K.Paddings.Content.userImageSize)
-       
-        toolbar.toolbarDelegate = self
+
         updateForm()
     }
     
@@ -207,27 +203,91 @@ class AddPostViewController: UIViewController {
     }
     
     func configureKeyboard() {
-        toolbar.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: 50)
+        let toolbar = UIToolbar()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        
+        toolbar.scrollEdgeAppearance = appearance
+        toolbar.standardAppearance = appearance
+        
+        textButton = UIButton(type: .system)
+        textButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        mediaButton = UIButton(type: .system)
+        mediaButton.addTarget(self, action: #selector(handleAddMedia), for: .touchUpInside)
+        mediaButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        referenceButton = UIButton(type: .system)
+        referenceButton.addTarget(self, action: #selector(handleAddReference), for: .touchUpInside)
+        referenceButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        var mediaConfig = UIButton.Configuration.filled()
+        mediaConfig.baseBackgroundColor = K.Colors.primaryColor
+        mediaConfig.baseForegroundColor = .white
+        mediaConfig.image = UIImage(systemName: AppStrings.Icons.plus, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(.white)
+        mediaConfig.cornerStyle = .capsule
+        mediaConfig.buttonSize = .mini
+        mediaConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+        
+        var referenceConfig = UIButton.Configuration.plain()
+        referenceConfig.baseForegroundColor = K.Colors.primaryColor
+        referenceConfig.image = UIImage(systemName: AppStrings.Icons.quote, withConfiguration: UIImage.SymbolConfiguration(weight: .semibold))?.withRenderingMode(.alwaysOriginal).withTintColor(K.Colors.primaryColor)
+        referenceConfig.cornerStyle = .capsule
+        referenceConfig.buttonSize = .mini
+        referenceConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+        
+        var textConfig = UIButton.Configuration.plain()
+        textConfig.baseForegroundColor = .label
+        textConfig.buttonSize = .mini
+        textConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+
+        referenceButton.configuration = referenceConfig
+        textButton.configuration = textConfig
+        mediaButton.configuration = mediaConfig
+        
+        let leftButton = UIBarButtonItem(customView: referenceButton)
+        let midButton = UIBarButtonItem(customView: textButton)
+        let rightButton = UIBarButtonItem(customView: mediaButton)
+
+        toolbar.setItems([leftButton, .flexibleSpace(), midButton, .flexibleSpace(), rightButton], animated: false)
+        toolbar.layoutIfNeeded()
+       
+        updateTextCount(0)
         postTextView.inputAccessoryView = toolbar
     }
-   
+    
     //MARK: - Actions
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            scrollView.resizeContentSize()
+        
+        if let window = UIWindow.visibleScreen, let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            
+            let convertedFrame = view.convert(view.bounds, to: window)
             let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+            
+            scrollView.resizeContentSize()
+            
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
-                scrollView.contentInset = UIEdgeInsets(top: 0,
-                                                       left: 0,
-                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom,
-                                                       right: 0)
+                if UIDevice.isPad {
+                    var bottomInset = keyboardViewEndFrame.height
+                    let windowBottom = UIWindow.visibleScreenBounds.maxY
+                    let viewControllerBottom = convertedFrame.maxY
+                    let distance = windowBottom - viewControllerBottom
+                    bottomInset -= distance
+                    scrollView.contentInset.bottom = bottomInset
+                } else {
+                    scrollView.contentInset.bottom = keyboardViewEndFrame.height - view.safeAreaInsets.bottom
+                }
             }
-            
-            scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
 
+            scrollView.scrollIndicatorInsets = scrollView.contentInset
             scrollView.resizeContentSize()
         }
     }
@@ -319,8 +379,8 @@ extension AddPostViewController: ShareCaseImageCellDelegate {
         if let indexPath = collectionView.indexPath(for: cell) {
             viewModel.images.remove(at: indexPath.row)
             collectionView.deleteItems(at: [indexPath])
-            toolbar.handleUpdateMediaButtonInteraction(forNumberOfImages: viewModel.images.count)
-            
+            mediaButton.isEnabled = viewModel.images.count < 4
+          
             if !viewModel.hasImages {
                 collectionViewHeightAnchor.constant -= cellHeight
                 scrollView.resizeContentSize()
@@ -356,11 +416,13 @@ extension AddPostViewController: AddWebLinkReferenceDelegate {
 
 extension AddPostViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        
+
         let count = textView.text.count
         
         if count > viewModel.postSize {
             textView.deleteBackward()
+        } else {
+            updateTextCount(count)
         }
         
         viewModel.text = textView.text
@@ -382,7 +444,7 @@ extension AddPostViewController: UITextViewDelegate {
                             strongSelf.collectionViewHeightAnchor.constant += strongSelf.viewModel.linkLoaded ? 0 : strongSelf.cellHeight
                             strongSelf.viewModel.linkLoaded = true
                             strongSelf.viewModel.linkMetadata = metadata
-                            strongSelf.toolbar.enableImages(false)
+                            strongSelf.mediaButton.isEnabled = false
                             strongSelf.collectionView.reloadData()
                         }
                     }
@@ -411,7 +473,7 @@ extension AddPostViewController: UITextViewDelegate {
                                 guard strongSelf.viewModel.kind == .link, !links.isEmpty else { return }
                                 strongSelf.viewModel.linkMetadata = metadata
                                 
-                                strongSelf.toolbar.enableImages(false)
+                                strongSelf.mediaButton.isEnabled = false
                                 strongSelf.viewModel.linkLoaded = true
                                 strongSelf.collectionView.reloadData()
                             } else {
@@ -422,25 +484,9 @@ extension AddPostViewController: UITextViewDelegate {
                 }
             }
         }
+        
+        textView.sizeToFit()
 
-        let currentOffset = scrollView.contentOffset
-        
-        let size = CGSize(width: view.frame.width, height: .infinity)
-        let estimatedSize = textView.sizeThatFits(size)
-        
-        postTextView.constraints.forEach { constraint in
-            if constraint.firstAttribute == .height {
-                constraint.constant = estimatedSize.height
-            }
-        }
-        
-        scrollView.contentOffset = currentOffset
-        
-        UIView.animate(withDuration: 0.2) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.view.layoutIfNeeded()
-        }
-        
         scrollView.resizeContentSize()
         
         updateForm()
@@ -514,7 +560,7 @@ extension AddPostViewController: PHPickerViewControllerDelegate {
                     
                     strongSelf.collectionView.reloadData()
                     
-                    strongSelf.toolbar.handleUpdateMediaButtonInteraction(forNumberOfImages: strongSelf.viewModel.images.count)
+                    strongSelf.mediaButton.isEnabled = strongSelf.viewModel.images.count < 4
                     strongSelf.dismissProgressIndicator()
                     strongSelf.scrollView.resizeContentSize()
                 }
@@ -529,8 +575,8 @@ extension AddPostViewController {
     }
 }
 
-extension AddPostViewController: PostToolbarDelegate {
-    func didTapQuoteButton() {
+extension AddPostViewController {
+    @objc func handleAddReference() {
         if let reference = viewModel.reference {
             addReference(reference)
         } else {
@@ -544,7 +590,7 @@ extension AddPostViewController: PostToolbarDelegate {
         }
     }
     
-    func didTapAddMediaButton() {
+    @objc func handleAddMedia() {
         postTextView.resignFirstResponder()
         var config = PHPickerConfiguration(photoLibrary: .shared())
         config.selectionLimit = 4 - viewModel.images.count
@@ -572,7 +618,7 @@ extension AddPostViewController: ContentLinkCellDelegate {
         viewModel.linkLoaded = false
         collectionViewHeightAnchor.constant -= cellHeight
         collectionView.reloadData()
-        toolbar.enableImages(true)
+        mediaButton.isEnabled = true
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             guard let strongSelf = self else { return }
@@ -582,7 +628,7 @@ extension AddPostViewController: ContentLinkCellDelegate {
 }
 
 extension AddPostViewController {
-    
+  
     func addReference(_ reference: Reference) {
         switch reference.option {
         case .link:
@@ -598,5 +644,15 @@ extension AddPostViewController {
             navVC.modalPresentationStyle = UIModalPresentationStyle.getBasePresentationStyle()
             present(navVC, animated: true)
         }
+    }
+
+    private func updateTextCount(_ count: Int) {
+        
+        var tContainer = AttributeContainer()
+        tContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
+        tContainer.foregroundColor = K.Colors.primaryGray
+        
+        let remainingCount = viewModel.postSize - count
+        textButton.configuration?.attributedTitle = AttributedString("\(remainingCount)", attributes: tContainer)
     }
 }

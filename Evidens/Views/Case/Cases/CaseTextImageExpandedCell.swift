@@ -38,10 +38,10 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             guard let strongSelf = self, let viewModel = strongSelf.viewModel else { return nil }
 
             let height = strongSelf.frame.width - (2 * K.Paddings.Content.horizontalPadding + K.Paddings.Content.userImageSize)
-            let smallHeight = strongSelf.frame.width - 2 * K.Paddings.Content.horizontalPadding//( + K.Paddings.Content.userImageSize)
+            let smallHeight = strongSelf.frame.width - 2 * K.Paddings.Content.horizontalPadding
             //let height = strongSelf.frame.width - 45
             
-            let width = viewModel.images.count == 1 ? smallHeight : height/*strongSelf.frame.width - 45*/
+            let width = viewModel.images.count == 1 ? smallHeight : height
             let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(height)))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .absolute(width), heightDimension: .absolute(height)), subitems: [item])
 
@@ -124,7 +124,7 @@ class CaseTextImageExpandedCell: UICollectionViewCell {
             caseCollectionView.topAnchor.constraint(equalTo: contentTextView.bottomAnchor, constant: 10),
             caseCollectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             caseCollectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            caseCollectionView.heightAnchor.constraint(equalToConstant: frame.width - padding /*45*/),
+            caseCollectionView.heightAnchor.constraint(equalToConstant: frame.width - padding),
             
             titleTextView.topAnchor.constraint(equalTo: caseCollectionView.bottomAnchor, constant: -1),
             titleTextView.leadingAnchor.constraint(equalTo: caseCollectionView.leadingAnchor, constant: K.Paddings.Content.horizontalPadding),

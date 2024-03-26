@@ -29,7 +29,6 @@ struct AddPostViewModel: AddPostViewModelDelegate {
     var hashtags: [String]?
     
     let postSize = 700
-
     
     init() {
         self.privacy = .regular

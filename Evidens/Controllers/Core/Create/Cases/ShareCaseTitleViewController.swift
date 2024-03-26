@@ -185,9 +185,8 @@ class ShareCaseTitleViewController: UIViewController {
         nextButton.isEnabled = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
-    
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval, let window = UIWindow.visibleScreen {
 
             if notification.name == UIResponder.keyboardWillHideNotification {
                 
@@ -202,9 +201,16 @@ class ShareCaseTitleViewController: UIViewController {
                     guard let strongSelf = self else { return }
                     
                     let keyboardViewEndFrame = strongSelf.view.convert(keyboardSize, from: strongSelf.view.window)
-                    let bottomInset = keyboardViewEndFrame.height
+                    let convertedFrame = strongSelf.view.convert(strongSelf.view.bounds, to: window)
+                    
+                    var bottomInset = keyboardViewEndFrame.height
                     
                     if UIDevice.isPad {
+                        
+                        let windowBottom = UIWindow.visibleScreenBounds.maxY
+                        let viewControllerBottom = convertedFrame.maxY
+                        let distance = windowBottom - viewControllerBottom
+                        bottomInset -= distance
                         strongSelf.nextButtonConstraint.constant = -(bottomInset)
                     } else {
                         strongSelf.nextButtonConstraint.constant = -(bottomInset) + 10

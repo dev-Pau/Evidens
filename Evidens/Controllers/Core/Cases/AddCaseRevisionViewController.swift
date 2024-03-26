@@ -11,6 +11,10 @@ class AddCaseRevisionViewController: UIViewController {
 
     private var viewModel: AddCaseRevisionViewModel
     
+    private var maxCount: Int = 600
+    
+    private var textButton: UIButton!
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.bounces = true
@@ -45,7 +49,7 @@ class AddCaseRevisionViewController: UIViewController {
         tv.font = font
         tv.textColor = .label
         tv.tintColor = .label
-        tv.autocorrectionType = .no
+        tv.layoutManager.allowsNonContiguousLayout = false
         tv.isScrollEnabled = false
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.contentInset = UIEdgeInsets.zero
@@ -116,6 +120,8 @@ class AddCaseRevisionViewController: UIViewController {
          navigationItem.rightBarButtonItem = UIBarButtonItem(title: AppStrings.Global.add, style: .done, target: self, action: #selector(handleAddRevision))
         navigationItem.rightBarButtonItem?.tintColor = K.Colors.primaryColor
         navigationItem.rightBarButtonItem?.isEnabled = false
+         
+         contentTextView.inputAccessoryView = addCaseToolbar()
     }
     
     private func configureUI() {
@@ -173,10 +179,44 @@ class AddCaseRevisionViewController: UIViewController {
             bottomSeparatorView.trailingAnchor.constraint(equalTo: contentLabel.trailingAnchor),
             bottomSeparatorView.heightAnchor.constraint(equalToConstant: 0.4),
         ])
+        
+        updateTextCount(0)
     }
 
     func updateForm() {
         navigationItem.rightBarButtonItem?.isEnabled = viewModel.isValid
+    }
+    
+    private func addCaseToolbar() -> UIToolbar {
+        let toolbar = UIToolbar()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        
+        toolbar.scrollEdgeAppearance = appearance
+        toolbar.standardAppearance = appearance
+        
+        textButton = UIButton(type: .system)
+        textButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        
+        var textConfig = UIButton.Configuration.plain()
+        textConfig.baseForegroundColor = .label
+        textConfig.buttonSize = .mini
+        textConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+
+        textButton.configuration = textConfig
+       
+        let midButton = UIBarButtonItem(customView: textButton)
+
+        toolbar.setItems([.flexibleSpace(), midButton, .flexibleSpace()], animated: false)
+        toolbar.layoutIfNeeded()
+
+        return toolbar
     }
 
     @objc func handleAddRevision() {
@@ -217,27 +257,26 @@ class AddCaseRevisionViewController: UIViewController {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let window = UIWindow.visibleScreen {
             scrollView.resizeContentSize()
+            
+            let convertedFrame = view.convert(view.bounds, to: window)
+            let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
 
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
-                let lineHeight = 1.5 * (contentTextView.font?.lineHeight ?? 20.0)
                 
-                let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
-                var bottomInset = keyboardViewEndFrame.height
-
-                if UIDevice.isPad {
-                    let windowBottom = UIWindow.visibleScreenBounds.maxY
-                    let viewControllerBottom = view.frame.maxY
-                    let distance = windowBottom - viewControllerBottom
-                    bottomInset -= distance
-                    scrollView.contentInset.bottom = bottomInset + 2 * lineHeight
-                } else {
-                    bottomInset -= view.safeAreaInsets.bottom
-                    scrollView.contentInset.bottom = bottomInset + lineHeight
-                }
+                  if UIDevice.isPad {
+                      var bottomInset = keyboardViewEndFrame.height
+                      let windowBottom = UIWindow.visibleScreenBounds.maxY
+                      let viewControllerBottom = convertedFrame.maxY
+                      let distance = windowBottom - viewControllerBottom
+                      bottomInset -= distance
+                      scrollView.contentInset.bottom = bottomInset
+                  } else {
+                      scrollView.contentInset.bottom = keyboardViewEndFrame.height - view.safeAreaInsets.bottom
+                  }
             }
             
             scrollView.scrollIndicatorInsets = scrollView.contentInset
@@ -248,6 +287,7 @@ class AddCaseRevisionViewController: UIViewController {
 
 extension AddCaseRevisionViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
+        
         UIView.animate(withDuration: 0.4) { [weak self] in
             guard let strongSelf = self else { return }
             if !textView.text.isEmpty {
@@ -255,17 +295,30 @@ extension AddCaseRevisionViewController: UITextViewDelegate {
             } else {
                 strongSelf.descriptionLabel.alpha = 0
             }
-            strongSelf.view.layoutIfNeeded()
         }
         
         let count = textView.text.count
-        if count > 600 {
+        if count > maxCount {
             textView.deleteBackward()
+        } else {
+            updateTextCount(count)
         }
         
+        textView.sizeToFit()
         scrollView.resizeContentSize()
         
         viewModel.content = textView.text
         updateForm()
+    }
+    
+    
+    private func updateTextCount(_ count: Int) {
+        
+        var tContainer = AttributeContainer()
+        tContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
+        tContainer.foregroundColor = K.Colors.primaryGray
+        
+        let remainingCount = maxCount - count
+        textButton.configuration?.attributedTitle = AttributedString("\(remainingCount)", attributes: tContainer)
     }
 }

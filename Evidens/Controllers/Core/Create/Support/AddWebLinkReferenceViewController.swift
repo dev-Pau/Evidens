@@ -114,6 +114,10 @@ class AddWebLinkReferenceViewController: UIViewController {
         webLinkTextField.becomeFirstResponder()
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     private func configureNavigationBar() {
         let appearance = UINavigationBarAppearance.secondaryAppearance()
         navigationController?.navigationBar.standardAppearance = appearance
@@ -230,12 +234,9 @@ class AddWebLinkReferenceViewController: UIViewController {
         
         let leftButton = UIBarButtonItem(customView: cancelButton)
         
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        
-        toolbar.setItems([leftButton, flexibleSpace, rightButton], animated: false)
-        
+        toolbar.setItems([leftButton, .flexibleSpace(), rightButton], animated: false)
+        toolbar.layoutIfNeeded()
         referenceButton.isEnabled = false
-        
         return toolbar
     }
     

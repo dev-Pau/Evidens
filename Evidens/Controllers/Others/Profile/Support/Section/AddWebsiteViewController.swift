@@ -133,8 +133,7 @@ class AddWebsiteViewController: UIViewController {
         
         toolbar.scrollEdgeAppearance = appearance
         toolbar.standardAppearance = appearance
-        
-        
+
         aboutButton = UIButton(type: .system)
         aboutButton.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
         aboutButton.translatesAutoresizingMaskIntoConstraints = false
@@ -166,12 +165,12 @@ class AddWebsiteViewController: UIViewController {
         
         skipButton.configuration = cancelConfig
         let rightButton = UIBarButtonItem(customView: aboutButton)
-
+        rightButton.customView?.translatesAutoresizingMaskIntoConstraints = false
+        
         let leftButton = UIBarButtonItem(customView: skipButton)
-
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-                
-        toolbar.setItems([leftButton, flexibleSpace, rightButton], animated: false)
+        leftButton.customView?.translatesAutoresizingMaskIntoConstraints = false
+        
+        toolbar.setItems([leftButton, .flexibleSpace(), rightButton], animated: false)
         toolbar.layoutIfNeeded()
         aboutButton.isEnabled = false
                 
@@ -267,7 +266,6 @@ class AddWebsiteViewController: UIViewController {
     
     @objc func handleSkip() {
         websiteTextField.resignFirstResponder()
-        
         navigationController?.popViewController(animated: true)
     }
 }

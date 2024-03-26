@@ -14,8 +14,11 @@ protocol AddAboutViewControllerDelegate: AnyObject {
 class AddAboutViewController: UIViewController {
     
     private var aboutButton: UIButton!
+    private var textButton: UIButton!
     private var skipButton: UIButton!
 
+    private var maxCount: Int = 300
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .systemBackground
@@ -53,6 +56,7 @@ class AddAboutViewController: UIViewController {
         tv.textContainer.lineFragmentPadding = .zero
         tv.font = UIFont.addFont(size: 15, scaleStyle: .title2, weight: .regular)
         tv.isScrollEnabled = false
+        tv.layoutManager.allowsNonContiguousLayout = false
         tv.delegate = self
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero
@@ -94,8 +98,10 @@ class AddAboutViewController: UIViewController {
             switch result {
             case .success(let about):
                 strongSelf.aboutTextView.text = about
+                strongSelf.updateTextCount(about.count)
             case .failure(let error):
                 strongSelf.aboutTextView.text = ""
+                strongSelf.updateTextCount(0)
                 
                 guard error == .empty else {
                     strongSelf.displayAlert(withTitle: error.title, withMessage: error.content)
@@ -139,53 +145,60 @@ class AddAboutViewController: UIViewController {
 
         let appearance = UIToolbarAppearance()
         appearance.configureWithOpaqueBackground()
-        
         appearance.shadowImage = nil
         appearance.shadowColor = .clear
-        
+
         toolbar.scrollEdgeAppearance = appearance
         toolbar.standardAppearance = appearance
-        
+
         aboutButton = UIButton(type: .system)
         aboutButton.addTarget(self, action: #selector(handleContinue), for: .touchUpInside)
         aboutButton.translatesAutoresizingMaskIntoConstraints = false
-        
+
         skipButton = UIButton(type: .system)
         skipButton.addTarget(self, action: #selector(handleSkip), for: .touchUpInside)
         skipButton.translatesAutoresizingMaskIntoConstraints = false
-        
+
+        textButton = UIButton(type: .system)
+        textButton.translatesAutoresizingMaskIntoConstraints = false
+
         var shareConfig = UIButton.Configuration.filled()
         shareConfig.baseBackgroundColor = K.Colors.primaryColor
         shareConfig.baseForegroundColor = .white
+
         var shareContainer = AttributeContainer()
         shareContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .semibold, scales: false)
         shareConfig.attributedTitle = AttributedString(AppStrings.Global.save, attributes: shareContainer)
         shareConfig.cornerStyle = .capsule
         shareConfig.buttonSize = .mini
         shareConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
-        
-        var cancelConfig = UIButton.Configuration.plain()
-        cancelConfig.baseForegroundColor = .label
-        
-        var cancelContainer = AttributeContainer()
-        cancelContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
-        cancelConfig.attributedTitle = AttributedString(AppStrings.Miscellaneous.goBack, attributes: cancelContainer)
-        cancelConfig.buttonSize = .mini
-        cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
-        
-        aboutButton.configuration = shareConfig
-        
-        skipButton.configuration = cancelConfig
-        let rightButton = UIBarButtonItem(customView: aboutButton)
 
+        var baseConfig = UIButton.Configuration.plain()
+        baseConfig.baseForegroundColor = .label
+
+        var baseContainer = AttributeContainer()
+        baseContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
+        baseConfig.attributedTitle = AttributedString(AppStrings.Miscellaneous.goBack, attributes: baseContainer)
+        baseConfig.buttonSize = .mini
+        baseConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+
+        var textConfig = UIButton.Configuration.plain()
+        textConfig.baseForegroundColor = .label
+        textConfig.buttonSize = .mini
+        textConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
+
+        aboutButton.configuration = shareConfig
+        skipButton.configuration = baseConfig
+        textButton.configuration = textConfig
+
+        let rightButton = UIBarButtonItem(customView: aboutButton)
+        let midButton = UIBarButtonItem(customView: textButton)
         let leftButton = UIBarButtonItem(customView: skipButton)
 
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-                
-        toolbar.setItems([leftButton, flexibleSpace, rightButton], animated: false)
-        
+        toolbar.setItems([leftButton, .flexibleSpace(), midButton, .flexibleSpace(), rightButton], animated: false)
+        toolbar.layoutIfNeeded()
         aboutButton.isEnabled = false
-                
+
         return toolbar
     }
 
@@ -230,7 +243,16 @@ class AddAboutViewController: UIViewController {
     }
     
     @objc func handleSkip() {
-        navigationController?.popViewController(animated: true)
+        if aboutButton.isEnabled {
+            displayAlert(withTitle: AppStrings.Alerts.Title.cancelContent, withMessage: AppStrings.Alerts.Subtitle.cancelContent, withPrimaryActionText: AppStrings.Global.cancel, withSecondaryActionText: AppStrings.Alerts.Actions.quit, style: .default) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.aboutTextView.resignFirstResponder()
+                strongSelf.navigationController?.popViewController(animated: true)
+            }
+        } else {
+            aboutTextView.resignFirstResponder()
+            navigationController?.popViewController(animated: true)
+        }
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -240,11 +262,9 @@ class AddAboutViewController: UIViewController {
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
-                scrollView.contentInset = UIEdgeInsets(top: 0,
-                                                       left: 0,
-                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20,
-                                                       right: 0)
+                scrollView.contentInset.bottom = keyboardViewEndFrame.height - view.safeAreaInsets.bottom
             }
+            
             scrollView.scrollIndicatorInsets = scrollView.contentInset
             scrollView.resizeContentSize()
         }
@@ -254,20 +274,30 @@ class AddAboutViewController: UIViewController {
 extension AddAboutViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         
-        aboutButton.isEnabled = true
+        let count = textView.text.count
         
-        let size = CGSize(width: view.frame.width, height: .infinity)
-        let estimatedSize = textView.sizeThatFits(size)
-        
-        textView.constraints.forEach { constraint in
-            if constraint.firstAttribute == .height {
-                constraint.constant = estimatedSize.height
-            }
+        if count > maxCount {
+            textView.deleteBackward()
+        } else {
+            updateTextCount(count)
         }
-        
+
+        textView.sizeToFit()
         scrollView.resizeContentSize()
         
         navigationItem.rightBarButtonItem?.isEnabled = textView.text.isEmpty ? false : true
+    }
+    
+    func updateTextCount(_ count: Int) {
+        
+        aboutButton.isEnabled = count <= maxCount
+        
+        var tContainer = AttributeContainer()
+        tContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
+        tContainer.foregroundColor = K.Colors.primaryGray
+        
+        let remainingCount = maxCount - count
+        textButton.configuration?.attributedTitle = AttributedString("\(remainingCount)", attributes: tContainer)
     }
 }
 

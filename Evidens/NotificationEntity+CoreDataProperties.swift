@@ -50,29 +50,5 @@ extension NotificationEntity {
     var wrappedTimestamp: Date {
         timestamp ?? Date()
     }
-    
-
-
-
-    
-
-
-    /*
-     
-     let id: String
-     let uid: String
-     let kind: NotificationKind
-     let timestamp: Date
-
-     
-     private(set) var image: String?
-     var name: String?
-
-     var isFollowed: Bool?
-     var content: String?
-
-     var isRead: Bool = false
-     
-     */
 }
 

@@ -20,8 +20,12 @@ class EditPostViewController: UIViewController {
     //MARK: - Properties
     
     weak var delegate: EditPostViewControllerDelegate?
+    
+    let maxCount = 700
 
     var viewModel: EditPostViewModel
+    
+    var textButton: UIButton!
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -41,6 +45,7 @@ class EditPostViewController: UIViewController {
         tv.font = font
         tv.textColor = .label
         tv.tintColor = K.Colors.primaryColor
+        tv.layoutManager.allowsNonContiguousLayout = false
         tv.isScrollEnabled = false
         tv.textContainerInset = UIEdgeInsets.zero
         tv.contentInset = UIEdgeInsets.zero
@@ -83,6 +88,7 @@ class EditPostViewController: UIViewController {
         super.viewDidAppear(true)
         postTextView.becomeFirstResponder()
         scrollView.resizeContentSize()
+        postTextView.handleTextDidChange()
     }
     
     init(post: Post) {
@@ -97,10 +103,10 @@ class EditPostViewController: UIViewController {
     //MARK: - Helpers
     
     private func configureNavigationBar() {
-        let appearance = UINavigationBarAppearance.secondaryAppearance()
-        
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        let standardAppearance = UINavigationBarAppearance.secondaryAppearance()
+        let scrollAppearance = UINavigationBarAppearance.contentAppearance()
+        navigationController?.navigationBar.standardAppearance = scrollAppearance
+        navigationController?.navigationBar.scrollEdgeAppearance = standardAppearance
         
         addNavigationBarLogo(withTintColor: K.Colors.primaryColor)
         
@@ -109,10 +115,13 @@ class EditPostViewController: UIViewController {
         navigationItem.rightBarButtonItem?.isEnabled = false
         
         navigationItem.leftBarButtonItem?.tintColor = .label
+        
+        postTextView.inputAccessoryView = addPostToolbar()
     }
     
     private func configureUI() {
         view.backgroundColor = .systemBackground
+        
         postTextView.text = viewModel.postText
         postTextView.handleTextDidChange()
         
@@ -142,29 +151,66 @@ class EditPostViewController: UIViewController {
         profileImage.layer.cornerRadius = K.Paddings.Content.userImageSize / 2
         
         profileImage.addImage(forUrl: UserDefaults.getImage(), size: K.Paddings.Content.userImageSize)
+        
+        updateTextCount(postTextView.text.count)
+    }
+    
+    private func addPostToolbar() -> UIToolbar {
+        let toolbar = UIToolbar()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        
+        let appearance = UIToolbarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        appearance.shadowColor = .clear
+        appearance.shadowImage = nil
+        
+        toolbar.scrollEdgeAppearance = appearance
+        toolbar.standardAppearance = appearance
+        
+        textButton = UIButton(type: .system)
+        textButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        var textConfig = UIButton.Configuration.plain()
+        textConfig.baseForegroundColor = .label
+        textConfig.buttonSize = .mini
+        
+        textButton.configuration = textConfig
+        
+        let midButton = UIBarButtonItem(customView: textButton)
+        
+        toolbar.setItems([.flexibleSpace(), midButton, .flexibleSpace()], animated: false)
+        toolbar.layoutIfNeeded()
+
+        return toolbar
     }
     
     //MARK: - Actions
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let window = UIWindow.visibleScreen {
             
-            scrollView.resizeContentSize()
-            
+            let convertedFrame = view.convert(view.bounds, to: window)
             let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
             
+            scrollView.resizeContentSize()
+
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
-                scrollView.contentInset = UIEdgeInsets(top: 0,
-                                                       left: 0,
-                                                       bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom,
-                                                       right: 0)
+                if UIDevice.isPad {
+                    var bottomInset = keyboardViewEndFrame.height
+                    let windowBottom = UIWindow.visibleScreenBounds.maxY
+                    let viewControllerBottom = convertedFrame.maxY
+                    let distance = windowBottom - viewControllerBottom
+                    bottomInset -= distance
+                    scrollView.contentInset.bottom = bottomInset
+                } else {
+                    scrollView.contentInset.bottom = keyboardViewEndFrame.height - view.safeAreaInsets.bottom
+                }
             }
-            
-            scrollView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
-            
+ 
+            scrollView.scrollIndicatorInsets = scrollView.contentInset
             scrollView.resizeContentSize()
         }
     }
@@ -220,10 +266,11 @@ class EditPostViewController: UIViewController {
 //MARK: - UITextViewDelegate
 
 extension EditPostViewController: UITextViewDelegate {
+    
     func textViewDidChange(_ textView: UITextView) {
 
         viewModel.edit(textView.text.trimmingCharacters(in: .whitespacesAndNewlines))
-        
+
         var links = [String]()
         var hashtag = [String]()
         
@@ -261,28 +308,29 @@ extension EditPostViewController: UITextViewDelegate {
             }
         }
         
-        let currentOffset = scrollView.contentOffset
-        
-        let size = CGSize(width: view.frame.width, height: .infinity)
-        let estimatedSize = textView.sizeThatFits(size)
-        
-        postTextView.constraints.forEach { constraint in
-            if constraint.firstAttribute == .height {
-                constraint.constant = estimatedSize.height
-            }
+        let count = textView.text.count
+
+        if count > maxCount {
+            textView.deleteBackward()
+        } else {
+            updateTextCount(count)
         }
-
-        scrollView.contentOffset = currentOffset
-
-           UIView.animate(withDuration: 0.2) { [weak self] in
-               guard let strongSelf = self else { return }
-               strongSelf.view.layoutIfNeeded()
-           }
         
+        textView.sizeToFit()
         scrollView.resizeContentSize()
     }
-    
+        
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
         return false
+    }
+    
+    private func updateTextCount(_ count: Int) {
+        
+        var tContainer = AttributeContainer()
+        tContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
+        tContainer.foregroundColor = K.Colors.primaryGray
+        
+        let remainingCount = maxCount - count
+        textButton.configuration?.attributedTitle = AttributedString("\(remainingCount)", attributes: tContainer)
     }
 }

@@ -11,10 +11,15 @@ class AddAuthorReferenceViewController: UIViewController {
     
     private let controller: AddPostViewController
     
+    private var maxCount: Int = 400
+    
     weak var delegate: AddWebLinkReferenceDelegate?
     private var reference: Reference?
+    
     private var referenceButton: UIButton!
     private var cancelButton: UIButton!
+    private var textButton: UIButton!
+    
     private var firstTimeTap: Bool = true
     
     private let scrollView: UIScrollView = {
@@ -60,6 +65,7 @@ class AddAuthorReferenceViewController: UIViewController {
         tv.textContainer.lineFragmentPadding = .zero
         tv.font = UIFont.addFont(size: 16, scaleStyle: .title2, weight: .regular)
         tv.isScrollEnabled = false
+        tv.layoutManager.allowsNonContiguousLayout = false
         tv.delegate = self
         tv.contentInset = UIEdgeInsets.zero
         tv.textContainerInset = UIEdgeInsets.zero
@@ -159,8 +165,11 @@ class AddAuthorReferenceViewController: UIViewController {
             citationTextView.textColor = K.Colors.primaryColor
             firstTimeTap.toggle()
             citationTextView.text = reference.referenceText
+            updateTextCount(citationTextView.text.count)
             cancelButton.isEnabled = true
             cancelButton.isHidden = false
+        } else {
+            updateTextCount(0)
         }
     }
     
@@ -177,8 +186,10 @@ class AddAuthorReferenceViewController: UIViewController {
         
         toolbar.scrollEdgeAppearance = appearance
         toolbar.standardAppearance = appearance
-        
-        
+
+        textButton = UIButton(type: .system)
+        textButton.translatesAutoresizingMaskIntoConstraints = false
+
         referenceButton = UIButton(type: .system)
         referenceButton.addTarget(self, action: #selector(addReference), for: .touchUpInside)
         referenceButton.translatesAutoresizingMaskIntoConstraints = false
@@ -206,25 +217,30 @@ class AddAuthorReferenceViewController: UIViewController {
         cancelConfig.buttonSize = .mini
         cancelConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
         
-        referenceButton.configuration = shareConfig
         
-        cancelButton.configuration = cancelConfig
-        let rightButton = UIBarButtonItem(customView: referenceButton)
+        var textConfig = UIButton.Configuration.plain()
+        textConfig.baseForegroundColor = .label
+        textConfig.buttonSize = .mini
+        textConfig.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0)
 
+        referenceButton.configuration = shareConfig
+        textButton.configuration = textConfig
+        cancelButton.configuration = cancelConfig
+        
+        let rightButton = UIBarButtonItem(customView: referenceButton)
+        let midButton = UIBarButtonItem(customView: textButton)
         let leftButton = UIBarButtonItem(customView: cancelButton)
 
-        let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-                
-        toolbar.setItems([leftButton, flexibleSpace, rightButton], animated: false)
+        toolbar.setItems([leftButton, .flexibleSpace(), midButton, .flexibleSpace(), rightButton], animated: false)
+        toolbar.layoutIfNeeded()
         
         referenceButton.isEnabled = false
-                
         return toolbar
     }
     
     @objc func addReference() {
         guard let text = citationTextView.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        let reference = Reference(option: .citation, referenceText: text)
+        let reference = Reference(option: .citation, referenceText: text.trimmingCharacters(in: .whitespacesAndNewlines))
         delegate?.didAddReference(reference)
         dismiss(animated: true)
     }
@@ -245,28 +261,26 @@ class AddAuthorReferenceViewController: UIViewController {
             dismiss(animated: true)
         }
     }
-    
+
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let window = UIWindow.visibleScreen {
             scrollView.resizeContentSize()
-          
+
+            let convertedFrame = view.convert(view.bounds, to: window)
+            let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
+            
             if notification.name == UIResponder.keyboardWillHideNotification {
                 scrollView.contentInset = .zero
             } else {
-                let lineHeight = 1.5 * (citationTextView.font?.lineHeight ?? 20.0)
-                
-                let keyboardViewEndFrame = view.convert(keyboardSize, from: view.window)
-                var bottomInset = keyboardViewEndFrame.height
-
                 if UIDevice.isPad {
+                    var bottomInset = keyboardViewEndFrame.height
                     let windowBottom = UIWindow.visibleScreenBounds.maxY
-                    let viewControllerBottom = view.frame.maxY
+                    let viewControllerBottom = convertedFrame.maxY
                     let distance = windowBottom - viewControllerBottom
                     bottomInset -= distance
-                    scrollView.contentInset.bottom = bottomInset + 2 * lineHeight
+                    scrollView.contentInset.bottom = bottomInset
                 } else {
-                    bottomInset -= view.safeAreaInsets.bottom
-                    scrollView.contentInset.bottom = bottomInset + lineHeight
+                    scrollView.contentInset.bottom = keyboardViewEndFrame.height - view.safeAreaInsets.bottom
                 }
             }
             
@@ -294,17 +308,16 @@ extension AddAuthorReferenceViewController: UITextViewDelegate {
             textView.text = textView.text.replacingOccurrences(of: AppStrings.Reference.citationExample, with: "")
         }
         
-        referenceButton.isEnabled = textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? false : true
+        let count = textView.text.count
         
-        let size = CGSize(width: view.frame.width, height: .infinity)
-        let estimatedSize = textView.sizeThatFits(size)
-        
-        textView.constraints.forEach { constraint in
-            if constraint.firstAttribute == .height {
-                constraint.constant = estimatedSize.height
-            }
+        if count > maxCount {
+            textView.deleteBackward()
+        } else {
+            updateTextCount(count)
         }
-        
+
+        referenceButton.isEnabled = textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? false : true
+        textView.sizeToFit()
         scrollView.resizeContentSize()
     }
     
@@ -312,6 +325,16 @@ extension AddAuthorReferenceViewController: UITextViewDelegate {
         if firstTimeTap && textView.text == AppStrings.Reference.citationExample {
             textView.selectedRange = NSMakeRange(0, 0)
         }
+    }
+    
+    private func updateTextCount(_ count: Int) {
+        
+        var tContainer = AttributeContainer()
+        tContainer.font = UIFont.addFont(size: 14, scaleStyle: .title2, weight: .regular, scales: false)
+        tContainer.foregroundColor = K.Colors.primaryGray
+        
+        let remainingCount = maxCount - count
+        textButton.configuration?.attributedTitle = AttributedString("\(remainingCount)", attributes: tContainer)
     }
 }
 

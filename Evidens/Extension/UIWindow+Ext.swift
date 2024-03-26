@@ -9,6 +9,18 @@ import UIKit
 
 extension UIWindow {
     
+    static var visibleScreen: UIWindow? {
+        
+        if let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }),
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
+            return window
+        } else {
+            return nil
+        }
+    }
+    
     static var visibleScreenWidth: CGFloat {
         
         if let windowScene = UIApplication.shared.connectedScenes
