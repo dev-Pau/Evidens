@@ -141,6 +141,9 @@ class HashtagViewController: UIViewController {
         casesCollectionView.dataSource = self
         
         hashtagToolbar.toolbarDelegate = self
+        
+        casesCollectionView.reloadData()
+        postsCollectionView.reloadData()
     }
     
     private func configureNotificationObservers() {
@@ -217,28 +220,28 @@ class HashtagViewController: UIViewController {
     
     private func fetchCases() {
         viewModel.getCases { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, strongSelf.viewModel.isLayoutFirstLoad else { return }
             strongSelf.casesCollectionView.reloadData()
         }
     }
     
     private func fetchPosts() {
         viewModel.getPosts { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, strongSelf.viewModel.isLayoutFirstLoad else { return }
             strongSelf.postsCollectionView.reloadData()
         }
     }
     
     private func fetchMoreCases() {
         viewModel.getMoreCases { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, strongSelf.viewModel.isLayoutFirstLoad else { return }
             strongSelf.casesCollectionView.reloadData()
         }
     }
     
     private func fetchMorePosts() {
         viewModel.getMorePosts { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, strongSelf.viewModel.isLayoutFirstLoad else { return }
             strongSelf.postsCollectionView.reloadData()
         }
     }

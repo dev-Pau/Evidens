@@ -11,6 +11,8 @@ class TabBarIconCell: UICollectionViewCell {
     
     private var isAnimating: Bool = false
     
+    private lazy var badgeButton = UIButton(type: .system)
+    
     override var isSelected: Bool {
         didSet {
             guard let tabIcon = tabIcon else { return }
@@ -64,7 +66,7 @@ class TabBarIconCell: UICollectionViewCell {
         ])
 
         button.isUserInteractionEnabled = false
-
+    
     }
     
     private func configureIcon() {
@@ -83,6 +85,29 @@ class TabBarIconCell: UICollectionViewCell {
         case .profile:
             button.contentMode = .scaleAspectFit
             configureProfile()
+        }
+        
+        if tabIcon == .notifications {
+            NotificationCenter.default.addObserver(self, selector: #selector(refreshUnreadNotifications(_:)), name: NSNotification.Name(AppPublishers.Names.refreshUnreadNotifications), object: nil)
+            badgeButton.isHidden = true
+            var configuration = UIButton.Configuration.filled()
+            configuration.baseBackgroundColor = K.Colors.primaryColor
+            configuration.baseForegroundColor = .white
+            configuration.buttonSize = .mini
+            configuration.cornerStyle = .capsule
+          
+            badgeButton.configuration = configuration
+            badgeButton.translatesAutoresizingMaskIntoConstraints = false
+            badgeButton.isUserInteractionEnabled = false
+            
+            addSubview(badgeButton)
+            
+            NSLayoutConstraint.activate([
+                badgeButton.centerYAnchor.constraint(equalTo: button.topAnchor, constant: 5),
+                badgeButton.centerXAnchor.constraint(equalTo: button.trailingAnchor, constant: -5),
+                badgeButton.heightAnchor.constraint(equalToConstant: 10),
+                badgeButton.widthAnchor.constraint(equalToConstant: 10)
+            ])
         }
     }
     
@@ -152,6 +177,18 @@ class TabBarIconCell: UICollectionViewCell {
                 ])
             } else {
                 button.backgroundColor = .quaternarySystemFill
+            }
+        }
+    }
+    
+    
+    @objc func refreshUnreadNotifications(_ notification: NSNotification) {
+        if let notifications = notification.userInfo?["notifications"] as? Int {
+            
+            if notifications > 0 {
+                badgeButton.isHidden = false
+            } else {
+                badgeButton.isHidden = true
             }
         }
     }

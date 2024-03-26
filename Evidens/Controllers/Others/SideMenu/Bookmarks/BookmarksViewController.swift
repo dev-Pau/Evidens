@@ -103,14 +103,14 @@ class BookmarksViewController: UIViewController {
     
     private func fetchBookmarkedCases() {
         viewModel.getBookmarkedCases { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, strongSelf.viewModel.isFirstLayoutLoad else { return }
             strongSelf.casesCollectionView.reloadData()
         }
     }
     
     private func fetchBookmarkedPosts() {
         viewModel.getBookmarkedPosts { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, strongSelf.viewModel.isFirstLayoutLoad else { return }
             strongSelf.postsCollectionView.reloadData()
         }
     }
@@ -181,6 +181,9 @@ class BookmarksViewController: UIViewController {
         bookmarkToolbar.toolbarDelegate = self
         scrollView.delegate = self
         scrollView.contentSize.width = view.frame.width * 2 + 2 * 10
+        
+        casesCollectionView.reloadData()
+        postsCollectionView.reloadData()
     }
     
     private func configureNotificationObservers() {
@@ -212,14 +215,14 @@ class BookmarksViewController: UIViewController {
     
     func fetchMorePosts() {
         viewModel.getMorePosts { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, strongSelf.viewModel.isFirstLayoutLoad else { return }
             strongSelf.postsCollectionView.reloadData()
         }
     }
     
     func fetchMoreCases() {
         viewModel.getMoreCases { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self, strongSelf.viewModel.isFirstLayoutLoad else { return }
             strongSelf.casesCollectionView.reloadData()
         }
     }

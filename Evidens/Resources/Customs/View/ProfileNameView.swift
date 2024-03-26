@@ -27,7 +27,7 @@ class ProfileNameView: UIView {
         let iv = UIImageView()
         iv.clipsToBounds = true
         iv.contentMode = .scaleAspectFill
-        iv.backgroundColor = .quaternarySystemFill
+        iv.backgroundColor = K.Colors.primaryColor
         iv.layer.borderColor = K.Colors.separatorColor.cgColor
         iv.isUserInteractionEnabled = true
         iv.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleBannerTap)))

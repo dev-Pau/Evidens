@@ -44,6 +44,7 @@ class BookmarksViewModel {
         CaseService.fetchBookmarkedCaseDocuments(lastSnapshot: nil) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
+                
             case .success(let snapshot):
                 
                 let caseIds = snapshot.documents.map { $0.documentID }

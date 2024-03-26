@@ -68,7 +68,7 @@ class UserProfileCommentCell: UICollectionViewCell {
             commentUserLabel.topAnchor.constraint(equalTo: profileImageView.topAnchor),
             commentUserLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             commentUserLabel.trailingAnchor.constraint(equalTo: commentLabel.trailingAnchor),
-            commentUserLabel.bottomAnchor.constraint(greaterThanOrEqualTo: profileImageView.bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
+            commentUserLabel.bottomAnchor.constraint(greaterThanOrEqualTo: profileImageView.bottomAnchor),
             commentUserLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -K.Paddings.Content.verticalPadding),
             
             separatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
